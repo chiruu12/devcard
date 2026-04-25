@@ -156,6 +156,20 @@ class Collaboration(BaseModel):
     external_contributions: int = Field(
         default=0, description="Contributions to repositories not owned by this user"
     )
+    org_contributions: list[OrgContribution] = Field(
+        default_factory=list,
+        description="Detailed contribution breakdown per organization",
+    )
+
+
+class OrgContribution(BaseModel):
+    org: str = Field(description="GitHub organization login name")
+    prs_opened: int = Field(default=0, description="Pull requests opened in this org's repos")
+    prs_merged: int = Field(default=0, description="Pull requests merged in this org's repos")
+    issues_opened: int = Field(
+        default=0, description="Issues opened in this org's repos"
+    )
+    commits: int = Field(default=0, description="Commits to this org's repos (estimated)")
 
 
 class QualityDetail(BaseModel):
@@ -253,4 +267,8 @@ class DevCard(BaseModel):
     )
     enriched: Enriched | None = Field(
         default=None, description="Optional LLM-enriched content (requires enrich extra)"
+    )
+    summary: str | None = Field(
+        default=None,
+        description="Auto-generated one-line developer summary for agent consumption",
     )
