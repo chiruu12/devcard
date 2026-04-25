@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": {
+    "name": "devcard",
+    "version": "0.1.0"
+  },
+  "identity": {
+    "username": "torvalds",
+    "name": "Linus Torvalds",
+    "bio": null,
+    "avatar_url": "https://avatars.githubusercontent.com/u/1024025",
+    "location": "Portland, OR",
+    "company": "Linux Foundation",
+    "blog": null,
+    "twitter_username": null,
+    "hireable": null,
+    "public_repos": 7,
+    "public_gists": 0,
+    "followers": 228000,
+    "following": 0,
+    "created_at": "2011-09-03T15:26:22Z"
+  },
+  "languages": [
+    { "name": "C", "percentage": 87.5, "color": "#555555", "bytes": 1250000000 },
+    { "name": "C++", "percentage": 5.2, "color": "#f34b7d", "bytes": 74000000 },
+    { "name": "Assembly", "percentage": 3.1, "color": "#6E4C13", "bytes": 44000000 },
+    { "name": "Makefile", "percentage": 1.8, "color": "#427819", "bytes": 25000000 },
+    { "name": "Shell", "percentage": 1.2, "color": "#89e051", "bytes": 17000000 },
+    { "name": "Python", "percentage": 0.7, "color": "#3572A5", "bytes": 10000000 },
+    { "name": "Perl", "percentage": 0.5, "color": "#0298c3", "bytes": 7000000 }
+  ],
+  "stack": {
+    "frameworks": [],
+    "libraries": [],
+    "databases": [],
+    "tools": [
+      { "name": "GCC", "category": "tool", "source": "linux" },
+      { "name": "Make", "category": "tool", "source": "linux" }
+    ],
+    "platforms": [],
+    "ci_cd": [],
+    "testing": [],
+    "other": []
+  },
+  "activity": {
+    "status": "active",
+    "commits_last_year": 3200,
+    "current_streak": 45,
+    "longest_streak": 120,
+    "peak_hours": [15, 16, 17],
+    "timezone_estimate": "UTC-8"
+  },
+  "projects": [
+    {
+      "name": "linux",
+      "description": "Linux kernel source tree",
+      "url": "https://github.com/torvalds/linux",
+      "stars": 183000,
+      "forks": 54000,
+      "language": "C",
+      "topics": ["linux", "kernel", "operating-system"],
+      "status": "active",
+      "maturity": "mature",
+      "classification": "application"
+    },
+    {
+      "name": "subsurface-for-dirk",
+      "description": "Subsurface divelog program",
+      "url": "https://github.com/torvalds/subsurface-for-dirk",
+      "stars": 300,
+      "forks": 130,
+      "language": "C++",
+      "topics": [],
+      "status": "maintained",
+      "maturity": "mature",
+      "classification": "application"
+    }
+  ],
+  "collaboration": {
+    "organizations": ["linux-foundation"],
+    "pull_requests_opened": 0,
+    "issues_opened": 0,
+    "contribution_style": "maintainer",
+    "external_contributions": 0
+  },
+  "quality": {
+    "score": 0.55,
+    "ci_adoption": 0.3,
+    "test_adoption": 0.8,
+    "docs_adoption": 0.9,
+    "license_adoption": 1.0,
+    "linter_adoption": 0.1
+  },
+  "expertise": {
+    "domains": [
+      { "name": "Operating Systems", "confidence": 1.0 },
+      { "name": "Systems Programming", "confidence": 0.95 },
+      { "name": "Embedded Systems", "confidence": 0.6 }
+    ],
+    "profile_type": "systems",
+    "focus_areas": [
+      { "name": "Kernel Development", "evidence": ["linux repo", "C language dominance", "operating-system topic"] },
+      { "name": "Low-Level Systems", "evidence": ["Assembly usage", "C dominance", "systems-programming topic"] }
+    ]
+  }
+}
