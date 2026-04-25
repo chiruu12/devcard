@@ -46,10 +46,11 @@ async def extract_quality(
             found_signals: list[str] = []
 
             for signal_type, patterns in FILE_PATTERNS.items():
+                if signal_type not in signal_counts:
+                    continue
                 for pattern in patterns:
                     if any(fnmatch(name, pattern) or name == pattern for name in names):
-                        if signal_type in signal_counts:
-                            signal_counts[signal_type] += 1
+                        signal_counts[signal_type] += 1
                         found_signals.append(signal_type)
                         break
 

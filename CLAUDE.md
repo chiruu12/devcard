@@ -64,7 +64,6 @@ uv run devcard generate <username> --token $GITHUB_TOKEN  # With auth (5000 req/
 uv run devcard generate <username> --format svg --theme dark  # SVG with theme
 uv run devcard me                                 # Generate for current git user
 uv run devcard validate <file>                    # Validate devcard.json against schema
-uv run devcard compare <user1> <user2>            # Side-by-side comparison
 uv run pytest                                     # Run all tests
 uv run pytest tests/test_extractors/              # Run extractor tests
 uv run pytest -k "test_stack"                     # Run specific tests

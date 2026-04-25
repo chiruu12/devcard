@@ -180,9 +180,12 @@ def _section_languages(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     parts.append('    <text x="0" y="14" class="label">Languages</text>')
 
     bar_y = 24
-    bar_x = 0
+    bar_x = 0.0
     for i, lang in enumerate(devcard.languages[:8]):
         w = max(lang.percentage / 100 * bar_w, 2)
+        w = min(w, bar_w - bar_x)
+        if w <= 0:
+            break
         color = LINGUIST_COLORS.get(lang.name, t.bar_colors[i % len(t.bar_colors)])
         parts.append(
             f'    <rect x="{bar_x:.1f}" y="{bar_y}" width="{w:.1f}" height="8" '
@@ -206,7 +209,7 @@ def _section_languages(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
             label_y += 16
 
     parts.append("  </g>")
-    h = int(label_y - 24 + 24)
+    h = int(label_y + 16)
     return "\n".join(parts), h
 
 
