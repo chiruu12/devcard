@@ -43,6 +43,11 @@ LINGUIST_COLORS: dict[str, str] = {
 }
 
 
+LANGUAGE_BYTE_WEIGHTS: dict[str, float] = {
+    "Jupyter Notebook": 0.05,
+}
+
+
 async def extract_languages(
     client: GitHubClient,
     user: GitHubUser,
@@ -59,7 +64,9 @@ async def extract_languages(
             if isinstance(result, Exception):
                 continue
             for lang, bytes_count in result.items():
-                totals[lang] = totals.get(lang, 0) + bytes_count
+                weight = LANGUAGE_BYTE_WEIGHTS.get(lang, 1.0)
+                weighted = int(bytes_count * weight)
+                totals[lang] = totals.get(lang, 0) + weighted
 
         if not totals:
             return None
