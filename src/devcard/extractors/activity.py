@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubRepo, GitHubUser
@@ -19,7 +19,7 @@ async def extract_activity(
 ) -> Activity | None:
     try:
         events = await client.get_user_events(user.login)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         push_events = [e for e in events if e.type == "PushEvent"]
 

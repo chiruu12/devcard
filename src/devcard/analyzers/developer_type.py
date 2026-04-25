@@ -28,7 +28,7 @@ def analyze_developer_type(devcard: DevCard) -> str:
         matched = True
 
         if "primary_language" in conditions:
-            if primary_lang not in [l.lower() for l in conditions["primary_language"]]:
+            if primary_lang not in [v.lower() for v in conditions["primary_language"]]:
                 matched = False
 
         if "topics_include_any" in conditions and matched:
@@ -42,7 +42,7 @@ def analyze_developer_type(devcard: DevCard) -> str:
                 matched = False
 
         if "language_ratio_above" in conditions and matched:
-            lang_map = {l.name.lower(): l.percentage for l in devcard.languages}
+            lang_map = {lng.name.lower(): lng.percentage for lng in devcard.languages}
             for lang, threshold in conditions["language_ratio_above"].items():
                 pct = lang_map.get(lang.lower(), 0)
                 if pct <= threshold * 100:

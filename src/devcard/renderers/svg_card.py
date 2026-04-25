@@ -44,6 +44,10 @@ def _esc(text: str) -> str:
     return escape(text)
 
 
+def _inline_font(font_family: str) -> str:
+    return font_family.replace('"', "&apos;")
+
+
 def render_svg(devcard: DevCard, theme: Theme | None = None) -> str:
     t = theme or DEFAULT_THEME
     sections: list[tuple[str, int]] = []
@@ -87,7 +91,17 @@ def render_svg(devcard: DevCard, theme: Theme | None = None) -> str:
 
     body = "\n".join(svg for svg, _ in sections)
 
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{total_h}" viewBox="0 0 {w} {total_h}">
+    vb = f"0 0 {w} {total_h}"
+    svg_open = (
+        f'<svg xmlns="http://www.w3.org/2000/svg"'
+        f' width="{w}" height="{total_h}" viewBox="{vb}">'
+    )
+    bg_rect = (
+        f'  <rect width="{w}" height="{total_h}" rx="{t.border_radius}"'
+        f' fill="{t.background}" stroke="{t.border}" stroke-width="1"/>'
+    )
+
+    return f"""{svg_open}
   <style>
     .header {{ font: 600 18px {t.font_family}; fill: {t.foreground}; }}
     .subheader {{ font: 400 14px {t.font_family}; fill: {t.secondary}; }}
@@ -99,9 +113,9 @@ def render_svg(devcard: DevCard, theme: Theme | None = None) -> str:
     @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
     .section {{ animation: fadeIn 0.3s ease-in; }}
   </style>
-  <rect width="{w}" height="{total_h}" rx="{t.border_radius}" fill="{t.background}" stroke="{t.border}" stroke-width="1"/>
+{bg_rect}
 {body}
-</svg>'''
+</svg>"""
 
 
 def _section_header(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
@@ -116,9 +130,11 @@ def _section_header(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     parts.append(
         f'    <circle cx="22" cy="22" r="22" fill="{t.accent}" opacity="0.15"/>'
     )
+    ifont = _inline_font(t.font_family)
     parts.append(
         f'    <text x="22" y="27" text-anchor="middle" '
-        f'style="font: 600 16px {t.font_family}; fill: {t.accent};">{_esc(initials)}</text>'
+        f'style="font: 600 16px {ifont}; fill: {t.accent};">'
+        f'{_esc(initials)}</text>'
     )
     parts.append(f'    <text x="54" y="18" class="header">{name}</text>')
     parts.append(f'    <text x="54" y="36" class="subheader">@{username}</text>')
@@ -132,7 +148,8 @@ def _section_header(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
         )
         parts.append(
             f'    <text x="62" y="{h + 14}" '
-            f'style="font: 600 11px {t.font_family}; fill: {t.accent};">{badge}</text>'
+            f'style="font: 600 11px {ifont}; fill: {t.accent};">'
+            f'{badge}</text>'
         )
         h += 28
 
@@ -160,7 +177,7 @@ def _section_languages(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     bar_w = t.card_width - 2 * t.card_padding
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
-    parts.append(f'    <text x="0" y="14" class="label">Languages</text>')
+    parts.append('    <text x="0" y="14" class="label">Languages</text>')
 
     bar_y = 24
     bar_x = 0
@@ -206,7 +223,7 @@ def _section_stack(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     max_w = t.card_width - 2 * t.card_padding
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
-    parts.append(f'    <text x="0" y="14" class="label">Stack</text>')
+    parts.append('    <text x="0" y="14" class="label">Stack</text>')
 
     pill_y = 26
     pill_x = 0.0
@@ -286,7 +303,7 @@ def _section_focus(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     max_w = t.card_width - 2 * t.card_padding
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
-    parts.append(f'    <text x="0" y="14" class="label">Focus Areas</text>')
+    parts.append('    <text x="0" y="14" class="label">Focus Areas</text>')
 
     tag_y = 26
     tag_x = 0.0
@@ -307,7 +324,7 @@ def _section_focus(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
         )
         parts.append(
             f'    <text x="{tag_x + 8:.1f}" y="{tag_y + 16}" '
-            f'style="font: 600 11px {t.font_family}; fill: {t.accent};">'
+            f'style="font: 600 11px {_inline_font(t.font_family)}; fill: {t.accent};">'
             f'{_esc(name)}</text>'
         )
         tag_x += tw + 8
@@ -319,7 +336,7 @@ def _section_focus(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
 def _section_projects(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
-    parts.append(f'    <text x="0" y="14" class="label">Top Projects</text>')
+    parts.append('    <text x="0" y="14" class="label">Top Projects</text>')
 
     row_y = 28
     for proj in devcard.projects[:5]:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from devcard.analyzers.contribution_style import analyze_contribution_style
 from devcard.analyzers.developer_type import analyze_developer_type
@@ -71,7 +71,7 @@ async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
         )
 
         devcard = DevCard(
-            generated_at=datetime.now(timezone.utc),
+            generated_at=datetime.now(UTC),
             generator=Generator(name="devcard", version=DEVCARD_VERSION),
             identity=identity_result,
             languages=languages_result or [],
@@ -83,7 +83,8 @@ async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
             expertise=expertise_result,
         )
 
-        devcard.expertise.profile_type = analyze_developer_type(devcard) if devcard.expertise else None
+        if devcard.expertise:
+            devcard.expertise.profile_type = analyze_developer_type(devcard)
         classify_projects(devcard)
         if devcard.collaboration:
             devcard.collaboration.contribution_style = analyze_contribution_style(devcard)

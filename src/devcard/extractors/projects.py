@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubRepo, GitHubUser
@@ -17,7 +17,7 @@ async def extract_projects(
     **kwargs,
 ) -> list[Project] | None:
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         scored: list[tuple[float, GitHubRepo]] = []
 
         for repo in repos:

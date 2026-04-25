@@ -5,13 +5,17 @@ from devcard.models import DevCard
 _LIB_SIGNALS = {"lib", "sdk", "library", "package", "module", "client", "wrapper", "binding"}
 _TOOL_SIGNALS = {"cli", "tool", "utility", "command", "script", "generator", "linter", "formatter"}
 _DOCS_SIGNALS = {"docs", "documentation", "wiki", "guide", "tutorial", "handbook", "reference"}
-_LEARNING_SIGNALS = {"tutorial", "learning", "course", "example", "demo", "starter", "boilerplate", "template", "awesome"}
+_LEARNING_SIGNALS = {
+    "tutorial", "learning", "course", "example", "demo",
+    "starter", "boilerplate", "template", "awesome",
+}
 _FRAMEWORK_SIGNALS = {"framework", "engine", "platform"}
 
 
 def _classify_one(name: str, description: str, topics: list[str]) -> str:
     tokens = set(name.lower().replace("-", " ").replace("_", " ").split())
-    desc_tokens = set(description.lower().replace("-", " ").replace("_", " ").split()) if description else set()
+    desc_lower = description.lower().replace("-", " ").replace("_", " ")
+    desc_tokens = set(desc_lower.split()) if description else set()
     topic_set = {t.lower() for t in topics}
     all_signals = tokens | desc_tokens | topic_set
 

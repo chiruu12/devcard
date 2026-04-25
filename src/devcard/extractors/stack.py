@@ -7,7 +7,7 @@ import logging
 import re
 import tomllib
 
-from devcard.github.client import GitHubClient, GitHubAPIError
+from devcard.github.client import GitHubAPIError, GitHubClient
 from devcard.github.models import GitHubContent, GitHubRepo, GitHubUser
 from devcard.mappings import DEPENDENCIES
 from devcard.models import Stack, StackItem

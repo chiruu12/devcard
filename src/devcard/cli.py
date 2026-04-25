@@ -4,7 +4,6 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -42,12 +41,14 @@ def _load_theme(name: str):
 @app.command("generate")
 def generate_cmd(
     username: str = typer.Argument(help="GitHub username to generate a DevCard for"),
-    token: Optional[str] = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
+    token: str | None = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
     format: str = typer.Option(
         "terminal", "--format", "-f", help="Output format: json, yaml, terminal, svg, all"
     ),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path"),
-    theme: str = typer.Option("default", "--theme", help="SVG theme: default, dark, minimal, neon, terminal-green"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
+    theme: str = typer.Option(
+        "default", "--theme", help="SVG theme: default, dark, minimal, neon, terminal-green"
+    ),
     no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
 ) -> None:
     """Generate a DevCard for a GitHub user."""
@@ -138,9 +139,9 @@ def validate_cmd(
 
 @app.command("me")
 def me_cmd(
-    token: Optional[str] = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
+    token: str | None = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
     format: str = typer.Option("terminal", "--format", "-f", help="Output format"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
     theme: str = typer.Option("default", "--theme", help="SVG theme"),
     no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
 ) -> None:
@@ -170,7 +171,10 @@ def me_cmd(
             pass
 
     if not username:
-        err_console.print("[red]Could not detect GitHub username. Use 'devcard generate <username>' instead.[/]")
+        err_console.print(
+            "[red]Could not detect GitHub username."
+            " Use 'devcard generate <username>' instead.[/]"
+        )
         raise typer.Exit(code=1)
 
     err_console.print(f"[dim]Detected username: {username}[/]")

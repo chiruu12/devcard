@@ -5,7 +5,9 @@ from pathlib import Path
 
 import jsonschema
 
-_SCHEMA_PATH = Path(__file__).resolve().parent.parent.parent.parent / "schema" / "devcard.v1.schema.json"
+_SCHEMA_PATH = (
+    Path(__file__).resolve().parent.parent.parent.parent / "schema" / "devcard.v1.schema.json"
+)
 
 
 def validate_devcard(data: dict, schema_path: Path | None = None) -> list[str]:
@@ -16,6 +18,7 @@ def validate_devcard(data: dict, schema_path: Path | None = None) -> list[str]:
     errors: list[str] = []
     validator = jsonschema.Draft202012Validator(schema)
     for error in validator.iter_errors(data):
-        location = " → ".join(str(p) for p in error.absolute_path) if error.absolute_path else "root"
+        path_parts = [str(p) for p in error.absolute_path]
+        location = " → ".join(path_parts) if path_parts else "root"
         errors.append(f"{location}: {error.message}")
     return errors
