@@ -1,0 +1,71 @@
+ci:
+  - ".buildkite"
+  - ".circleci"
+  - ".github/workflows"
+  - ".gitlab-ci.yml"
+  - ".travis.yml"
+  - "Jenkinsfile"
+  - "azure-pipelines.yml"
+  - "bitbucket-pipelines.yml"
+
+testing:
+  - ".mocharc.yml"
+  - "__tests__"
+  - "cypress"
+  - "jest.config.js"
+  - "jest.config.ts"
+  - "karma.conf.js"
+  - "pytest.ini"
+  - "spec"
+  - "test"
+  - "tests"
+  - "vitest.config.ts"
+
+docs:
+  - "CHANGELOG.md"
+  - "CONTRIBUTING.md"
+  - "README.md"
+  - "doc"
+  - "docs"
+  - "documentation"
+  - "mkdocs.yml"
+  - "wiki"
+
+license:
+  - "LICENSE"
+  - "LICENSE.md"
+  - "LICENSE.txt"
+  - "LICENCE"
+  - "COPYING"
+
+containerization:
+  - ".dockerignore"
+  - "Dockerfile"
+  - "compose.yaml"
+  - "compose.yml"
+  - "docker-compose.yaml"
+  - "docker-compose.yml"
+
+iac:
+  - "cdk.json"
+  - "cloudformation"
+  - "helm"
+  - "k8s"
+  - "kubernetes"
+  - "pulumi"
+  - "terraform"
+
+linting:
+  - ".eslintrc.js"
+  - ".eslintrc.json"
+  - ".eslintrc.yml"
+  - ".flake8"
+  - ".golangci.yml"
+  - ".prettierrc"
+  - ".prettierrc.json"
+  - ".pylintrc"
+  - ".rubocop.yml"
+  - "biome.json"
+  - "clippy.toml"
+  - "eslint.config.js"
+  - "ruff.toml"

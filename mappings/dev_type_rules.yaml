@@ -1,0 +1,56 @@
+rules:
+  - conditions:
+      topics_include_any: ["machine-learning", "deep-learning", "neural-network", "nlp", "computer-vision", "tensorflow", "pytorch", "generative-ai", "llm"]
+      stack_includes_any: ["tensorflow", "torch", "keras", "transformers", "scikit-learn", "openai", "anthropic", "langchain", "litellm", "huggingface-hub"]
+    type: "ml"
+
+  - conditions:
+      primary_language: ["python", "r", "julia"]
+      topics_include_any: ["data-science", "data-analysis", "data-engineering", "data-visualization", "analytics", "pandas", "big-data", "etl"]
+      stack_includes_any: ["pandas", "polars", "numpy", "scipy", "matplotlib", "plotly", "dash", "dask", "airflow", "mlflow"]
+    type: "data"
+
+  - conditions:
+      topics_include_any: ["embedded", "firmware", "arduino", "iot", "rtos", "microcontroller"]
+      primary_language: ["c", "c++", "rust"]
+    type: "embedded"
+
+  - conditions:
+      topics_include_any: ["operating-system", "kernel", "compiler", "low-level", "systems-programming"]
+      primary_language: ["c", "c++", "rust", "zig"]
+    type: "systems"
+
+  - conditions:
+      topics_include_any: ["security", "cyber-security", "penetration-testing", "cryptography", "hacking", "reverse-engineering", "encryption", "privacy"]
+      stack_includes_any: ["cryptography"]
+    type: "security"
+
+  - conditions:
+      topics_include_any: ["devops", "infrastructure", "ci-cd", "kubernetes", "docker", "terraform", "monitoring", "observability", "cloud-native", "serverless"]
+      stack_includes_any: ["ansible", "terraform", "kubernetes/client-go", "prometheus"]
+    type: "devops"
+
+  - conditions:
+      topics_include_any: ["android", "ios", "mobile", "react-native", "flutter", "swift"]
+      stack_includes_any: ["swiftui", "uikit", "compose", "room", "retrofit", "alamofire", "flutter"]
+    type: "mobile"
+
+  - conditions:
+      topics_include_any: ["react", "vue", "angular", "svelte", "frontend", "css", "html", "jamstack", "browser-extension"]
+      stack_includes_any: ["react", "vue", "angular", "svelte", "next", "nuxt", "tailwindcss", "styled-components"]
+      language_ratio_above:
+        javascript: 0.5
+        typescript: 0.5
+    type: "frontend"
+
+  - conditions:
+      topics_include_any: ["api", "rest-api", "graphql", "microservices", "backend", "grpc"]
+      stack_includes_any: ["express", "fastify", "django", "flask", "fastapi", "gin", "echo", "spring-boot", "nestjs"]
+    type: "backend"
+
+  - conditions:
+      topics_include_any: ["research", "paper", "academic", "science", "phd"]
+    type: "researcher"
+
+  - conditions: {}
+    type: "full_stack"
