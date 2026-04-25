@@ -1,0 +1,46 @@
+{
+  "enableAllProjectMcpServers": true,
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(gh pr create*)",
+            "command": "echo '{\"systemMessage\":\"Run /retro to turn this session friction into permanent process improvements.\"}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(uv run *)",
+      "Bash(uv sync*)",
+      "Bash(uv add *)",
+      "Bash(gh *)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git rebase:*)",
+      "Bash(git clean -f:*)",
+      "Bash(rm -rf:*)",
+      "Read(.env)",
+      "Read(.env.local)",
+      "Bash(cat .env:*)",
+      "Bash(cat .env.local:*)"
+    ]
+  }
+}
