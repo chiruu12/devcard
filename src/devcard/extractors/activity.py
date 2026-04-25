@@ -18,7 +18,9 @@ async def extract_activity(
     **kwargs,
 ) -> Activity | None:
     try:
-        events = kwargs.get("events") or await client.get_user_events(user.login)
+        events = kwargs.get("events")
+        if events is None:
+            events = await client.get_user_events(user.login)
         now = datetime.now(UTC)
 
         push_events = [e for e in events if e.type == "PushEvent"]

@@ -43,11 +43,12 @@ def analyze_developer_type(devcard: DevCard) -> str:
 
         if "language_ratio_above" in conditions and matched:
             lang_map = {lng.name.lower(): lng.percentage for lng in devcard.languages}
-            for lang, threshold in conditions["language_ratio_above"].items():
-                pct = lang_map.get(lang.lower(), 0)
-                if pct <= threshold * 100:
-                    matched = False
-                    break
+            any_above = any(
+                lang_map.get(lang.lower(), 0) > threshold * 100
+                for lang, threshold in conditions["language_ratio_above"].items()
+            )
+            if not any_above:
+                matched = False
 
         if matched:
             return rule.get("type", "full_stack")
