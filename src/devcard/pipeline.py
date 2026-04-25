@@ -49,14 +49,15 @@ async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
         logger.info("Fetched %d repos for %s", len(repos), username)
 
         root_listings = await _fetch_root_listings(client, username, repos)
+        events = await client.get_user_events(username)
 
         identity_result, languages_result, activity_result, projects_result, \
             collaboration_result, quality_result, stack_result = await asyncio.gather(
                 extract_identity(client, user, repos),
                 extract_languages(client, user, repos),
-                extract_activity(client, user, repos),
+                extract_activity(client, user, repos, events=events),
                 extract_projects(client, user, repos),
-                extract_collaboration(client, user, repos),
+                extract_collaboration(client, user, repos, events=events),
                 extract_quality(client, user, repos, root_listings=root_listings),
                 extract_stack(client, user, repos, root_listings=root_listings),
             )

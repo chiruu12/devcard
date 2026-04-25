@@ -26,7 +26,14 @@ async def extract_quality(
             return None
 
         if root_listings is None:
-            root_listings = await _fetch_root_listings(client, user.login, non_fork)
+            async def _fetch(name: str) -> tuple[str, list[GitHubContent]]:
+                try:
+                    return name, await client.get_repo_contents(user.login, name)
+                except Exception:
+                    return name, []
+
+            results = await asyncio.gather(*[_fetch(r.name) for r in non_fork])
+            root_listings = dict(results)
 
         signal_counts: dict[str, int] = {
             "ci": 0, "testing": 0, "docs": 0, "license": 0, "linting": 0,
@@ -72,16 +79,3 @@ async def extract_quality(
         return None
 
 
-async def _fetch_root_listings(
-    client: GitHubClient, owner: str, repos: list[GitHubRepo]
-) -> dict[str, list[GitHubContent]]:
-    async def _fetch_one(repo_name: str) -> tuple[str, list[GitHubContent]]:
-        try:
-            contents = await client.get_repo_contents(owner, repo_name)
-            return repo_name, contents
-        except Exception:
-            logger.warning("Failed to fetch root listing for %s/%s", owner, repo_name)
-            return repo_name, []
-
-    results = await asyncio.gather(*[_fetch_one(r.name) for r in repos])
-    return dict(results)

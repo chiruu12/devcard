@@ -1,7 +1,7 @@
 ci:
   - ".buildkite"
   - ".circleci"
-  - ".github/workflows"
+  - ".github"
   - ".gitlab-ci.yml"
   - ".travis.yml"
   - "Jenkinsfile"

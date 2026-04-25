@@ -18,7 +18,7 @@ async def extract_activity(
     **kwargs,
 ) -> Activity | None:
     try:
-        events = await client.get_user_events(user.login)
+        events = kwargs.get("events") or await client.get_user_events(user.login)
         now = datetime.now(UTC)
 
         push_events = [e for e in events if e.type == "PushEvent"]
@@ -89,11 +89,15 @@ async def extract_activity(
                 if _days_since_push(r, now) < 365
             )
             if push_events:
-                daily_rate = len(push_events) / max((now - min(
+                total_commits = sum(
+                    e.payload.get("size", 1) for e in push_events
+                )
+                earliest = min(
                     datetime.fromisoformat(e.created_at.replace("Z", "+00:00"))
                     for e in push_events
-                )).days, 1)
-                commits_estimate = int(daily_rate * 365)
+                )
+                days_span = max((now - earliest).days, 1)
+                commits_estimate = int(total_commits / days_span * 365)
             elif recent_count > 0:
                 commits_estimate = recent_count * 30
 

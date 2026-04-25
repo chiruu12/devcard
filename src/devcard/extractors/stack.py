@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import tomllib
+from collections.abc import Callable
 
 from devcard.github.client import GitHubAPIError, GitHubClient
 from devcard.github.models import GitHubContent, GitHubRepo, GitHubUser
@@ -127,7 +128,7 @@ def _parse_composer_json(content: str) -> list[str]:
     return pkgs
 
 
-DEP_FILE_PARSERS: dict[str, callable] = {
+DEP_FILE_PARSERS: dict[str, Callable[[str], list[str]]] = {
     "package.json": _parse_package_json,
     "requirements.txt": _parse_requirements_txt,
     "pyproject.toml": _parse_pyproject_toml,
@@ -164,7 +165,14 @@ async def extract_stack(
             return None
 
         if root_listings is None:
-            root_listings = await _fetch_root_listings(client, user.login, non_fork)
+            async def _fetch(name: str) -> tuple[str, list[GitHubContent]]:
+                try:
+                    return name, await client.get_repo_contents(user.login, name)
+                except Exception:
+                    return name, []
+
+            results = await asyncio.gather(*[_fetch(r.name) for r in non_fork])
+            root_listings = dict(results)
 
         all_items: dict[str, StackItem] = {}
 
@@ -228,14 +236,3 @@ async def _fetch_and_parse(
     return []
 
 
-async def _fetch_root_listings(
-    client: GitHubClient, owner: str, repos: list[GitHubRepo]
-) -> dict[str, list[GitHubContent]]:
-    async def _fetch_one(repo_name: str) -> tuple[str, list[GitHubContent]]:
-        try:
-            return repo_name, await client.get_repo_contents(owner, repo_name)
-        except Exception:
-            return repo_name, []
-
-    results = await asyncio.gather(*[_fetch_one(r.name) for r in repos])
-    return dict(results)

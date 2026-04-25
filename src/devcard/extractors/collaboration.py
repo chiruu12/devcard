@@ -16,7 +16,7 @@ async def extract_collaboration(
     **kwargs,
 ) -> Collaboration | None:
     try:
-        events = await client.get_user_events(user.login)
+        events = kwargs.get("events") or await client.get_user_events(user.login)
         orgs = await client.get_user_orgs(user.login)
 
         pr_count = 0

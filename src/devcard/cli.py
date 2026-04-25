@@ -160,17 +160,6 @@ def me_cmd(
         pass
 
     if not username:
-        try:
-            result = subprocess.run(
-                ["git", "config", "user.name"],
-                capture_output=True, text=True, timeout=5,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                username = result.stdout.strip()
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
-
-    if not username:
         err_console.print(
             "[red]Could not detect GitHub username."
             " Use 'devcard generate <username>' instead.[/]"

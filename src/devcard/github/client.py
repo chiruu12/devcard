@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
 import time
 
 import httpx
@@ -72,37 +71,6 @@ class GitHubClient:
             data = response.json()
             self._cache.set(url, data)
             return data
-
-    async def _paginate(self, url: str, max_pages: int = 10) -> list[dict]:
-        results: list[dict] = []
-        current_url = url
-        for _ in range(max_pages):
-            data = await self._request(current_url)
-            if isinstance(data, list):
-                results.extend(data)
-            else:
-                results.append(data)
-                break
-
-            link_header = None
-            cached = self._cache.get(current_url)
-            if cached is not None and current_url != url:
-                pass
-
-            full_url = (
-                current_url
-                if current_url.startswith("http")
-                else f"{self._config.base_url}{current_url}"
-            )
-            resp = await self._http.get(full_url)
-            link_header = resp.headers.get("Link", "")
-
-            next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
-            if not next_match:
-                break
-            current_url = next_match.group(1)
-
-        return results
 
     async def get_user(self, username: str) -> GitHubUser:
         data = await self._request(f"/users/{username}")
