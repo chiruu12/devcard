@@ -34,8 +34,14 @@ def _generate_summary(devcard: DevCard) -> str:
         if devcard.expertise and devcard.expertise.profile_type
         else "developer"
     )
-    profile_display = profile.replace("_", " ").title()
-    primary_lang = devcard.languages[0].name if devcard.languages else None
+    _SPECIAL_CASE = {"ml": "ML", "devops": "DevOps", "full_stack": "Full Stack"}
+    profile_display = _SPECIAL_CASE.get(profile, profile.replace("_", " ").title())
+
+    skip_langs = {"Jupyter Notebook"}
+    primary_lang = next(
+        (lang.name for lang in devcard.languages if lang.name not in skip_langs),
+        devcard.languages[0].name if devcard.languages else None,
+    )
 
     if primary_lang:
         parts.append(f"{profile_display} specializing in {primary_lang}")

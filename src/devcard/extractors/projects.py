@@ -43,12 +43,14 @@ async def extract_projects(
             recency = _recency_bonus(repo, now)
             desc_bonus = 5 if repo.description else 0
             topic_bonus = 3 if repo.topics else 0
+            archive_penalty = -10 if repo.archived else 0
             score = (
                 repo.stargazers_count * 3
                 + repo.forks_count * 2
                 + recency
                 + desc_bonus
                 + topic_bonus
+                + archive_penalty
             )
             scored.append((score, repo))
 
