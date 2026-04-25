@@ -1,56 +1,78 @@
 rules:
+  # ML — any one signal is enough
   - conditions:
       topics_include_any: ["machine-learning", "deep-learning", "neural-network", "nlp", "computer-vision", "tensorflow", "pytorch", "generative-ai", "llm"]
-      stack_includes_any: ["tensorflow", "torch", "keras", "transformers", "scikit-learn", "openai", "anthropic", "langchain", "litellm", "huggingface-hub"]
+    type: "ml"
+  - conditions:
+      stack_includes_any: ["tensorflow", "torch", "keras", "transformers", "scikit-learn", "openai", "anthropic", "langchain", "litellm", "huggingface-hub", "pytorch"]
     type: "ml"
 
+  # Data — topic alone or stack + language
   - conditions:
-      primary_language: ["python", "r", "julia"]
       topics_include_any: ["data-science", "data-analysis", "data-engineering", "data-visualization", "analytics", "pandas", "big-data", "etl"]
+    type: "data"
+  - conditions:
       stack_includes_any: ["pandas", "polars", "numpy", "scipy", "matplotlib", "plotly", "dash", "dask", "airflow", "mlflow"]
+      primary_language: ["python", "r", "julia"]
     type: "data"
 
+  # Embedded
   - conditions:
       topics_include_any: ["embedded", "firmware", "arduino", "iot", "rtos", "microcontroller"]
-      primary_language: ["c", "c++", "rust"]
     type: "embedded"
 
+  # Systems
   - conditions:
       topics_include_any: ["operating-system", "kernel", "compiler", "low-level", "systems-programming"]
-      primary_language: ["c", "c++", "rust", "zig"]
     type: "systems"
 
+  # Security
   - conditions:
       topics_include_any: ["security", "cyber-security", "penetration-testing", "cryptography", "hacking", "reverse-engineering", "encryption", "privacy"]
-      stack_includes_any: ["cryptography"]
     type: "security"
 
+  # DevOps — topic or stack
   - conditions:
       topics_include_any: ["devops", "infrastructure", "ci-cd", "kubernetes", "docker", "terraform", "monitoring", "observability", "cloud-native", "serverless"]
+    type: "devops"
+  - conditions:
       stack_includes_any: ["ansible", "terraform", "kubernetes/client-go", "prometheus"]
     type: "devops"
 
+  # Mobile — topic or stack
   - conditions:
       topics_include_any: ["android", "ios", "mobile", "react-native", "flutter", "swift"]
-      stack_includes_any: ["swiftui", "uikit", "compose", "room", "retrofit", "alamofire", "flutter"]
+    type: "mobile"
+  - conditions:
+      stack_includes_any: ["swiftui", "uikit", "compose", "room", "retrofit", "alamofire"]
     type: "mobile"
 
+  # Frontend — topic or stack or language ratio
   - conditions:
       topics_include_any: ["react", "vue", "angular", "svelte", "frontend", "css", "html", "jamstack", "browser-extension"]
+    type: "frontend"
+  - conditions:
       stack_includes_any: ["react", "vue", "angular", "svelte", "next", "nuxt", "tailwindcss", "styled-components"]
+    type: "frontend"
+  - conditions:
       language_ratio_above:
         javascript: 0.5
         typescript: 0.5
     type: "frontend"
 
+  # Backend — topic or stack
   - conditions:
       topics_include_any: ["api", "rest-api", "graphql", "microservices", "backend", "grpc"]
+    type: "backend"
+  - conditions:
       stack_includes_any: ["express", "fastify", "django", "flask", "fastapi", "gin", "echo", "spring-boot", "nestjs"]
     type: "backend"
 
+  # Researcher
   - conditions:
       topics_include_any: ["research", "paper", "academic", "science", "phd"]
     type: "researcher"
 
+  # Default
   - conditions: {}
     type: "full_stack"

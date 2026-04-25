@@ -9,6 +9,23 @@ from devcard.models import Project
 
 logger = logging.getLogger(__name__)
 
+_NOISE_KEYWORDS = {
+    "assignment", "homework", "tutorial", "starter", "template", "boilerplate",
+}
+
+
+def _is_noise(repo: GitHubRepo, now: datetime) -> bool:
+    name_lower = repo.name.lower().replace("-", " ").replace("_", " ")
+    if repo.stargazers_count == 0 and any(kw in name_lower for kw in _NOISE_KEYWORDS):
+        return True
+    if (
+        not repo.description
+        and repo.stargazers_count == 0
+        and _days_since(repo.pushed_at, now) > 365
+    ):
+        return True
+    return False
+
 
 async def extract_projects(
     client: GitHubClient,
@@ -21,16 +38,24 @@ async def extract_projects(
         scored: list[tuple[float, GitHubRepo]] = []
 
         for repo in repos:
-            if repo.fork:
+            if repo.fork or _is_noise(repo, now):
                 continue
             recency = _recency_bonus(repo, now)
-            score = repo.stargazers_count * 3 + repo.forks_count * 2 + recency
+            desc_bonus = 5 if repo.description else 0
+            topic_bonus = 3 if repo.topics else 0
+            score = (
+                repo.stargazers_count * 3
+                + repo.forks_count * 2
+                + recency
+                + desc_bonus
+                + topic_bonus
+            )
             scored.append((score, repo))
 
         scored.sort(key=lambda x: x[0], reverse=True)
 
         projects = []
-        for _, repo in scored[:10]:
+        for _, repo in scored[:5]:
             projects.append(Project(
                 name=repo.name,
                 description=repo.description,

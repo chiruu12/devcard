@@ -140,6 +140,42 @@ class GitHubClient:
             return [org["login"] for org in data if "login" in org]
         return []
 
+    async def search_user_prs_in_org(
+        self, username: str, org: str
+    ) -> dict[str, int]:
+        try:
+            url = (
+                f"/search/issues?q=author:{username}+org:{org}"
+                f"+type:pr&per_page=1"
+            )
+            data = await self._request(url)
+            total = data.get("total_count", 0) if isinstance(data, dict) else 0
+            merged_url = (
+                f"/search/issues?q=author:{username}+org:{org}"
+                f"+type:pr+is:merged&per_page=1"
+            )
+            merged_data = await self._request(merged_url)
+            merged = (
+                merged_data.get("total_count", 0)
+                if isinstance(merged_data, dict) else 0
+            )
+            return {"total": total, "merged": merged}
+        except GitHubAPIError:
+            return {"total": 0, "merged": 0}
+
+    async def search_user_issues_in_org(
+        self, username: str, org: str
+    ) -> int:
+        try:
+            url = (
+                f"/search/issues?q=author:{username}+org:{org}"
+                f"+type:issue&per_page=1"
+            )
+            data = await self._request(url)
+            return data.get("total_count", 0) if isinstance(data, dict) else 0
+        except GitHubAPIError:
+            return 0
+
     async def close(self) -> None:
         await self._http.aclose()
         self._cache.close()

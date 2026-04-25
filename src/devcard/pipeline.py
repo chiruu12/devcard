@@ -26,6 +26,53 @@ logger = logging.getLogger(__name__)
 DEVCARD_VERSION = "0.1.0"
 
 
+def _generate_summary(devcard: DevCard) -> str:
+    parts = []
+
+    profile = (
+        devcard.expertise.profile_type
+        if devcard.expertise and devcard.expertise.profile_type
+        else "developer"
+    )
+    profile_display = profile.replace("_", " ").title()
+    primary_lang = devcard.languages[0].name if devcard.languages else None
+
+    if primary_lang:
+        parts.append(f"{profile_display} specializing in {primary_lang}")
+    else:
+        parts.append(profile_display)
+
+    top_projects = [
+        p for p in devcard.projects[:2]
+        if p.stars > 0 or p.description
+    ]
+    if top_projects:
+        proj_strs = []
+        for p in top_projects:
+            desc = p.description or ""
+            if desc and len(desc) < 60:
+                proj_strs.append(f"{p.name} ({desc.rstrip('.')})")
+            else:
+                proj_strs.append(p.name)
+        parts.append(f"Builds {', '.join(proj_strs)}")
+
+    if devcard.collaboration and devcard.collaboration.org_contributions:
+        top_org = devcard.collaboration.org_contributions[0]
+        parts.append(
+            f"Contributor at {top_org.org} ({top_org.prs_opened} PRs)"
+        )
+
+    if devcard.activity:
+        status = devcard.activity.status.title()
+        commits = devcard.activity.commits_last_year
+        if commits:
+            parts.append(f"{status}, ~{commits:,} commits/year")
+        else:
+            parts.append(status)
+
+    return ". ".join(parts) + "."
+
+
 async def _fetch_root_listings(
     client: GitHubClient, owner: str, repos: list,
 ) -> dict[str, list[GitHubContent]]:
@@ -90,6 +137,7 @@ async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
         if devcard.collaboration:
             devcard.collaboration.contribution_style = analyze_contribution_style(devcard)
         compute_quality_score(devcard)
+        devcard.summary = _generate_summary(devcard)
 
         return devcard
     finally:
