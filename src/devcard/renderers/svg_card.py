@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from xml.sax.saxutils import escape
 
+from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 from devcard.renderers.themes.base import Theme
 from devcard.renderers.themes.default import THEME as DEFAULT_THEME
@@ -176,8 +177,13 @@ def _section_header(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
 def _section_languages(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     bar_w = t.card_width - 2 * t.card_padding
+    coding_ratio = compute_coding_ratio(devcard.languages)
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
     parts.append('    <text x="0" y="14" class="label">Languages</text>')
+    parts.append(
+        f'    <text x="{bar_w}" y="14" text-anchor="end" class="small">'
+        f'{coding_ratio:.0f}% logic code</text>'
+    )
 
     bar_y = 24
     bar_x = 0.0
@@ -343,12 +349,15 @@ def _section_projects(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
 
     row_y = 28
     for proj in devcard.projects[:5]:
-        name = _esc(proj.name)
+        prefix = "★ " if proj.is_signature else ""
+        name = _esc(f"{prefix}{proj.name}")
         stars = f"★ {proj.stars:,}" if proj.stars else ""
         lang = _esc(proj.language or "")
 
+        font_weight = "600" if proj.is_signature else "400"
         parts.append(
-            f'    <text x="0" y="{row_y + 12}" class="body">{name}</text>'
+            f'    <text x="0" y="{row_y + 12}" '
+            f'style="font-weight: {font_weight};" class="body">{name}</text>'
         )
         parts.append(
             f'    <text x="200" y="{row_y + 12}" class="small">{stars}</text>'

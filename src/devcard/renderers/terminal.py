@@ -8,6 +8,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from devcard.extractors.activity import heatmap_sparkline
+from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 
 LANG_COLORS = {
@@ -89,7 +91,11 @@ def _render_languages(console: Console, devcard: DevCard) -> None:
         bar_width = int(lang.percentage / 100 * 30)
         bar = "█" * bar_width + "░" * (30 - bar_width)
         lines.append(f"[{color}]{bar}[/] {lang.name} {lang.percentage:.1f}%")
-    console.print(Panel("\n".join(lines), title="Languages", border_style="green"))
+    coding_ratio = compute_coding_ratio(devcard.languages)
+    subtitle = f"Logic code: {coding_ratio:.0f}%"
+    console.print(Panel(
+        "\n".join(lines), title="Languages", subtitle=subtitle, border_style="green",
+    ))
 
 
 def _render_stack(console: Console, devcard: DevCard) -> None:
@@ -130,6 +136,10 @@ def _render_quality(console: Console, devcard: DevCard) -> None:
         bar = "█" * filled + "░" * (20 - filled)
         lines.append(f"{name:>8} [{_quality_color(val)}]{bar}[/] {val:.0%}")
     lines.append(f"\n[bold]Score: {q.score:.0%}[/]")
+    if q.recommendations:
+        lines.append("")
+        for tip in q.recommendations[:3]:
+            lines.append(f"[dim]→ {tip}[/]")
     console.print(Panel("\n".join(lines), title="Quality", border_style="magenta"))
 
 
@@ -157,6 +167,8 @@ def _render_activity(console: Console, devcard: DevCard) -> None:
     status_colors = {"active": "green", "moderate": "yellow", "sporadic": "red", "dormant": "dim"}
     color = status_colors.get(act.status, "white")
     parts = [f"Status: [{color}]{act.status.upper()}[/]"]
+    if act.consistency_score is not None:
+        parts.append(f"Consistency: {act.consistency_score}/100")
     if act.peak_hours:
         hours_str = ", ".join(f"{h}:00" for h in act.peak_hours[:3])
         parts.append(f"Peak hours: {hours_str}")
@@ -164,7 +176,13 @@ def _render_activity(console: Console, devcard: DevCard) -> None:
         parts.append(f"Timezone: {act.timezone_estimate}")
     if act.commits_last_year:
         parts.append(f"~{act.commits_last_year:,} commits/year (estimated)")
-    console.print(Panel("  |  ".join(parts), title="Activity", border_style="green"))
+    lines = ["  |  ".join(parts)]
+    if act.consistency_description:
+        lines.append(f"[dim]{act.consistency_description}[/]")
+    sparkline = heatmap_sparkline(act.heatmap)
+    if sparkline:
+        lines.append(f"[dim]{sparkline}[/]")
+    console.print(Panel("\n".join(lines), title="Activity", border_style="green"))
 
 
 def _render_projects(console: Console, devcard: DevCard) -> None:
@@ -181,11 +199,15 @@ def _render_projects(console: Console, devcard: DevCard) -> None:
             status_text.stylize("green")
         elif proj.status == "archived":
             status_text.stylize("dim")
+        name = f"★ {proj.name}" if proj.is_signature else proj.name
         table.add_row(
-            proj.name,
+            name,
             f"⭐ {proj.stars:,}" if proj.stars else "-",
             str(proj.forks) if proj.forks else "-",
             proj.language or "-",
             status_text,
         )
     console.print(table)
+    sig = next((p for p in devcard.projects if p.is_signature and p.narrative), None)
+    if sig:
+        console.print(f"  [dim italic]{sig.narrative}[/]")

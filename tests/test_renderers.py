@@ -15,6 +15,7 @@ from devcard.models import (
     Project,
     Quality,
 )
+from devcard.renderers.markdown import render_markdown
 from devcard.renderers.svg_card import render_svg
 from devcard.renderers.terminal import render_terminal
 from devcard.renderers.themes.dark import THEME as DARK_THEME
@@ -33,9 +34,9 @@ def _make_devcard(**overrides) -> DevCard:
 def _populated_devcard() -> DevCard:
     return _make_devcard(
         languages=[
-            Language(name="Python", percentage=60.0, color="#3572A5"),
-            Language(name="TypeScript", percentage=25.0, color="#3178c6"),
-            Language(name="Go", percentage=15.0, color="#00ADD8"),
+            Language(name="Python", percentage=60.0, color="#3572A5", category="logic"),
+            Language(name="TypeScript", percentage=25.0, color="#3178c6", category="logic"),
+            Language(name="Go", percentage=15.0, color="#00ADD8", category="logic"),
         ],
         projects=[
             Project(name="cool-project", stars=100, language="Python", status="active"),
@@ -80,6 +81,10 @@ class TestTerminalRenderer:
         output = render_terminal(_populated_devcard())
         assert "Quality" in output
 
+    def test_shows_coding_ratio(self):
+        output = render_terminal(_populated_devcard())
+        assert "Logic code: 100%" in output
+
     def test_minimal_card_renders(self):
         output = render_terminal(_make_devcard())
         assert "testuser" in output
@@ -117,3 +122,52 @@ class TestSVGRenderer:
         svg = render_svg(_populated_devcard())
         assert "testuser" in svg
         assert "Test User" in svg
+
+    def test_shows_coding_ratio(self):
+        svg = render_svg(_populated_devcard())
+        assert "logic code" in svg
+
+
+class TestMarkdownRenderer:
+    def test_contains_username(self):
+        output = render_markdown(_populated_devcard())
+        assert "testuser" in output
+
+    def test_starts_with_header(self):
+        output = render_markdown(_populated_devcard())
+        assert output.startswith("# DevCard: testuser")
+
+    def test_contains_languages_table(self):
+        output = render_markdown(_populated_devcard())
+        assert "|" in output
+        assert "Python" in output
+
+    def test_contains_projects(self):
+        output = render_markdown(_populated_devcard())
+        assert "cool-project" in output
+
+    def test_minimal_card_renders(self):
+        output = render_markdown(_make_devcard())
+        assert "testuser" in output
+
+    def test_no_html_tags(self):
+        output = render_markdown(_populated_devcard())
+        # Strip out URLs before checking for angle brackets
+        import re
+
+        without_urls = re.sub(r"https?://[^\s)]+", "", output)
+        assert "<" not in without_urls
+        assert ">" not in without_urls
+
+    def test_contains_quality(self):
+        output = render_markdown(_populated_devcard())
+        assert "## Quality" in output
+
+    def test_shows_coding_ratio(self):
+        output = render_markdown(_populated_devcard())
+        assert "Logic code" in output
+
+    def test_shows_language_categories(self):
+        output = render_markdown(_populated_devcard())
+        assert "| Category |" in output
+        assert "logic" in output

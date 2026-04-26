@@ -176,6 +176,24 @@ class GitHubClient:
         except GitHubAPIError:
             return 0
 
+    async def get_starred_repos(
+        self, username: str, limit: int = 100
+    ) -> list[GitHubRepo]:
+        repos: list[GitHubRepo] = []
+        pages = (limit + 99) // 100
+        for page in range(1, pages + 1):
+            try:
+                url = f"/users/{username}/starred?per_page=100&page={page}"
+                data = await self._request(url)
+            except GitHubAPIError:
+                break
+            if not isinstance(data, list) or len(data) == 0:
+                break
+            repos.extend(GitHubRepo.model_validate(r) for r in data)
+            if len(data) < 100:
+                break
+        return repos[:limit]
+
     async def close(self) -> None:
         await self._http.aclose()
         self._cache.close()

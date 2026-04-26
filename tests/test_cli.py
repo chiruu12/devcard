@@ -66,6 +66,43 @@ def test_validate_missing_file():
     assert result.exit_code == 1
 
 
+def test_generate_markdown_output():
+    with patch("devcard.cli.generate_devcard", new_callable=AsyncMock) as mock:
+        mock.return_value = _mock_devcard()
+        result = runner.invoke(app, ["generate", "testuser", "--format", "markdown"])
+        assert result.exit_code == 0
+        assert "testuser" in result.stdout
+
+
+def test_generate_toon_output():
+    with patch("devcard.cli.generate_devcard", new_callable=AsyncMock) as mock:
+        mock.return_value = _mock_devcard()
+        result = runner.invoke(app, ["generate", "testuser", "--format", "toon"])
+        assert result.exit_code == 0
+        assert "testuser" in result.stdout
+
+
+def test_generate_agent_output():
+    with patch("devcard.cli.generate_devcard", new_callable=AsyncMock) as mock:
+        mock.return_value = _mock_devcard()
+        result = runner.invoke(app, ["generate", "testuser", "--format", "agent"])
+        assert result.exit_code == 0
+        assert "DEVCARD" in result.stdout
+        assert "testuser" in result.stdout
+
+
+def test_generate_llms_txt_output(tmp_path):
+    with patch("devcard.cli.generate_devcard", new_callable=AsyncMock) as mock:
+        mock.return_value = _mock_devcard()
+        out = tmp_path / "test.llms.txt"
+        result = runner.invoke(
+            app, ["generate", "testuser", "--format", "llms-txt", "-o", str(out)]
+        )
+        assert result.exit_code == 0
+        content = out.read_text()
+        assert "DevCard: testuser" in content
+
+
 def test_help():
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0

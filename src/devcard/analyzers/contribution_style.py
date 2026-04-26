@@ -15,7 +15,8 @@ def analyze_contribution_style(devcard: DevCard) -> str:
     total_stars = sum(p.stars for p in devcard.projects)
     num_projects = len(devcard.projects)
 
-    if num_projects > 3 and total_stars > 100 and external < 5:
+    maintained = collab.maintained_repos_with_contributors
+    if (num_projects > 3 and total_stars > 100 and external < 5) or maintained >= 3:
         return "maintainer"
 
     if external > 10 or (prs > 5 and orgs > 2):

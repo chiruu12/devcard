@@ -56,6 +56,10 @@ class Language(BaseModel):
         default=None, description="Hex color code from GitHub Linguist"
     )
     bytes: int | None = Field(default=None, description="Total bytes of code in this language")
+    category: Literal["logic", "presentation", "markup", "data", "build", "other"] | None = Field(
+        default=None,
+        description="Language category: logic, presentation, markup, data, build, other",
+    )
 
 
 class StackItem(BaseModel):
@@ -117,6 +121,14 @@ class Activity(BaseModel):
         default=None,
         description="7x24 matrix of activity counts (rows=days Mon-Sun, cols=hours 0-23)",
     )
+    consistency_score: int | None = Field(
+        default=None,
+        description="Activity consistency from 0 (sporadic) to 100 (perfectly even)",
+    )
+    consistency_description: str | None = Field(
+        default=None,
+        description="Human-readable consistency label (e.g. 'bursty, heavy Tuesdays & Fridays')",
+    )
 
 
 class Project(BaseModel):
@@ -135,7 +147,15 @@ class Project(BaseModel):
     )
     classification: str | None = Field(
         default=None,
-        description="Project type: library, application, tool, framework, docs, learning",
+        description="Project type: library, application, tool, framework, config, docs, learning",
+    )
+    is_signature: bool = Field(
+        default=False,
+        description="Whether this is the developer's signature (standout) project",
+    )
+    narrative: str | None = Field(
+        default=None,
+        description="One-line heuristic description of the project's significance",
     )
 
 
@@ -159,6 +179,10 @@ class Collaboration(BaseModel):
     org_contributions: list[OrgContribution] = Field(
         default_factory=list,
         description="Detailed contribution breakdown per organization",
+    )
+    maintained_repos_with_contributors: int = Field(
+        default=0,
+        description="Repos owned by user with forks (indicating external contributors)",
     )
 
 
@@ -200,11 +224,19 @@ class Quality(BaseModel):
     details: list[QualityDetail] = Field(
         default_factory=list, description="Per-repo quality signal breakdown"
     )
+    recommendations: list[str] = Field(
+        default_factory=list,
+        description="Actionable improvement tips based on quality gaps",
+    )
 
 
 class Domain(BaseModel):
     name: str = Field(description="Expertise domain name (e.g. Machine Learning, Web Development)")
     confidence: float = Field(description="Confidence score from 0 to 1")
+    skill_level: Literal["beginner", "intermediate", "advanced", "expert"] | None = Field(
+        default=None,
+        description="Inferred skill depth based on breadth of packages and projects",
+    )
 
 
 class FocusArea(BaseModel):

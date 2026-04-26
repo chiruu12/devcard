@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from devcard.extractors.activity import extract_activity
+from devcard.extractors.activity import (
+    _compute_consistency,
+    extract_activity,
+    heatmap_sparkline,
+)
 from devcard.github.models import GitHubEvent, GitHubRepo, GitHubUser
 
 
@@ -101,3 +105,62 @@ async def test_activity_no_events(user):
     result = await extract_activity(None, user, repos, events=[])
     assert result is not None
     assert result.status == "dormant"
+
+
+async def test_consistency_score_computed(user, recent_events):
+    result = await extract_activity(None, user, [], events=recent_events)
+    assert result is not None
+    assert result.consistency_score is not None
+    assert 0 <= result.consistency_score <= 100
+
+
+async def test_consistency_description_computed(user, recent_events):
+    result = await extract_activity(None, user, [], events=recent_events)
+    assert result is not None
+    assert result.consistency_description is not None
+    assert len(result.consistency_description) > 0
+
+
+def test_compute_consistency_even():
+    heatmap = [[10] * 24 for _ in range(7)]
+    score, desc = _compute_consistency(heatmap, "active")
+    assert score >= 90
+    assert "steady" in desc
+
+
+def test_compute_consistency_bursty():
+    heatmap = [[0] * 24 for _ in range(7)]
+    heatmap[0] = [100] * 24  # Only Monday
+    score, desc = _compute_consistency(heatmap, "active")
+    assert 5 <= score <= 25
+    assert "bursty" in desc
+
+
+def test_compute_consistency_three_days():
+    """3/7 days active with uneven totals (like chiruu12) should score 20-45."""
+    heatmap = [[0] * 24 for _ in range(7)]
+    heatmap[4] = [1] * 15  # Friday: 15
+    heatmap[5] = [1] * 3   # Saturday: 3
+    heatmap[6] = [1] * 1   # Sunday: 1
+    score, desc = _compute_consistency(heatmap, "active")
+    assert 20 <= score <= 45
+    assert "bursty" in desc or "moderate" in desc
+
+
+def test_compute_consistency_no_heatmap():
+    score, desc = _compute_consistency(None, "active")
+    assert score == 70
+
+
+def test_sparkline_output():
+    heatmap = [[10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+               for _ in range(7)]
+    heatmap[0] = [50] * 24  # Monday is busiest
+    result = heatmap_sparkline(heatmap)
+    assert "Mon" in result
+    assert "Sun" in result
+    assert len(result) > 0
+
+
+def test_sparkline_empty():
+    assert heatmap_sparkline(None) == ""

@@ -71,3 +71,22 @@ async def test_quality_details_per_repo(user, repos, root_listings):
 async def test_quality_empty_repos(user):
     result = await extract_quality(None, user, repos=[], root_listings={})
     assert result is None
+
+
+async def test_quality_recommendations_generated(user, repos, root_listings):
+    result = await extract_quality(None, user, repos, root_listings=root_listings)
+    assert result is not None
+    assert len(result.recommendations) > 0
+    assert any("repo-b" in r for r in result.recommendations)
+
+
+async def test_quality_recommendations_capped_at_5(user):
+    many_repos = [
+        GitHubRepo(name=f"repo-{i}", full_name=f"testdev/repo-{i}",
+                    html_url="https://x", stargazers_count=10 - i)
+        for i in range(10)
+    ]
+    listings = {f"repo-{i}": [] for i in range(10)}
+    result = await extract_quality(None, user, many_repos, root_listings=listings)
+    assert result is not None
+    assert len(result.recommendations) <= 5

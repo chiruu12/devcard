@@ -66,6 +66,10 @@ async def extract_quality(
 
         score = round(test * 0.3 + ci * 0.25 + docs * 0.2 + lic * 0.15 + lint * 0.1, 3)
 
+        recommendations = _generate_recommendations(
+            non_fork, details, signal_counts,
+        )
+
         return Quality(
             score=score,
             ci_adoption=round(ci, 3),
@@ -74,9 +78,46 @@ async def extract_quality(
             license_adoption=round(lic, 3),
             linter_adoption=round(lint, 3),
             details=details,
+            recommendations=recommendations,
         )
     except Exception:
         logger.warning("Failed to extract quality for %s", user.login, exc_info=True)
         return None
+
+
+_SIGNAL_LABELS = {
+    "ci": "CI workflow",
+    "testing": "tests",
+    "docs": "documentation",
+    "license": "license file",
+    "linting": "linter config",
+}
+
+
+def _generate_recommendations(
+    repos: list[GitHubRepo],
+    details: list[QualityDetail],
+    signal_counts: dict[str, int],
+) -> list[str]:
+    repo_signals: dict[str, set[str]] = {}
+    for detail in details:
+        repo_signals[detail.repo] = set(detail.signals)
+
+    top_repos = sorted(repos, key=lambda r: r.stargazers_count, reverse=True)[:5]
+    recommendations: list[str] = []
+
+    for repo in top_repos:
+        if len(recommendations) >= 5:
+            break
+        signals = repo_signals.get(repo.name, set())
+        for signal, label in _SIGNAL_LABELS.items():
+            if signal not in signals:
+                recommendations.append(
+                    f"Add {label} to {repo.name}"
+                )
+                if len(recommendations) >= 5:
+                    break
+
+    return recommendations
 
 

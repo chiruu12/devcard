@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from devcard.analyzers.contribution_style import analyze_contribution_style
 from devcard.analyzers.developer_type import analyze_developer_type
 from devcard.analyzers.project_classifier import classify_projects
@@ -59,6 +61,32 @@ class TestDeveloperType:
         )
         assert analyze_developer_type(card) == "frontend"
 
+    @pytest.mark.parametrize("lang", ["C", "C++", "Rust"])
+    def test_systems_by_language(self, lang):
+        card = _make_devcard(
+            languages=[
+                Language(name=lang, percentage=75.0),
+                Language(name="Shell", percentage=15.0),
+                Language(name="Makefile", percentage=10.0),
+            ],
+        )
+        assert analyze_developer_type(card) == "systems"
+
+    def test_systems_below_threshold_not_systems(self):
+        card = _make_devcard(
+            languages=[
+                Language(name="C", percentage=40.0),
+                Language(name="Python", percentage=60.0),
+            ],
+        )
+        assert analyze_developer_type(card) != "systems"
+
+    def test_systems_by_topic(self):
+        card = _make_devcard(
+            projects=[Project(name="my-os", topics=["linux", "kernel"])],
+        )
+        assert analyze_developer_type(card) == "systems"
+
     def test_generic_user_defaults_fullstack(self):
         card = _make_devcard()
         assert analyze_developer_type(card) == "full_stack"
@@ -99,6 +127,84 @@ class TestProjectClassifier:
         )
         classify_projects(card)
         assert card.projects[0].classification == "framework"
+
+    def test_config_classification(self):
+        card = _make_devcard(
+            projects=[Project(name="dotfiles", description="My configuration")],
+        )
+        classify_projects(card)
+        assert card.projects[0].classification == "config"
+
+    def test_signature_project_marked(self):
+        card = _make_devcard(
+            projects=[
+                Project(name="big", stars=500, forks=100),
+                Project(name="small", stars=5, forks=0),
+            ],
+        )
+        classify_projects(card)
+        assert card.projects[0].is_signature is True
+        assert card.projects[1].is_signature is False
+
+    def test_no_signature_if_no_stars(self):
+        card = _make_devcard(
+            projects=[Project(name="empty", stars=0, forks=0)],
+        )
+        classify_projects(card)
+        assert card.projects[0].is_signature is False
+
+    def test_narrative_generated(self):
+        card = _make_devcard(
+            projects=[
+                Project(
+                    name="cool-lib", stars=200, language="Python",
+                    description="A really cool library",
+                ),
+            ],
+        )
+        classify_projects(card)
+        assert card.projects[0].narrative is not None
+        assert "python" in card.projects[0].narrative.lower()
+
+    def test_signature_narrative_prefix(self):
+        card = _make_devcard(
+            projects=[Project(name="top", stars=100, language="Rust")],
+        )
+        classify_projects(card)
+        assert card.projects[0].narrative.startswith("Flagship:")
+
+    def test_ml_topic_produces_ml_narrative(self):
+        card = _make_devcard(
+            projects=[
+                Project(
+                    name="model-lab", stars=50, language="Python",
+                    topics=["machine-learning"],
+                ),
+            ],
+        )
+        classify_projects(card)
+        assert "ML" in card.projects[0].narrative
+
+    def test_narrative_preserves_language_casing(self):
+        card = _make_devcard(
+            projects=[
+                Project(name="ts-app", stars=10, language="TypeScript"),
+            ],
+        )
+        classify_projects(card)
+        assert "TypeScript" in card.projects[0].narrative
+
+    def test_narrative_truncates_at_80_chars(self):
+        long_desc = "A" * 100
+        card = _make_devcard(
+            projects=[
+                Project(name="proj", stars=5, language="Go", description=long_desc),
+            ],
+        )
+        classify_projects(card)
+        assert "..." in card.projects[0].narrative
+        desc_part = card.projects[0].narrative.split(" — ", 1)[1]
+        assert len(desc_part) == 83  # 80 chars + "..."
 
 
 class TestContributionStyle:

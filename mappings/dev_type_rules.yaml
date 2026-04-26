@@ -21,9 +21,15 @@ rules:
       topics_include_any: ["embedded", "firmware", "arduino", "iot", "rtos", "microcontroller"]
     type: "embedded"
 
-  # Systems
+  # Systems — topic or language-dominant
   - conditions:
-      topics_include_any: ["operating-system", "kernel", "compiler", "low-level", "systems-programming"]
+      topics_include_any: ["operating-system", "kernel", "compiler", "low-level", "systems-programming", "linux", "os", "driver"]
+    type: "systems"
+  - conditions:
+      language_ratio_above:
+        c: 0.5
+        c++: 0.5
+        rust: 0.5
     type: "systems"
 
   # Security

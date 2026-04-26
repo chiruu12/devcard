@@ -83,6 +83,14 @@ def test_jupyter_notebook_weight_exists():
     assert LANGUAGE_BYTE_WEIGHTS["Jupyter Notebook"] == 0.05
 
 
+def test_markup_languages_penalized():
+    from devcard.extractors.languages import LANGUAGE_BYTE_WEIGHTS
+
+    assert LANGUAGE_BYTE_WEIGHTS["HTML"] == 0.1
+    assert LANGUAGE_BYTE_WEIGHTS["CSS"] == 0.1
+    assert LANGUAGE_BYTE_WEIGHTS["SCSS"] == 0.1
+
+
 def _notebook_mock_transport():
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
@@ -122,3 +130,52 @@ async def test_jupyter_penalized_in_percentages(notebook_client, user, notebook_
     python = next(lang for lang in result if lang.name == "Python")
     jupyter = next(lang for lang in result if lang.name == "Jupyter Notebook")
     assert python.percentage >= jupyter.percentage
+
+
+async def test_languages_have_categories(client, user, repos):
+    result = await extract_languages(client, user, repos)
+    assert result is not None
+    for lang in result:
+        assert lang.category is not None
+        assert lang.category in ("logic", "presentation", "markup", "data", "build", "other")
+
+
+async def test_python_is_logic(client, user, repos):
+    result = await extract_languages(client, user, repos)
+    python = next(lang for lang in result if lang.name == "Python")
+    assert python.category == "logic"
+
+
+async def test_html_is_presentation(client, user, repos):
+    result = await extract_languages(client, user, repos)
+    html = next(lang for lang in result if lang.name == "HTML")
+    assert html.category == "presentation"
+
+
+def test_coding_ratio():
+    from devcard.extractors.languages import compute_coding_ratio
+    from devcard.models import Language
+
+    langs = [
+        Language(name="Python", percentage=70.0, category="logic"),
+        Language(name="HTML", percentage=20.0, category="presentation"),
+        Language(name="CSS", percentage=10.0, category="presentation"),
+    ]
+    assert compute_coding_ratio(langs) == 70.0
+
+
+def test_coding_ratio_empty():
+    from devcard.extractors.languages import compute_coding_ratio
+
+    assert compute_coding_ratio([]) == 0.0
+
+
+def test_coding_ratio_all_logic():
+    from devcard.extractors.languages import compute_coding_ratio
+    from devcard.models import Language
+
+    langs = [
+        Language(name="Python", percentage=60.0, category="logic"),
+        Language(name="Go", percentage=40.0, category="logic"),
+    ]
+    assert compute_coding_ratio(langs) == 100.0

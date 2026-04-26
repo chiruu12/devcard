@@ -103,7 +103,8 @@
         "name": { "type": "string", "description": "Programming language name" },
         "percentage": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage of total code" },
         "color": { "type": ["string", "null"], "description": "Hex color from GitHub Linguist" },
-        "bytes": { "type": ["integer", "null"], "minimum": 0, "description": "Total bytes of code" }
+        "bytes": { "type": ["integer", "null"], "minimum": 0, "description": "Total bytes of code" },
+        "category": { "type": ["string", "null"], "enum": ["logic", "presentation", "markup", "data", "build", "other", null], "description": "Language category: logic (Python, Go), presentation (CSS, HTML), markup, data, build, other" }
       },
       "additionalProperties": false
     },
@@ -156,6 +157,16 @@
             "items": { "type": "integer", "minimum": 0 }
           },
           "description": "7x24 matrix of activity counts (rows=days Mon-Sun, cols=hours 0-23)"
+        },
+        "consistency_score": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Activity consistency from 0 (sporadic) to 100 (perfectly even)"
+        },
+        "consistency_description": {
+          "type": ["string", "null"],
+          "description": "Human-readable consistency label"
         }
       },
       "additionalProperties": false
@@ -183,7 +194,15 @@
         },
         "classification": {
           "type": ["string", "null"],
-          "description": "Project type: library, application, tool, framework, docs, learning"
+          "description": "Project type: library, application, tool, framework, config, docs, learning"
+        },
+        "is_signature": {
+          "type": "boolean",
+          "description": "Whether this is the developer's signature (standout) project"
+        },
+        "narrative": {
+          "type": ["string", "null"],
+          "description": "One-line heuristic description of the project's significance"
         }
       },
       "additionalProperties": false
@@ -198,7 +217,8 @@
           "type": ["string", "null"],
           "description": "Style: maintainer, contributor, solo_builder, explorer"
         },
-        "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" }
+        "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" },
+        "maintained_repos_with_contributors": { "type": "integer", "minimum": 0, "description": "Repos owned by user with forks (external contributors)" }
       },
       "additionalProperties": false
     },
@@ -223,6 +243,11 @@
             "additionalProperties": false
           },
           "description": "Per-repo quality signal breakdown"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Actionable improvement tips based on quality gaps"
         }
       },
       "additionalProperties": false
@@ -252,7 +277,12 @@
       "required": ["name", "confidence"],
       "properties": {
         "name": { "type": "string", "description": "Expertise domain name" },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Confidence score (0-1)" }
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Confidence score (0-1)" },
+        "skill_level": {
+          "type": ["string", "null"],
+          "enum": ["beginner", "intermediate", "advanced", "expert", null],
+          "description": "Inferred skill depth based on breadth of packages and projects"
+        }
       },
       "additionalProperties": false
     },
