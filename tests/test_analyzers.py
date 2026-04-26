@@ -143,7 +143,7 @@ class TestProjectClassifier:
             projects=[Project(name="top", stars=100, language="Rust")],
         )
         classify_projects(card)
-        assert card.projects[0].narrative.startswith("Signature project")
+        assert card.projects[0].narrative.startswith("Flagship:")
 
 
 class TestContributionStyle:

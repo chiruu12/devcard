@@ -59,14 +59,29 @@ def _mark_signature(devcard: DevCard) -> None:
 
 
 _NARRATIVE_TEMPLATES: dict[str, str] = {
-    "framework": "A {lang} framework with {stars} stars",
-    "library": "A {lang} library with {stars} stars",
-    "tool": "A {lang} developer tool with {stars} stars",
-    "application": "A {lang} application with {stars} stars",
-    "config": "Developer configuration and environment setup",
-    "docs": "Documentation and reference material",
-    "learning": "Learning resource and examples",
+    "framework": "{lang} framework",
+    "library": "{lang} library",
+    "tool": "{lang} developer tool",
+    "application": "{lang} project",
+    "config": "{lang} configuration",
+    "docs": "{lang} documentation",
+    "learning": "{lang} project",
 }
+
+
+def _infer_domain_label(proj) -> str | None:
+    domain_keywords = {
+        "ml": "ML", "machine-learning": "ML", "deep-learning": "ML",
+        "data-science": "data science", "data": "data",
+        "web": "web", "frontend": "frontend", "backend": "backend",
+        "devops": "DevOps", "security": "security",
+        "mobile": "mobile", "android": "mobile", "ios": "mobile",
+    }
+    for topic in proj.topics:
+        label = domain_keywords.get(topic.lower())
+        if label:
+            return label
+    return None
 
 
 def _generate_narratives(devcard: DevCard) -> None:
@@ -74,15 +89,27 @@ def _generate_narratives(devcard: DevCard) -> None:
         if proj.narrative is not None:
             continue
         template = _NARRATIVE_TEMPLATES.get(
-            proj.classification or "application", "A project with {stars} stars"
+            proj.classification or "application", "{lang} project"
         )
-        lang = proj.language or "multi-language"
-        narrative = template.format(lang=lang, stars=f"{proj.stars:,}")
+        lang = proj.language or "Multi-language"
+        base = template.format(lang=lang)
+
+        domain = _infer_domain_label(proj)
+        if domain:
+            base = f"{domain} {base.lower()}" if base[0].isupper() else f"{domain} {base}"
+
+        parts = [base.capitalize()]
+        if proj.stars:
+            parts.append(f"{proj.stars:,} stars")
+        narrative = " · ".join(parts)
+
         if proj.is_signature:
-            narrative = f"Signature project — {narrative.lower()}"
+            narrative = f"Flagship: {narrative}"
+
         if proj.description:
-            desc = proj.description[:60]
-            if len(proj.description) > 60:
+            desc = proj.description[:80].rstrip()
+            if len(proj.description) > 80:
                 desc += "..."
             narrative = f"{narrative} — {desc}"
+
         proj.narrative = narrative
