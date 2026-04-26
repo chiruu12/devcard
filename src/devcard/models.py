@@ -259,15 +259,29 @@ class Expertise(BaseModel):
     )
 
 
+class ProjectHighlight(BaseModel):
+    name: str = Field(description="Repository name")
+    reason: str = Field(description="Why this project matters")
+    significance: Literal["flagship", "growing", "hidden gem"] = Field(
+        description="Project significance tier"
+    )
+
+
 class Enriched(BaseModel):
     summary: str | None = Field(
         default=None, description="LLM-generated natural language summary"
+    )
+    archetype: str | None = Field(
+        default=None, description="Creative developer label (e.g. ML Craftsman)"
     )
     strengths: list[str] = Field(
         default_factory=list, description="Identified strengths"
     )
     suggestions: list[str] = Field(
         default_factory=list, description="Suggested areas for growth"
+    )
+    project_highlights: list[ProjectHighlight] = Field(
+        default_factory=list, description="LLM-ranked top projects by significance"
     )
 
 

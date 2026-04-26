@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-enrich = ["litellm>=1.0"]
+enrich = ["openai>=1.0"]
 png = ["cairosvg>=2.7"]
 
 [project.scripts]
