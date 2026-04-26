@@ -13,6 +13,8 @@ from devcard.models import (
     Language,
     Project,
     Quality,
+    Stack,
+    StackItem,
 )
 from devcard.renderers.compare import render_compare
 
@@ -38,6 +40,10 @@ def _card_a():
             Project(name="ml-lib", stars=500, language="Python",
                     status="active", is_signature=True),
         ],
+        stack=Stack(
+            frameworks=[StackItem(name="PyTorch", category="framework")],
+            libraries=[StackItem(name="NumPy", category="library")],
+        ),
         quality=Quality(score=0.8, ci_adoption=0.9, test_adoption=0.7,
                          docs_adoption=0.6, license_adoption=1.0, linter_adoption=0.5),
         expertise=Expertise(
@@ -58,6 +64,10 @@ def _card_b():
             Language(name="CSS", percentage=20.0, category="presentation"),
             Language(name="Python", percentage=20.0, category="logic"),
         ],
+        stack=Stack(
+            frameworks=[StackItem(name="React", category="framework")],
+            libraries=[StackItem(name="NumPy", category="library")],
+        ),
         projects=[
             Project(name="web-app", stars=200, language="TypeScript",
                     status="active", is_signature=True),
@@ -84,6 +94,13 @@ class TestCompareRenderer:
         output = render_compare(_card_a(), _card_b())
         assert "Python" in output
         assert "TypeScript" in output
+
+    def test_contains_stack_overlap(self):
+        output = render_compare(_card_a(), _card_b())
+        assert "Stack Overlap" in output
+        assert "NumPy" in output  # shared
+        assert "PyTorch" in output  # alice only
+        assert "React" in output  # bob only
 
     def test_contains_quality_scores(self):
         output = render_compare(_card_a(), _card_b())
