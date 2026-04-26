@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devcard.dev/schema/v1",
+  "title": "DevCard",
+  "description": "A structured, agent-readable developer identity card generated from GitHub profile data.",
+  "type": "object",
+  "required": ["version", "generated_at", "generator", "identity"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URI of the JSON Schema this document conforms to"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "DevCard schema version"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this DevCard was generated"
+    },
+    "generator": {
+      "$ref": "#/$defs/Generator",
+      "description": "Tool that generated this DevCard"
+    },
+    "identity": {
+      "$ref": "#/$defs/Identity",
+      "description": "Core GitHub identity information"
+    },
+    "languages": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Language" },
+      "description": "Programming languages sorted by usage percentage (descending)"
+    },
+    "stack": {
+      "$ref": "#/$defs/Stack",
+      "description": "Detected technology stack from dependency files"
+    },
+    "activity": {
+      "$ref": "#/$defs/Activity",
+      "description": "Recent activity patterns and commit behavior"
+    },
+    "projects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Project" },
+      "description": "Top repositories ranked by stars, forks, and recency"
+    },
+    "collaboration": {
+      "$ref": "#/$defs/Collaboration",
+      "description": "Collaboration signals: organizations, PRs, issues, contribution style"
+    },
+    "quality": {
+      "$ref": "#/$defs/Quality",
+      "description": "Code quality practice signals across repositories"
+    },
+    "expertise": {
+      "$ref": "#/$defs/Expertise",
+      "description": "Inferred expertise domains and developer profile type"
+    },
+    "enriched": {
+      "$ref": "#/$defs/Enriched",
+      "description": "Optional LLM-enriched content"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Generator": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "description": "Name of the generator tool" },
+        "version": { "type": "string", "description": "Version of the generator" },
+        "url": { "type": "string", "format": "uri", "description": "URL of the generator project" }
+      },
+      "additionalProperties": false
+    },
+    "Identity": {
+      "type": "object",
+      "required": ["username"],
+      "properties": {
+        "username": { "type": "string", "description": "GitHub username (login)" },
+        "name": { "type": ["string", "null"], "description": "Display name" },
+        "bio": { "type": ["string", "null"], "description": "GitHub profile bio" },
+        "avatar_url": { "type": ["string", "null"], "format": "uri", "description": "URL to avatar image" },
+        "location": { "type": ["string", "null"], "description": "Self-reported location" },
+        "company": { "type": ["string", "null"], "description": "Company or organization" },
+        "blog": { "type": ["string", "null"], "description": "Personal website or blog URL" },
+        "twitter_username": { "type": ["string", "null"], "description": "Twitter/X username without @" },
+        "hireable": { "type": ["boolean", "null"], "description": "Whether the user is open to hire" },
+        "public_repos": { "type": "integer", "minimum": 0, "description": "Number of public repositories" },
+        "public_gists": { "type": "integer", "minimum": 0, "description": "Number of public gists" },
+        "followers": { "type": "integer", "minimum": 0, "description": "Number of followers" },
+        "following": { "type": "integer", "minimum": 0, "description": "Number of users being followed" },
+        "created_at": { "type": ["string", "null"], "description": "Account creation date in ISO 8601 format" }
+      },
+      "additionalProperties": false
+    },
+    "Language": {
+      "type": "object",
+      "required": ["name", "percentage"],
+      "properties": {
+        "name": { "type": "string", "description": "Programming language name" },
+        "percentage": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage of total code" },
+        "color": { "type": ["string", "null"], "description": "Hex color from GitHub Linguist" },
+        "bytes": { "type": ["integer", "null"], "minimum": 0, "description": "Total bytes of code" }
+      },
+      "additionalProperties": false
+    },
+    "StackItem": {
+      "type": "object",
+      "required": ["name", "category"],
+      "properties": {
+        "name": { "type": "string", "description": "Technology display name" },
+        "category": { "type": "string", "description": "Category: framework, library, database, tool, platform, ci_cd, testing, other" },
+        "source": { "type": ["string", "null"], "description": "Repository where detected" }
+      },
+      "additionalProperties": false
+    },
+    "Stack": {
+      "type": "object",
+      "properties": {
+        "frameworks": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Web and application frameworks" },
+        "libraries": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "General-purpose libraries" },
+        "databases": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Database systems and ORMs" },
+        "tools": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Developer tools and CLIs" },
+        "platforms": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Cloud platforms and services" },
+        "ci_cd": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "CI/CD and build tools" },
+        "testing": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Testing frameworks" },
+        "other": { "type": "array", "items": { "$ref": "#/$defs/StackItem" }, "description": "Other technologies" }
+      },
+      "additionalProperties": false
+    },
+    "Activity": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["active", "moderate", "sporadic", "dormant"],
+          "description": "Recent activity level"
+        },
+        "commits_last_year": { "type": ["integer", "null"], "minimum": 0, "description": "Estimated commits in last 365 days" },
+        "current_streak": { "type": ["integer", "null"], "minimum": 0, "description": "Current consecutive days with activity" },
+        "longest_streak": { "type": ["integer", "null"], "minimum": 0, "description": "Longest consecutive days with activity" },
+        "peak_hours": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 23 },
+          "description": "Most active hours of the day (0-23 UTC)"
+        },
+        "timezone_estimate": { "type": ["string", "null"], "description": "Estimated timezone (e.g. UTC-8)" },
+        "heatmap": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0 }
+          },
+          "description": "7x24 matrix of activity counts (rows=days Mon-Sun, cols=hours 0-23)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "Repository name" },
+        "description": { "type": ["string", "null"], "description": "Repository description" },
+        "url": { "type": ["string", "null"], "format": "uri", "description": "Repository URL" },
+        "stars": { "type": "integer", "minimum": 0, "description": "Star count" },
+        "forks": { "type": "integer", "minimum": 0, "description": "Fork count" },
+        "language": { "type": ["string", "null"], "description": "Primary language" },
+        "topics": { "type": "array", "items": { "type": "string" }, "description": "Repository topics" },
+        "status": {
+          "type": ["string", "null"],
+          "enum": ["active", "maintained", "inactive", "archived", null],
+          "description": "Activity status based on last push"
+        },
+        "maturity": {
+          "type": ["string", "null"],
+          "enum": ["mature", "growing", "new", "stale", null],
+          "description": "Project maturity"
+        },
+        "classification": {
+          "type": ["string", "null"],
+          "description": "Project type: library, application, tool, framework, docs, learning"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Collaboration": {
+      "type": "object",
+      "properties": {
+        "organizations": { "type": "array", "items": { "type": "string" }, "description": "GitHub organizations" },
+        "pull_requests_opened": { "type": "integer", "minimum": 0, "description": "Pull requests opened (recent events)" },
+        "issues_opened": { "type": "integer", "minimum": 0, "description": "Issues opened (recent events)" },
+        "contribution_style": {
+          "type": ["string", "null"],
+          "description": "Style: maintainer, contributor, solo_builder, explorer"
+        },
+        "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" }
+      },
+      "additionalProperties": false
+    },
+    "Quality": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 1, "description": "Composite quality score (0-1)" },
+        "ci_adoption": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of repos with CI/CD (0-1)" },
+        "test_adoption": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of repos with tests (0-1)" },
+        "docs_adoption": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of repos with docs (0-1)" },
+        "license_adoption": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of repos with license (0-1)" },
+        "linter_adoption": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of repos with linter config (0-1)" },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["repo"],
+            "properties": {
+              "repo": { "type": "string", "description": "Repository name" },
+              "signals": { "type": "array", "items": { "type": "string" }, "description": "Quality signals found" }
+            },
+            "additionalProperties": false
+          },
+          "description": "Per-repo quality signal breakdown"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Expertise": {
+      "type": "object",
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Domain" },
+          "description": "Inferred expertise domains with confidence scores"
+        },
+        "profile_type": {
+          "type": ["string", "null"],
+          "description": "Developer profile: full_stack, backend, frontend, devops, data, ml, mobile, systems, security, embedded, researcher, other"
+        },
+        "focus_areas": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FocusArea" },
+          "description": "Top focus areas with evidence"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Domain": {
+      "type": "object",
+      "required": ["name", "confidence"],
+      "properties": {
+        "name": { "type": "string", "description": "Expertise domain name" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Confidence score (0-1)" }
+      },
+      "additionalProperties": false
+    },
+    "FocusArea": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "Focus area name" },
+        "evidence": { "type": "array", "items": { "type": "string" }, "description": "Supporting evidence" }
+      },
+      "additionalProperties": false
+    },
+    "Enriched": {
+      "type": "object",
+      "properties": {
+        "summary": { "type": ["string", "null"], "description": "LLM-generated summary" },
+        "strengths": { "type": "array", "items": { "type": "string" }, "description": "Identified strengths" },
+        "suggestions": { "type": "array", "items": { "type": "string" }, "description": "Growth suggestions" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-01-15T10:30:00Z",
+  "generator": {
+    "name": "devcard",
+    "version": "0.1.0"
+  },
+  "identity": {
+    "username": "octocat",
+    "name": "The Octocat",
+    "public_repos": 8,
+    "public_gists": 0,
+    "followers": 0,
+    "following": 0
+  }
+}

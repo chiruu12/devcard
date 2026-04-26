@@ -1,0 +1,148 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-01-15T12:00:00Z",
+  "generator": {
+    "name": "devcard",
+    "version": "0.1.0"
+  },
+  "identity": {
+    "username": "karpathy",
+    "name": "Andrej Karpathy",
+    "bio": "I like to train neural nets",
+    "avatar_url": "https://avatars.githubusercontent.com/u/241138",
+    "location": "Stanford, CA",
+    "company": null,
+    "blog": "https://karpathy.ai",
+    "twitter_username": "karpathy",
+    "hireable": null,
+    "public_repos": 40,
+    "public_gists": 0,
+    "followers": 95000,
+    "following": 0,
+    "created_at": "2009-04-09T04:07:02Z"
+  },
+  "languages": [
+    { "name": "Python", "percentage": 72.3, "color": "#3572A5", "bytes": 850000 },
+    { "name": "C", "percentage": 12.1, "color": "#555555", "bytes": 142000 },
+    { "name": "Jupyter Notebook", "percentage": 8.5, "color": "#DA5B0B", "bytes": 100000 },
+    { "name": "C++", "percentage": 3.8, "color": "#f34b7d", "bytes": 45000 },
+    { "name": "JavaScript", "percentage": 1.9, "color": "#f1e05a", "bytes": 22000 },
+    { "name": "Shell", "percentage": 0.8, "color": "#89e051", "bytes": 9400 },
+    { "name": "HTML", "percentage": 0.6, "color": "#e34c26", "bytes": 7000 }
+  ],
+  "stack": {
+    "frameworks": [
+      { "name": "PyTorch", "category": "framework", "source": "nanoGPT" }
+    ],
+    "libraries": [
+      { "name": "NumPy", "category": "library", "source": "micrograd" },
+      { "name": "Transformers", "category": "library", "source": "minGPT" }
+    ],
+    "databases": [],
+    "tools": [],
+    "platforms": [],
+    "ci_cd": [],
+    "testing": [
+      { "name": "pytest", "category": "testing", "source": "micrograd" }
+    ],
+    "other": []
+  },
+  "activity": {
+    "status": "moderate",
+    "commits_last_year": 180,
+    "current_streak": 3,
+    "longest_streak": 30,
+    "peak_hours": [10, 14, 21],
+    "timezone_estimate": "UTC-8"
+  },
+  "projects": [
+    {
+      "name": "nanoGPT",
+      "description": "The simplest, fastest repository for training/finetuning medium-sized GPTs.",
+      "url": "https://github.com/karpathy/nanoGPT",
+      "stars": 38000,
+      "forks": 6000,
+      "language": "Python",
+      "topics": ["gpt", "deep-learning", "transformer"],
+      "status": "maintained",
+      "maturity": "mature",
+      "classification": "library"
+    },
+    {
+      "name": "llm.c",
+      "description": "LLM training in simple, pure C/CUDA",
+      "url": "https://github.com/karpathy/llm.c",
+      "stars": 25000,
+      "forks": 2800,
+      "language": "C",
+      "topics": ["llm", "cuda", "deep-learning"],
+      "status": "active",
+      "maturity": "growing",
+      "classification": "tool"
+    },
+    {
+      "name": "minGPT",
+      "description": "A minimal PyTorch re-implementation of the OpenAI GPT",
+      "url": "https://github.com/karpathy/minGPT",
+      "stars": 20000,
+      "forks": 2500,
+      "language": "Python",
+      "topics": ["gpt", "deep-learning", "transformer"],
+      "status": "maintained",
+      "maturity": "mature",
+      "classification": "library"
+    },
+    {
+      "name": "micrograd",
+      "description": "A tiny scalar-valued autograd engine and neural net library",
+      "url": "https://github.com/karpathy/micrograd",
+      "stars": 10000,
+      "forks": 1400,
+      "language": "Python",
+      "topics": ["deep-learning", "autograd", "education"],
+      "status": "maintained",
+      "maturity": "mature",
+      "classification": "library"
+    },
+    {
+      "name": "nn-zero-to-hero",
+      "description": "Neural Networks: Zero to Hero",
+      "url": "https://github.com/karpathy/nn-zero-to-hero",
+      "stars": 12000,
+      "forks": 1500,
+      "language": "Jupyter Notebook",
+      "topics": ["deep-learning", "education", "tutorial"],
+      "status": "maintained",
+      "maturity": "mature",
+      "classification": "learning"
+    }
+  ],
+  "collaboration": {
+    "organizations": ["openai"],
+    "pull_requests_opened": 2,
+    "issues_opened": 0,
+    "contribution_style": "maintainer",
+    "external_contributions": 2
+  },
+  "quality": {
+    "score": 0.42,
+    "ci_adoption": 0.15,
+    "test_adoption": 0.3,
+    "docs_adoption": 0.85,
+    "license_adoption": 0.9,
+    "linter_adoption": 0.05
+  },
+  "expertise": {
+    "domains": [
+      { "name": "Machine Learning", "confidence": 1.0 },
+      { "name": "Education", "confidence": 0.8 },
+      { "name": "Systems Programming", "confidence": 0.5 }
+    ],
+    "profile_type": "ml",
+    "focus_areas": [
+      { "name": "Deep Learning", "evidence": ["PyTorch stack", "nanoGPT/minGPT repos", "deep-learning topics"] },
+      { "name": "AI Education", "evidence": ["nn-zero-to-hero", "micrograd", "tutorial topics"] },
+      { "name": "LLM Training", "evidence": ["nanoGPT", "llm.c", "transformer topics"] }
+    ]
+  }
+}

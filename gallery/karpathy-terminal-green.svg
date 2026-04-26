@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="796" viewBox="0 0 495 796">
+  <style>
+    .header { font: 600 18px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #00ff00; }
+    .subheader { font: 400 14px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #008800; }
+    .body { font: 400 12px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #00ff00; }
+    .small { font: 400 11px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #008800; }
+    .label { font: 600 13px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #00ff00; }
+    .mono { font: 400 11px "SF Mono", "Cascadia Code", Consolas, monospace; fill: #008800; }
+    .accent { fill: #00ff00; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .section { animation: fadeIn 0.3s ease-in; }
+  </style>
+  <rect width="495" height="796" rx="10" fill="#000000" stroke="#004400" stroke-width="1"/>
+  <g class="section" transform="translate(25, 25)">
+    <circle cx="22" cy="22" r="22" fill="#00ff00" opacity="0.15"/>
+    <text x="22" y="27" text-anchor="middle" style="font: 600 16px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">A</text>
+    <text x="54" y="18" class="header">Andrej</text>
+    <text x="54" y="36" class="subheader">@karpathy</text>
+    <rect x="54" y="44" rx="8" ry="8" width="86" height="20" fill="#00ff00" opacity="0.15"/>
+    <text x="62" y="58" style="font: 600 11px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">Full Stack</text>
+    <text x="0" y="86" class="body">I like to train Deep Neural Nets on large datasets.</text>
+    <text x="0" y="108" class="small">Stanford · 174,837 followers</text>
+  </g>
+  <g class="section" transform="translate(25, 153)">
+    <text x="0" y="14" class="label">Languages</text>
+    <rect x="0.0" y="24" width="380.5" height="8" rx="1" fill="#e34c26"/>
+    <rect x="380.5" y="24" width="32.5" height="8" rx="1" fill="#DA5B0B"/>
+    <rect x="413.0" y="24" width="15.6" height="8" rx="1" fill="#3572A5"/>
+    <rect x="428.5" y="24" width="6.7" height="8" rx="1" fill="#006600"/>
+    <rect x="435.2" y="24" width="3.6" height="8" rx="1" fill="#f1e05a"/>
+    <rect x="438.8" y="24" width="2.7" height="8" rx="1" fill="#555555"/>
+    <rect x="441.4" y="24" width="2.0" height="8" rx="1" fill="#427819"/>
+    <rect x="443.4" y="24" width="2.0" height="8" rx="1" fill="#000080"/>
+    <circle cx="5.0" cy="46" r="4" fill="#e34c26"/>
+    <text x="13.0" y="50" class="small">HTML 85.5%</text>
+    <circle cx="86.0" cy="46" r="4" fill="#DA5B0B"/>
+    <text x="94.0" y="50" class="small">Jupyter Notebook 7.3%</text>
+    <circle cx="245.0" cy="46" r="4" fill="#3572A5"/>
+    <text x="253.0" y="50" class="small">Python 3.5%</text>
+    <circle cx="339.0" cy="46" r="4" fill="#006600"/>
+    <text x="347.0" y="50" class="small">Cuda 1.5%</text>
+    <circle cx="5" cy="62" r="4" fill="#f1e05a"/>
+    <text x="13" y="66" class="small">JavaScript 0.8%</text>
+    <circle cx="125.0" cy="62" r="4" fill="#555555"/>
+    <text x="133.0" y="66" class="small">C 0.6%</text>
+  </g>
+  <g class="section" transform="translate(25, 231)">
+    <text x="0" y="14" class="label">Stack</text>
+    <rect x="0.0" y="26" rx="10" ry="10" width="65" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="8.0" y="41" class="small">PyTorch</text>
+    <rect x="71.0" y="26" rx="10" ry="10" width="65" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="79.0" y="41" class="small">FastAPI</text>
+    <rect x="142.0" y="26" rx="10" ry="10" width="51" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="150.0" y="41" class="small">Flask</text>
+    <rect x="199.0" y="26" rx="10" ry="10" width="65" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="207.0" y="41" class="small">Tornado</text>
+    <rect x="270.0" y="26" rx="10" ry="10" width="86" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="278.0" y="41" class="small">Matplotlib</text>
+    <rect x="362.0" y="26" rx="10" ry="10" width="51" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="370.0" y="41" class="small">NumPy</text>
+    <rect x="0.0" y="52" rx="10" ry="10" width="58" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="8.0" y="67" class="small">pandas</text>
+    <rect x="64.0" y="52" rx="10" ry="10" width="72" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="72.0" y="67" class="small">Requests</text>
+    <rect x="142.0" y="52" rx="10" ry="10" width="100" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="150.0" y="67" class="small">Transformers</text>
+    <rect x="248.0" y="52" rx="10" ry="10" width="51" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="256.0" y="67" class="small">httpx</text>
+    <rect x="305.0" y="52" rx="10" ry="10" width="72" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="313.0" y="67" class="small">Pydantic</text>
+    <rect x="383.0" y="52" rx="10" ry="10" width="51" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="391.0" y="67" class="small">SciPy</text>
+    <rect x="0.0" y="78" rx="10" ry="10" width="100" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="8.0" y="93" class="small">scikit-learn</text>
+    <rect x="106.0" y="78" rx="10" ry="10" width="114" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="114.0" y="93" class="small">Beautiful Soup</text>
+    <rect x="226.0" y="78" rx="10" ry="10" width="58" height="22" fill="#00ff00" opacity="0.1"/>
+    <text x="234.0" y="93" class="small">Jinja2</text>
+  </g>
+  <g class="section" transform="translate(25, 355)">
+    <text x="0" y="14" class="label">Quality Score: 30%</text>
+    <text x="0" y="36" class="small">Tests</text>
+    <rect x="55" y="26" width="120" height="12" rx="3" fill="#004400"/>
+    <rect x="55" y="26" width="24.0" height="12" rx="3" fill="#f85149"/>
+    <text x="183" y="36" class="small">20%</text>
+    <text x="0" y="54" class="small">CI/CD</text>
+    <rect x="55" y="44" width="120" height="12" rx="3" fill="#004400"/>
+    <rect x="55" y="44" width="8.0" height="12" rx="3" fill="#f85149"/>
+    <text x="183" y="54" class="small">7%</text>
+    <text x="0" y="72" class="small">Docs</text>
+    <rect x="55" y="62" width="120" height="12" rx="3" fill="#004400"/>
+    <rect x="55" y="62" width="96.0" height="12" rx="3" fill="#3fb950"/>
+    <text x="183" y="72" class="small">80%</text>
+    <text x="0" y="90" class="small">License</text>
+    <rect x="55" y="80" width="120" height="12" rx="3" fill="#004400"/>
+    <rect x="55" y="80" width="48.0" height="12" rx="3" fill="#d29922"/>
+    <text x="183" y="90" class="small">40%</text>
+    <text x="0" y="108" class="small">Linter</text>
+    <rect x="55" y="98" width="120" height="12" rx="3" fill="#004400"/>
+    <rect x="55" y="98" width="0.0" height="12" rx="3" fill="#f85149"/>
+    <text x="183" y="108" class="small">0%</text>
+  </g>
+  <g class="section" transform="translate(25, 491)">
+    <text x="0" y="14" class="label">Focus Areas</text>
+    <rect x="0.0" y="26" rx="12" ry="12" width="128" height="24" fill="#00ff00" opacity="0.12"/>
+    <text x="8.0" y="42" style="font: 600 11px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">Machine Learning</text>
+    <rect x="136.0" y="26" rx="12" ry="12" width="149" height="24" fill="#00ff00" opacity="0.12"/>
+    <text x="144.0" y="42" style="font: 600 11px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">Backend Development</text>
+    <rect x="293.0" y="26" rx="12" ry="12" width="100" height="24" fill="#00ff00" opacity="0.12"/>
+    <text x="301.0" y="42" style="font: 600 11px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">Data Science</text>
+    <rect x="0.0" y="54" rx="12" ry="12" width="156" height="24" fill="#00ff00" opacity="0.12"/>
+    <text x="8.0" y="70" style="font: 600 11px &apos;SF Mono&apos;, &apos;Cascadia Code&apos;, Consolas, monospace; fill: #00ff00;">Frontend Development</text>
+  </g>
+  <g class="section" transform="translate(25, 593)">
+    <text x="0" y="14" class="label">Top Projects</text>
+    <text x="0" y="40" class="body">autoresearch</text>
+    <text x="200" y="40" class="small">★ 76,419</text>
+    <circle cx="270" cy="36" r="4" fill="#3572A5"/>
+    <text x="278" y="40" class="small">Python</text>
+    <text x="0" y="62" class="body">nanoGPT</text>
+    <text x="200" y="62" class="small">★ 57,146</text>
+    <circle cx="270" cy="58" r="4" fill="#3572A5"/>
+    <text x="278" y="62" class="small">Python</text>
+    <text x="0" y="84" class="body">nanochat</text>
+    <text x="200" y="84" class="small">★ 52,478</text>
+    <circle cx="270" cy="80" r="4" fill="#3572A5"/>
+    <text x="278" y="84" class="small">Python</text>
+    <text x="0" y="106" class="body">LLM101n</text>
+    <text x="200" y="106" class="small">★ 36,823</text>
+    <text x="0" y="128" class="body">llm.c</text>
+    <text x="200" y="128" class="small">★ 29,688</text>
+    <circle cx="270" cy="124" r="4" fill="#008800"/>
+    <text x="278" y="128" class="small">Cuda</text>
+  </g>
+  <g class="section" transform="translate(25, 751)">
+    <text x="0" y="14" class="mono">Generated by devcard · 2026-04-25</text>
+  </g>
+</svg>

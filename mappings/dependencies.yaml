@@ -1,0 +1,310 @@
+python:
+  aiohttp: { category: "library", name: "aiohttp" }
+  airflow: { category: "platform", name: "Apache Airflow" }
+  alembic: { category: "database", name: "Alembic" }
+  anthropic: { category: "library", name: "Anthropic SDK" }
+  attrs: { category: "library", name: "attrs" }
+  beautifulsoup4: { category: "library", name: "Beautiful Soup" }
+  black: { category: "tool", name: "Black" }
+  boto3: { category: "platform", name: "AWS SDK (boto3)" }
+  celery: { category: "library", name: "Celery" }
+  click: { category: "library", name: "Click" }
+  coverage: { category: "testing", name: "Coverage.py" }
+  cryptography: { category: "library", name: "cryptography" }
+  dash: { category: "framework", name: "Dash" }
+  dask: { category: "library", name: "Dask" }
+  django: { category: "framework", name: "Django" }
+  django-rest-framework: { category: "framework", name: "Django REST Framework" }
+  dramatiq: { category: "library", name: "Dramatiq" }
+  falcon: { category: "framework", name: "Falcon" }
+  fastapi: { category: "framework", name: "FastAPI" }
+  fastapi-users: { category: "library", name: "FastAPI Users" }
+  flake8: { category: "tool", name: "Flake8" }
+  flask: { category: "framework", name: "Flask" }
+  gradio: { category: "framework", name: "Gradio" }
+  gunicorn: { category: "tool", name: "Gunicorn" }
+  httpx: { category: "library", name: "httpx" }
+  huggingface-hub: { category: "library", name: "Hugging Face Hub" }
+  hypothesis: { category: "testing", name: "Hypothesis" }
+  isort: { category: "tool", name: "isort" }
+  jinja2: { category: "library", name: "Jinja2" }
+  keras: { category: "framework", name: "Keras" }
+  langchain: { category: "framework", name: "LangChain" }
+  litellm: { category: "library", name: "LiteLLM" }
+  litestar: { category: "framework", name: "Litestar" }
+  loguru: { category: "library", name: "Loguru" }
+  marshmallow: { category: "library", name: "Marshmallow" }
+  matplotlib: { category: "library", name: "Matplotlib" }
+  mlflow: { category: "platform", name: "MLflow" }
+  mypy: { category: "tool", name: "mypy" }
+  nox: { category: "testing", name: "Nox" }
+  numpy: { category: "library", name: "NumPy" }
+  opencv-python: { category: "library", name: "OpenCV" }
+  openai: { category: "library", name: "OpenAI SDK" }
+  pandas: { category: "library", name: "pandas" }
+  passlib: { category: "library", name: "Passlib" }
+  peewee: { category: "database", name: "Peewee" }
+  pillow: { category: "library", name: "Pillow" }
+  playwright: { category: "testing", name: "Playwright" }
+  plotly: { category: "library", name: "Plotly" }
+  polars: { category: "library", name: "Polars" }
+  psycopg2: { category: "database", name: "psycopg2" }
+  pydantic: { category: "library", name: "Pydantic" }
+  pylint: { category: "tool", name: "Pylint" }
+  pytest: { category: "testing", name: "pytest" }
+  pytest-asyncio: { category: "testing", name: "pytest-asyncio" }
+  python-jose: { category: "library", name: "python-jose" }
+  ray: { category: "platform", name: "Ray" }
+  redis: { category: "database", name: "Redis (Python)" }
+  requests: { category: "library", name: "Requests" }
+  rq: { category: "library", name: "RQ" }
+  ruff: { category: "tool", name: "Ruff" }
+  sanic: { category: "framework", name: "Sanic" }
+  scikit-learn: { category: "library", name: "scikit-learn" }
+  scipy: { category: "library", name: "SciPy" }
+  scrapy: { category: "framework", name: "Scrapy" }
+  selenium: { category: "testing", name: "Selenium" }
+  sqlalchemy: { category: "database", name: "SQLAlchemy" }
+  sqlmodel: { category: "database", name: "SQLModel" }
+  starlette: { category: "framework", name: "Starlette" }
+  streamlit: { category: "framework", name: "Streamlit" }
+  tensorflow: { category: "framework", name: "TensorFlow" }
+  torch: { category: "framework", name: "PyTorch" }
+  tornado: { category: "framework", name: "Tornado" }
+  tortoise-orm: { category: "database", name: "Tortoise ORM" }
+  tox: { category: "testing", name: "tox" }
+  transformers: { category: "library", name: "Transformers" }
+  typer: { category: "library", name: "Typer" }
+  uvicorn: { category: "tool", name: "Uvicorn" }
+
+javascript:
+  "@angular/core": { category: "framework", name: "Angular" }
+  "@apollo/client": { category: "library", name: "Apollo Client" }
+  "@nestjs/core": { category: "framework", name: "NestJS" }
+  "@prisma/client": { category: "database", name: "Prisma" }
+  "@radix-ui/react-dialog": { category: "library", name: "Radix UI" }
+  "@tanstack/react-query": { category: "library", name: "TanStack Query" }
+  "@trpc/server": { category: "library", name: "tRPC" }
+  apollo-server: { category: "library", name: "Apollo Server" }
+  axios: { category: "library", name: "Axios" }
+  bcrypt: { category: "library", name: "bcrypt" }
+  biome: { category: "tool", name: "Biome" }
+  bullmq: { category: "library", name: "BullMQ" }
+  chart.js: { category: "library", name: "Chart.js" }
+  chromatic: { category: "testing", name: "Chromatic" }
+  cypress: { category: "testing", name: "Cypress" }
+  d3: { category: "library", name: "D3.js" }
+  date-fns: { category: "library", name: "date-fns" }
+  dotenv: { category: "tool", name: "dotenv" }
+  drizzle-orm: { category: "database", name: "Drizzle" }
+  elysia: { category: "framework", name: "Elysia" }
+  emotion: { category: "library", name: "Emotion" }
+  esbuild: { category: "tool", name: "esbuild" }
+  eslint: { category: "tool", name: "ESLint" }
+  express: { category: "framework", name: "Express" }
+  fastify: { category: "framework", name: "Fastify" }
+  formik: { category: "library", name: "Formik" }
+  framer-motion: { category: "library", name: "Framer Motion" }
+  graphql: { category: "library", name: "GraphQL" }
+  headlessui: { category: "library", name: "Headless UI" }
+  hono: { category: "framework", name: "Hono" }
+  jest: { category: "testing", name: "Jest" }
+  joi: { category: "library", name: "Joi" }
+  jotai: { category: "library", name: "Jotai" }
+  jsonwebtoken: { category: "library", name: "jsonwebtoken" }
+  knex: { category: "database", name: "Knex.js" }
+  koa: { category: "framework", name: "Koa" }
+  lodash: { category: "library", name: "Lodash" }
+  luxon: { category: "library", name: "Luxon" }
+  mocha: { category: "testing", name: "Mocha" }
+  mongoose: { category: "database", name: "Mongoose" }
+  multer: { category: "library", name: "Multer" }
+  next: { category: "framework", name: "Next.js" }
+  node-fetch: { category: "library", name: "node-fetch" }
+  nuxt: { category: "framework", name: "Nuxt" }
+  passport: { category: "library", name: "Passport.js" }
+  pino: { category: "library", name: "Pino" }
+  playwright: { category: "testing", name: "Playwright" }
+  postcss: { category: "tool", name: "PostCSS" }
+  prettier: { category: "tool", name: "Prettier" }
+  puppeteer: { category: "testing", name: "Puppeteer" }
+  react: { category: "framework", name: "React" }
+  react-hook-form: { category: "library", name: "React Hook Form" }
+  recoil: { category: "library", name: "Recoil" }
+  redux: { category: "library", name: "Redux" }
+  rollup: { category: "tool", name: "Rollup" }
+  sass: { category: "tool", name: "Sass" }
+  sequelize: { category: "database", name: "Sequelize" }
+  sharp: { category: "library", name: "Sharp" }
+  socket.io: { category: "library", name: "Socket.IO" }
+  storybook: { category: "testing", name: "Storybook" }
+  styled-components: { category: "library", name: "styled-components" }
+  svelte: { category: "framework", name: "Svelte" }
+  swr: { category: "library", name: "SWR" }
+  tailwindcss: { category: "library", name: "Tailwind CSS" }
+  three: { category: "library", name: "Three.js" }
+  turbo: { category: "tool", name: "Turborepo" }
+  typeorm: { category: "database", name: "TypeORM" }
+  vite: { category: "tool", name: "Vite" }
+  vitest: { category: "testing", name: "Vitest" }
+  vue: { category: "framework", name: "Vue.js" }
+  webpack: { category: "tool", name: "webpack" }
+  winston: { category: "library", name: "Winston" }
+  yup: { category: "library", name: "Yup" }
+  zod: { category: "library", name: "Zod" }
+  zustand: { category: "library", name: "Zustand" }
+
+go:
+  chi: { category: "framework", name: "Chi" }
+  cobra: { category: "library", name: "Cobra" }
+  echo: { category: "framework", name: "Echo" }
+  ent: { category: "database", name: "Ent" }
+  fiber: { category: "framework", name: "Fiber" }
+  fx: { category: "library", name: "Uber Fx" }
+  gin: { category: "framework", name: "Gin" }
+  gomock: { category: "testing", name: "GoMock" }
+  gorm: { category: "database", name: "GORM" }
+  gorilla/mux: { category: "framework", name: "Gorilla Mux" }
+  grpc: { category: "library", name: "gRPC-Go" }
+  kubernetes/client-go: { category: "platform", name: "Kubernetes client-go" }
+  logrus: { category: "library", name: "Logrus" }
+  nats: { category: "library", name: "NATS" }
+  prometheus: { category: "library", name: "Prometheus Go" }
+  protobuf: { category: "library", name: "Protocol Buffers" }
+  redis: { category: "database", name: "Redis (Go)" }
+  sarama: { category: "library", name: "Sarama (Kafka)" }
+  sqlx: { category: "database", name: "sqlx" }
+  testify: { category: "testing", name: "Testify" }
+  viper: { category: "library", name: "Viper" }
+  wire: { category: "library", name: "Wire" }
+  zap: { category: "library", name: "Zap" }
+
+rust:
+  actix-web: { category: "framework", name: "Actix Web" }
+  anyhow: { category: "library", name: "anyhow" }
+  async-std: { category: "library", name: "async-std" }
+  axum: { category: "framework", name: "Axum" }
+  cargo-watch: { category: "tool", name: "cargo-watch" }
+  clap: { category: "library", name: "Clap" }
+  criterion: { category: "testing", name: "Criterion" }
+  crossbeam: { category: "library", name: "Crossbeam" }
+  diesel: { category: "database", name: "Diesel" }
+  env_logger: { category: "library", name: "env_logger" }
+  hyper: { category: "library", name: "Hyper" }
+  log: { category: "library", name: "log" }
+  prost: { category: "library", name: "Prost" }
+  rayon: { category: "library", name: "Rayon" }
+  reqwest: { category: "library", name: "Reqwest" }
+  rocket: { category: "framework", name: "Rocket" }
+  sea-orm: { category: "database", name: "SeaORM" }
+  serde: { category: "library", name: "Serde" }
+  sqlx: { category: "database", name: "SQLx" }
+  structopt: { category: "library", name: "StructOpt" }
+  thiserror: { category: "library", name: "thiserror" }
+  tokio: { category: "library", name: "Tokio" }
+  tonic: { category: "library", name: "Tonic (gRPC)" }
+  tracing: { category: "library", name: "Tracing" }
+  warp: { category: "framework", name: "Warp" }
+
+ruby:
+  activerecord: { category: "database", name: "Active Record" }
+  capistrano: { category: "tool", name: "Capistrano" }
+  devise: { category: "library", name: "Devise" }
+  hanami: { category: "framework", name: "Hanami" }
+  minitest: { category: "testing", name: "Minitest" }
+  puma: { category: "tool", name: "Puma" }
+  pundit: { category: "library", name: "Pundit" }
+  rails: { category: "framework", name: "Ruby on Rails" }
+  rspec: { category: "testing", name: "RSpec" }
+  rubocop: { category: "tool", name: "RuboCop" }
+  sequel: { category: "database", name: "Sequel" }
+  sidekiq: { category: "library", name: "Sidekiq" }
+  sinatra: { category: "framework", name: "Sinatra" }
+  sorbet: { category: "tool", name: "Sorbet" }
+  unicorn: { category: "tool", name: "Unicorn" }
+
+java:
+  elasticsearch: { category: "database", name: "Elasticsearch" }
+  flyway: { category: "database", name: "Flyway" }
+  gson: { category: "library", name: "Gson" }
+  hibernate: { category: "database", name: "Hibernate" }
+  jackson: { category: "library", name: "Jackson" }
+  junit: { category: "testing", name: "JUnit" }
+  kafka: { category: "library", name: "Apache Kafka" }
+  liquibase: { category: "database", name: "Liquibase" }
+  logback: { category: "library", name: "Logback" }
+  lombok: { category: "library", name: "Lombok" }
+  mapstruct: { category: "library", name: "MapStruct" }
+  maven: { category: "tool", name: "Maven" }
+  micronaut: { category: "framework", name: "Micronaut" }
+  mockito: { category: "testing", name: "Mockito" }
+  mybatis: { category: "database", name: "MyBatis" }
+  quarkus: { category: "framework", name: "Quarkus" }
+  rabbitmq: { category: "library", name: "RabbitMQ" }
+  slf4j: { category: "library", name: "SLF4J" }
+  spring-boot: { category: "framework", name: "Spring Boot" }
+  spring-data: { category: "database", name: "Spring Data" }
+  spring-framework: { category: "framework", name: "Spring Framework" }
+  spring-security: { category: "library", name: "Spring Security" }
+  testcontainers: { category: "testing", name: "Testcontainers" }
+
+php:
+  blade: { category: "library", name: "Blade" }
+  composer: { category: "tool", name: "Composer" }
+  doctrine: { category: "database", name: "Doctrine" }
+  eloquent: { category: "database", name: "Eloquent" }
+  guzzle: { category: "library", name: "Guzzle" }
+  laravel: { category: "framework", name: "Laravel" }
+  lumen: { category: "framework", name: "Lumen" }
+  monolog: { category: "library", name: "Monolog" }
+  pest: { category: "testing", name: "Pest" }
+  phpstan: { category: "tool", name: "PHPStan" }
+  phpunit: { category: "testing", name: "PHPUnit" }
+  psalm: { category: "tool", name: "Psalm" }
+  slim: { category: "framework", name: "Slim" }
+  symfony: { category: "framework", name: "Symfony" }
+  twig: { category: "library", name: "Twig" }
+
+csharp:
+  aspnet: { category: "framework", name: "ASP.NET Core" }
+  automapper: { category: "library", name: "AutoMapper" }
+  avalonia: { category: "framework", name: "Avalonia" }
+  blazor: { category: "framework", name: "Blazor" }
+  dapper: { category: "database", name: "Dapper" }
+  efcore: { category: "database", name: "Entity Framework Core" }
+  maui: { category: "framework", name: ".NET MAUI" }
+  mediatr: { category: "library", name: "MediatR" }
+  moq: { category: "testing", name: "Moq" }
+  nunit: { category: "testing", name: "NUnit" }
+  polly: { category: "library", name: "Polly" }
+  serilog: { category: "library", name: "Serilog" }
+  xunit: { category: "testing", name: "xUnit" }
+
+swift:
+  alamofire: { category: "library", name: "Alamofire" }
+  combine: { category: "library", name: "Combine" }
+  coredata: { category: "database", name: "Core Data" }
+  kingfisher: { category: "library", name: "Kingfisher" }
+  nimble: { category: "testing", name: "Nimble" }
+  quick: { category: "testing", name: "Quick" }
+  realm: { category: "database", name: "Realm" }
+  snapkit: { category: "library", name: "SnapKit" }
+  swiftui: { category: "framework", name: "SwiftUI" }
+  uikit: { category: "framework", name: "UIKit" }
+  vapor: { category: "framework", name: "Vapor" }
+  xctest: { category: "testing", name: "XCTest" }
+
+kotlin:
+  compose: { category: "framework", name: "Jetpack Compose" }
+  coroutines: { category: "library", name: "Kotlin Coroutines" }
+  exposed: { category: "database", name: "Exposed" }
+  hilt: { category: "library", name: "Hilt" }
+  koin: { category: "library", name: "Koin" }
+  kotest: { category: "testing", name: "Kotest" }
+  kotlinx-serialization: { category: "library", name: "kotlinx.serialization" }
+  ktor: { category: "framework", name: "Ktor" }
+  mockk: { category: "testing", name: "MockK" }
+  okhttp: { category: "library", name: "OkHttp" }
+  retrofit: { category: "library", name: "Retrofit" }
+  room: { category: "database", name: "Room" }
+  spring-boot-kotlin: { category: "framework", name: "Spring Boot (Kotlin)" }
