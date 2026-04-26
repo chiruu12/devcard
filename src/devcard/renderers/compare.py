@@ -22,6 +22,7 @@ def render_compare(card1: DevCard, card2: DevCard) -> str:
 
     _compare_identity(console, card1, card2)
     _compare_languages(console, card1, card2)
+    _compare_stack(console, card1, card2)
     _compare_expertise(console, card1, card2)
     _compare_quality(console, card1, card2)
     _compare_activity(console, card1, card2)
@@ -79,6 +80,48 @@ def _compare_languages(console: Console, c1: DevCard, c2: DevCard) -> None:
         table.add_row(name, p1, p2, shared)
 
     console.print(table)
+
+
+def _get_stack_names(devcard: DevCard) -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
+    if not devcard.stack:
+        return result
+    for field, label in [
+        ("frameworks", "Frameworks"), ("libraries", "Libraries"),
+        ("databases", "Databases"), ("tools", "Tools"),
+        ("platforms", "Platforms"), ("ci_cd", "CI/CD"), ("testing", "Testing"),
+    ]:
+        items = getattr(devcard.stack, field, [])
+        if items:
+            result[label] = {item.name for item in items}
+    return result
+
+
+def _compare_stack(console: Console, c1: DevCard, c2: DevCard) -> None:
+    s1_all = set()
+    s2_all = set()
+    for names in _get_stack_names(c1).values():
+        s1_all |= names
+    for names in _get_stack_names(c2).values():
+        s2_all |= names
+
+    if not s1_all and not s2_all:
+        return
+
+    shared = sorted(s1_all & s2_all)
+    only1 = sorted(s1_all - s2_all)
+    only2 = sorted(s2_all - s1_all)
+
+    lines: list[str] = []
+    if shared:
+        lines.append(f"[bold green]Shared:[/] {', '.join(shared)}")
+    if only1:
+        lines.append(f"[bold]{c1.identity.username} only:[/] {', '.join(only1[:10])}")
+    if only2:
+        lines.append(f"[bold]{c2.identity.username} only:[/] {', '.join(only2[:10])}")
+
+    if lines:
+        console.print(Panel("\n".join(lines), title="Stack Overlap", border_style="yellow"))
 
 
 def _compare_expertise(console: Console, c1: DevCard, c2: DevCard) -> None:
