@@ -217,7 +217,8 @@
           "type": ["string", "null"],
           "description": "Style: maintainer, contributor, solo_builder, explorer"
         },
-        "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" }
+        "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" },
+        "maintained_repos_with_contributors": { "type": "integer", "minimum": 0, "description": "Repos owned by user with forks (external contributors)" }
       },
       "additionalProperties": false
     },

@@ -65,12 +65,18 @@ async def extract_collaboration(
                     user.login, org,
                 )
 
+        maintained_count = sum(
+            1 for r in repos
+            if not r.fork and r.forks_count > 0
+        )
+
         return Collaboration(
             organizations=orgs,
             pull_requests_opened=pr_count,
             issues_opened=issue_count,
             external_contributions=external_count,
             org_contributions=org_contribs,
+            maintained_repos_with_contributors=maintained_count,
         )
     except Exception:
         logger.warning(

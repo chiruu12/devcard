@@ -180,6 +180,10 @@ class Collaboration(BaseModel):
         default_factory=list,
         description="Detailed contribution breakdown per organization",
     )
+    maintained_repos_with_contributors: int = Field(
+        default=0,
+        description="Repos owned by user with forks (indicating external contributors)",
+    )
 
 
 class OrgContribution(BaseModel):
