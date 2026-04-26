@@ -45,7 +45,52 @@ LINGUIST_COLORS: dict[str, str] = {
 
 LANGUAGE_BYTE_WEIGHTS: dict[str, float] = {
     "Jupyter Notebook": 0.05,
+    "HTML": 0.1,
+    "CSS": 0.1,
+    "SCSS": 0.1,
+    "Less": 0.1,
+    "Roff": 0.0,
+    "TeX": 0.1,
+    "Dockerfile": 0.0,
+    "Makefile": 0.2,
+    "CMake": 0.2,
+    "Batchfile": 0.2,
+    "Procfile": 0.0,
 }
+
+LANGUAGE_CATEGORIES: dict[str, str] = {
+    "HTML": "presentation",
+    "CSS": "presentation",
+    "SCSS": "presentation",
+    "Less": "presentation",
+    "Svelte": "presentation",
+    "Vue": "presentation",
+    "Jupyter Notebook": "data",
+    "R": "data",
+    "MATLAB": "data",
+    "TeX": "markup",
+    "Roff": "markup",
+    "Markdown": "markup",
+    "reStructuredText": "markup",
+    "Dockerfile": "build",
+    "Makefile": "build",
+    "CMake": "build",
+    "Batchfile": "build",
+    "Shell": "build",
+    "Procfile": "build",
+    "Nix": "build",
+}
+
+
+def _classify_language(name: str) -> str:
+    return LANGUAGE_CATEGORIES.get(name, "logic")
+
+
+def compute_coding_ratio(languages: list[Language]) -> float:
+    if not languages:
+        return 0.0
+    logic_pct = sum(lang.percentage for lang in languages if lang.category == "logic")
+    return round(logic_pct, 1)
 
 
 async def extract_languages(
@@ -82,6 +127,7 @@ async def extract_languages(
                 percentage=pct,
                 color=LINGUIST_COLORS.get(name),
                 bytes=byte_count,
+                category=_classify_language(name),
             ))
 
         return languages or None

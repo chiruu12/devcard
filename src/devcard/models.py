@@ -56,6 +56,10 @@ class Language(BaseModel):
         default=None, description="Hex color code from GitHub Linguist"
     )
     bytes: int | None = Field(default=None, description="Total bytes of code in this language")
+    category: Literal["logic", "presentation", "markup", "data", "build", "other"] | None = Field(
+        default=None,
+        description="Language category: logic, presentation, markup, data, build, other",
+    )
 
 
 class StackItem(BaseModel):

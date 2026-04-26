@@ -103,7 +103,8 @@
         "name": { "type": "string", "description": "Programming language name" },
         "percentage": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage of total code" },
         "color": { "type": ["string", "null"], "description": "Hex color from GitHub Linguist" },
-        "bytes": { "type": ["integer", "null"], "minimum": 0, "description": "Total bytes of code" }
+        "bytes": { "type": ["integer", "null"], "minimum": 0, "description": "Total bytes of code" },
+        "category": { "type": ["string", "null"], "enum": ["logic", "presentation", "markup", "data", "build", "other", null], "description": "Language category: logic (Python, Go), presentation (CSS, HTML), markup, data, build, other" }
       },
       "additionalProperties": false
     },

@@ -43,7 +43,10 @@ def generate_cmd(
     username: str = typer.Argument(help="GitHub username to generate a DevCard for"),
     token: str | None = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
     format: str = typer.Option(
-        "terminal", "--format", "-f", help="Output format: json, yaml, terminal, svg, all"
+        "terminal",
+        "--format",
+        "-f",
+        help="Output format: json, yaml, terminal, svg, markdown, toon, agent, llms-txt, all",
     ),
     output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
     theme: str = typer.Option(
@@ -92,8 +95,47 @@ def generate_cmd(
         out_path.write_text(result)
         err_console.print(f"[green]SVG written to {out_path}[/]")
 
+    elif format == "markdown":
+        from devcard.renderers.markdown import render_markdown
+
+        result = render_markdown(devcard)
+        if output:
+            output.write_text(result)
+            err_console.print(f"[green]Written to {output}[/]")
+        else:
+            sys.stdout.write(result + "\n")
+
+    elif format == "toon":
+        from devcard.output.toon_output import to_toon
+
+        result = to_toon(devcard)
+        if output:
+            output.write_text(result)
+            err_console.print(f"[green]Written to {output}[/]")
+        else:
+            sys.stdout.write(result + "\n")
+
+    elif format == "agent":
+        from devcard.output.agent_card import to_agent_card
+
+        result = to_agent_card(devcard)
+        if output:
+            output.write_text(result)
+            err_console.print(f"[green]Written to {output}[/]")
+        else:
+            sys.stdout.write(result + "\n")
+
+    elif format == "llms-txt":
+        from devcard.output.llms_txt import to_llms_txt
+
+        result = to_llms_txt(devcard)
+        out_path = output or Path(f"{username}.llms.txt")
+        out_path.write_text(result)
+        err_console.print(f"[green]llms.txt written to {out_path}[/]")
+
     elif format == "all":
         from devcard.output.yaml_output import to_yaml
+        from devcard.renderers.markdown import render_markdown
         from devcard.renderers.svg_card import render_svg
 
         json_path = output or Path(f"{username}.devcard.json")
@@ -104,6 +146,16 @@ def generate_cmd(
         svg_path = json_path.with_suffix(".svg")
         svg_path.write_text(render_svg(devcard, theme=svg_theme))
         err_console.print(f"[green]SVG:  {svg_path}[/]")
+
+        md_path = json_path.with_suffix(".md")
+        md_path.write_text(render_markdown(devcard))
+        err_console.print(f"[green]MD:   {md_path}[/]")
+
+        from devcard.output.llms_txt import to_llms_txt
+
+        llms_path = json_path.with_name(f"{username}.llms.txt")
+        llms_path.write_text(to_llms_txt(devcard))
+        err_console.print(f"[green]llms: {llms_path}[/]")
 
         sys.stdout.write(render_terminal(devcard))
 

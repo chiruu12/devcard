@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from xml.sax.saxutils import escape
 
+from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 from devcard.renderers.themes.base import Theme
 from devcard.renderers.themes.default import THEME as DEFAULT_THEME
@@ -176,8 +177,13 @@ def _section_header(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
 def _section_languages(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
     x = t.card_padding
     bar_w = t.card_width - 2 * t.card_padding
+    coding_ratio = compute_coding_ratio(devcard.languages)
     parts = [f'  <g class="section" transform="translate({x}, {y})">']
     parts.append('    <text x="0" y="14" class="label">Languages</text>')
+    parts.append(
+        f'    <text x="{bar_w}" y="14" text-anchor="end" class="small">'
+        f'{coding_ratio:.0f}% logic code</text>'
+    )
 
     bar_y = 24
     bar_x = 0.0

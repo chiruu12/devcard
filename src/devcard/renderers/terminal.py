@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 
 LANG_COLORS = {
@@ -89,7 +90,11 @@ def _render_languages(console: Console, devcard: DevCard) -> None:
         bar_width = int(lang.percentage / 100 * 30)
         bar = "█" * bar_width + "░" * (30 - bar_width)
         lines.append(f"[{color}]{bar}[/] {lang.name} {lang.percentage:.1f}%")
-    console.print(Panel("\n".join(lines), title="Languages", border_style="green"))
+    coding_ratio = compute_coding_ratio(devcard.languages)
+    subtitle = f"Logic code: {coding_ratio:.0f}%"
+    console.print(Panel(
+        "\n".join(lines), title="Languages", subtitle=subtitle, border_style="green",
+    ))
 
 
 def _render_stack(console: Console, devcard: DevCard) -> None:
