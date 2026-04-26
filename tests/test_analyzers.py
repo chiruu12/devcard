@@ -100,6 +100,51 @@ class TestProjectClassifier:
         classify_projects(card)
         assert card.projects[0].classification == "framework"
 
+    def test_config_classification(self):
+        card = _make_devcard(
+            projects=[Project(name="dotfiles", description="My configuration")],
+        )
+        classify_projects(card)
+        assert card.projects[0].classification == "config"
+
+    def test_signature_project_marked(self):
+        card = _make_devcard(
+            projects=[
+                Project(name="big", stars=500, forks=100),
+                Project(name="small", stars=5, forks=0),
+            ],
+        )
+        classify_projects(card)
+        assert card.projects[0].is_signature is True
+        assert card.projects[1].is_signature is False
+
+    def test_no_signature_if_no_stars(self):
+        card = _make_devcard(
+            projects=[Project(name="empty", stars=0, forks=0)],
+        )
+        classify_projects(card)
+        assert card.projects[0].is_signature is False
+
+    def test_narrative_generated(self):
+        card = _make_devcard(
+            projects=[
+                Project(
+                    name="cool-lib", stars=200, language="Python",
+                    description="A really cool library",
+                ),
+            ],
+        )
+        classify_projects(card)
+        assert card.projects[0].narrative is not None
+        assert "python" in card.projects[0].narrative.lower()
+
+    def test_signature_narrative_prefix(self):
+        card = _make_devcard(
+            projects=[Project(name="top", stars=100, language="Rust")],
+        )
+        classify_projects(card)
+        assert card.projects[0].narrative.startswith("Signature project")
+
 
 class TestContributionStyle:
     def test_maintainer(self):

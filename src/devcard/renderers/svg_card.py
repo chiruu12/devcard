@@ -349,12 +349,15 @@ def _section_projects(devcard: DevCard, t: Theme, y: int) -> tuple[str, int]:
 
     row_y = 28
     for proj in devcard.projects[:5]:
-        name = _esc(proj.name)
+        prefix = "★ " if proj.is_signature else ""
+        name = _esc(f"{prefix}{proj.name}")
         stars = f"★ {proj.stars:,}" if proj.stars else ""
         lang = _esc(proj.language or "")
 
+        font_weight = "600" if proj.is_signature else "400"
         parts.append(
-            f'    <text x="0" y="{row_y + 12}" class="body">{name}</text>'
+            f'    <text x="0" y="{row_y + 12}" '
+            f'style="font-weight: {font_weight};" class="body">{name}</text>'
         )
         parts.append(
             f'    <text x="200" y="{row_y + 12}" class="small">{stars}</text>'

@@ -10,6 +10,7 @@ _LEARNING_SIGNALS = {
     "starter", "boilerplate", "template", "awesome",
 }
 _FRAMEWORK_SIGNALS = {"framework", "engine", "platform"}
+_CONFIG_SIGNALS = {"dotfiles", "config", "configuration", "setup", "nvim", "vim", "emacs", "nix"}
 
 
 def _classify_one(name: str, description: str, topics: list[str]) -> str:
@@ -25,6 +26,8 @@ def _classify_one(name: str, description: str, topics: list[str]) -> str:
         return "library"
     if all_signals & _TOOL_SIGNALS:
         return "tool"
+    if all_signals & _CONFIG_SIGNALS:
+        return "config"
     if all_signals & _DOCS_SIGNALS:
         return "docs"
     if all_signals & _LEARNING_SIGNALS:
@@ -40,3 +43,46 @@ def classify_projects(devcard: DevCard) -> None:
                 project.description or "",
                 project.topics,
             )
+    _mark_signature(devcard)
+    _generate_narratives(devcard)
+
+
+def _mark_signature(devcard: DevCard) -> None:
+    if not devcard.projects:
+        return
+    best = max(
+        devcard.projects,
+        key=lambda p: p.stars * 3 + p.forks * 2 + (10 if p.status == "active" else 0),
+    )
+    if best.stars > 0 or best.forks > 0:
+        best.is_signature = True
+
+
+_NARRATIVE_TEMPLATES: dict[str, str] = {
+    "framework": "A {lang} framework with {stars} stars",
+    "library": "A {lang} library with {stars} stars",
+    "tool": "A {lang} developer tool with {stars} stars",
+    "application": "A {lang} application with {stars} stars",
+    "config": "Developer configuration and environment setup",
+    "docs": "Documentation and reference material",
+    "learning": "Learning resource and examples",
+}
+
+
+def _generate_narratives(devcard: DevCard) -> None:
+    for proj in devcard.projects:
+        if proj.narrative is not None:
+            continue
+        template = _NARRATIVE_TEMPLATES.get(
+            proj.classification or "application", "A project with {stars} stars"
+        )
+        lang = proj.language or "multi-language"
+        narrative = template.format(lang=lang, stars=f"{proj.stars:,}")
+        if proj.is_signature:
+            narrative = f"Signature project — {narrative.lower()}"
+        if proj.description:
+            desc = proj.description[:60]
+            if len(proj.description) > 60:
+                desc += "..."
+            narrative = f"{narrative} — {desc}"
+        proj.narrative = narrative

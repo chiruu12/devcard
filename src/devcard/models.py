@@ -139,7 +139,15 @@ class Project(BaseModel):
     )
     classification: str | None = Field(
         default=None,
-        description="Project type: library, application, tool, framework, docs, learning",
+        description="Project type: library, application, tool, framework, config, docs, learning",
+    )
+    is_signature: bool = Field(
+        default=False,
+        description="Whether this is the developer's signature (standout) project",
+    )
+    narrative: str | None = Field(
+        default=None,
+        description="One-line heuristic description of the project's significance",
     )
 
 

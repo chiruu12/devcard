@@ -184,7 +184,15 @@
         },
         "classification": {
           "type": ["string", "null"],
-          "description": "Project type: library, application, tool, framework, docs, learning"
+          "description": "Project type: library, application, tool, framework, config, docs, learning"
+        },
+        "is_signature": {
+          "type": "boolean",
+          "description": "Whether this is the developer's signature (standout) project"
+        },
+        "narrative": {
+          "type": ["string", "null"],
+          "description": "One-line heuristic description of the project's significance"
         }
       },
       "additionalProperties": false

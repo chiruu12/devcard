@@ -186,11 +186,15 @@ def _render_projects(console: Console, devcard: DevCard) -> None:
             status_text.stylize("green")
         elif proj.status == "archived":
             status_text.stylize("dim")
+        name = f"★ {proj.name}" if proj.is_signature else proj.name
         table.add_row(
-            proj.name,
+            name,
             f"⭐ {proj.stars:,}" if proj.stars else "-",
             str(proj.forks) if proj.forks else "-",
             proj.language or "-",
             status_text,
         )
     console.print(table)
+    sig = next((p for p in devcard.projects if p.is_signature and p.narrative), None)
+    if sig:
+        console.print(f"  [dim italic]{sig.narrative}[/]")

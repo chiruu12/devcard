@@ -104,10 +104,15 @@ def _render_projects(devcard: DevCard) -> str:
         "| --- | --- | ---: | --- | --- |",
     ]
     for proj in devcard.projects:
+        name = f"**{proj.name}**" if proj.is_signature else proj.name
         desc = proj.description or ""
         lang = proj.language or "-"
         status = proj.status or "-"
-        lines.append(f"| {proj.name} | {desc} | {proj.stars} | {lang} | {status} |")
+        lines.append(f"| {name} | {desc} | {proj.stars} | {lang} | {status} |")
+    sig = next((p for p in devcard.projects if p.is_signature and p.narrative), None)
+    if sig:
+        lines.append("")
+        lines.append(f"*{sig.narrative}*")
     return "\n".join(lines)
 
 
