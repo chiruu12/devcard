@@ -243,6 +243,11 @@
             "additionalProperties": false
           },
           "description": "Per-repo quality signal breakdown"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Actionable improvement tips based on quality gaps"
         }
       },
       "additionalProperties": false

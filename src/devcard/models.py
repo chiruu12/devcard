@@ -224,6 +224,10 @@ class Quality(BaseModel):
     details: list[QualityDetail] = Field(
         default_factory=list, description="Per-repo quality signal breakdown"
     )
+    recommendations: list[str] = Field(
+        default_factory=list,
+        description="Actionable improvement tips based on quality gaps",
+    )
 
 
 class Domain(BaseModel):

@@ -136,6 +136,10 @@ def _render_quality(console: Console, devcard: DevCard) -> None:
         bar = "█" * filled + "░" * (20 - filled)
         lines.append(f"{name:>8} [{_quality_color(val)}]{bar}[/] {val:.0%}")
     lines.append(f"\n[bold]Score: {q.score:.0%}[/]")
+    if q.recommendations:
+        lines.append("")
+        for tip in q.recommendations[:3]:
+            lines.append(f"[dim]→ {tip}[/]")
     console.print(Panel("\n".join(lines), title="Quality", border_style="magenta"))
 
 

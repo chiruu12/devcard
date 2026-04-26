@@ -152,6 +152,12 @@ def _render_quality(devcard: DevCard) -> str:
         f"| License | {q.license_adoption:.0%} |",
         f"| Linter | {q.linter_adoption:.0%} |",
     ]
+    if q.recommendations:
+        lines.append("")
+        lines.append("**Recommendations:**")
+        lines.append("")
+        for tip in q.recommendations[:5]:
+            lines.append(f"- {tip}")
     return "\n".join(lines)
 
 
