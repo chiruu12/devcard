@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from devcard.mappings import TOPICS_TO_DOMAINS
 from devcard.models import DevCard
 
 _LIB_SIGNALS = {"lib", "sdk", "library", "package", "module", "client", "wrapper", "binding"}
@@ -59,14 +60,36 @@ def _mark_signature(devcard: DevCard) -> None:
 
 
 _NARRATIVE_TEMPLATES: dict[str, str] = {
-    "framework": "A {lang} framework with {stars} stars",
-    "library": "A {lang} library with {stars} stars",
-    "tool": "A {lang} developer tool with {stars} stars",
-    "application": "A {lang} application with {stars} stars",
-    "config": "Developer configuration and environment setup",
-    "docs": "Documentation and reference material",
-    "learning": "Learning resource and examples",
+    "framework": "{lang} framework",
+    "library": "{lang} library",
+    "tool": "{lang} developer tool",
+    "application": "{lang} project",
+    "config": "{lang} configuration",
+    "docs": "{lang} documentation",
+    "learning": "{lang} project",
 }
+
+
+_DOMAIN_SHORT_LABELS: dict[str, str] = {
+    "Machine Learning": "ML",
+    "Data Science": "Data",
+    "Frontend Development": "Frontend",
+    "Backend Development": "Backend",
+    "DevOps": "DevOps",
+    "Mobile Development": "Mobile",
+    "Systems Programming": "Systems",
+    "Databases": "Database",
+    "Web Development": "Web",
+    "Security": "Security",
+}
+
+
+def _infer_domain_label(proj) -> str | None:
+    for topic in proj.topics:
+        domain = TOPICS_TO_DOMAINS.get(topic.lower())
+        if domain:
+            return _DOMAIN_SHORT_LABELS.get(domain, domain)
+    return None
 
 
 def _generate_narratives(devcard: DevCard) -> None:
@@ -74,15 +97,28 @@ def _generate_narratives(devcard: DevCard) -> None:
         if proj.narrative is not None:
             continue
         template = _NARRATIVE_TEMPLATES.get(
-            proj.classification or "application", "A project with {stars} stars"
+            proj.classification or "application", "{lang} project"
         )
-        lang = proj.language or "multi-language"
-        narrative = template.format(lang=lang, stars=f"{proj.stars:,}")
+        lang = proj.language or "Multi-language"
+        base = template.format(lang=lang)
+
+        domain = _infer_domain_label(proj)
+        if domain:
+            first_char = base[0].lower()
+            base = f"{domain} {first_char}{base[1:]}"
+
+        parts = [base]
+        if proj.stars:
+            parts.append(f"{proj.stars:,} stars")
+        narrative = " · ".join(parts)
+
         if proj.is_signature:
-            narrative = f"Signature project — {narrative.lower()}"
+            narrative = f"Flagship: {narrative}"
+
         if proj.description:
-            desc = proj.description[:60]
-            if len(proj.description) > 60:
+            desc = proj.description[:80].rstrip()
+            if len(proj.description) > 80:
                 desc += "..."
             narrative = f"{narrative} — {desc}"
+
         proj.narrative = narrative
