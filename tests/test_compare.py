@@ -99,6 +99,8 @@ class TestCompareRenderer:
         output = render_compare(_card_a(), _card_b())
         assert "Stack Overlap" in output
         assert "NumPy" in output  # shared
+        assert "PyTorch" in output  # alice only
+        assert "React" in output  # bob only
 
     def test_contains_quality_scores(self):
         output = render_compare(_card_a(), _card_b())

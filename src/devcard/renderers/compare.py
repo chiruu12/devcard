@@ -82,6 +82,12 @@ def _compare_languages(console: Console, c1: DevCard, c2: DevCard) -> None:
     console.print(table)
 
 
+def _truncated_list(items: list[str], limit: int) -> str:
+    if len(items) <= limit:
+        return ", ".join(items)
+    return f"{', '.join(items[:limit])} (+{len(items) - limit} more)"
+
+
 def _get_stack_names(devcard: DevCard) -> dict[str, set[str]]:
     result: dict[str, set[str]] = {}
     if not devcard.stack:
@@ -90,6 +96,7 @@ def _get_stack_names(devcard: DevCard) -> dict[str, set[str]]:
         ("frameworks", "Frameworks"), ("libraries", "Libraries"),
         ("databases", "Databases"), ("tools", "Tools"),
         ("platforms", "Platforms"), ("ci_cd", "CI/CD"), ("testing", "Testing"),
+        ("other", "Other"),
     ]:
         items = getattr(devcard.stack, field, [])
         if items:
@@ -114,11 +121,11 @@ def _compare_stack(console: Console, c1: DevCard, c2: DevCard) -> None:
 
     lines: list[str] = []
     if shared:
-        lines.append(f"[bold green]Shared:[/] {', '.join(shared)}")
+        lines.append(f"[bold green]Shared:[/] {_truncated_list(shared, 10)}")
     if only1:
-        lines.append(f"[bold]{c1.identity.username} only:[/] {', '.join(only1[:10])}")
+        lines.append(f"[bold]{c1.identity.username} only:[/] {_truncated_list(only1, 10)}")
     if only2:
-        lines.append(f"[bold]{c2.identity.username} only:[/] {', '.join(only2[:10])}")
+        lines.append(f"[bold]{c2.identity.username} only:[/] {_truncated_list(only2, 10)}")
 
     if lines:
         console.print(Panel("\n".join(lines), title="Stack Overlap", border_style="yellow"))
