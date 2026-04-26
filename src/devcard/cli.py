@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.logging import RichHandler
 
 from devcard.config import DevCardConfig
 from devcard.output.json_output import to_json
@@ -19,6 +21,16 @@ app = typer.Typer(
     help="Auto-generate structured developer identity cards from GitHub profiles.",
     no_args_is_help=True,
 )
+
+
+def _setup_logging(verbose: bool) -> None:
+    level = logging.DEBUG if verbose else logging.WARNING
+    logging.basicConfig(
+        level=level,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(console=Console(stderr=True), rich_tracebacks=True)],
+    )
 
 err_console = Console(stderr=True)
 
@@ -57,8 +69,10 @@ def generate_cmd(
     model: str | None = typer.Option(
         None, "--model", help="Override LLM model for enrichment"
     ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show debug logs"),
 ) -> None:
     """Generate a DevCard for a GitHub user."""
+    _setup_logging(verbose)
     config = DevCardConfig.create(token=token, no_cache=no_cache)
     if model:
         config.llm_model = model
