@@ -22,11 +22,17 @@ class EnrichmentResponse(BaseModel):
         description="Creative 2-3 word developer label (e.g. 'ML Craftsman', 'Full-Stack Polyglot')"
     )
     strengths: list[str] = Field(
-        description="Exactly 3 strengths. Each is 1 short sentence with evidence."
+        min_length=1,
+        max_length=3,
+        description="Exactly 3 strengths. Each is 1 short sentence with evidence.",
     )
     suggestions: list[str] = Field(
-        description="Exactly 3 growth areas. Each is 1 actionable sentence."
+        min_length=1,
+        max_length=3,
+        description="Exactly 3 growth areas. Each is 1 actionable sentence.",
     )
     project_highlights: list[ProjectHighlightResponse] = Field(
-        description="Top 3 projects ranked by actual significance, not just stars."
+        min_length=1,
+        max_length=5,
+        description="Top 3-5 projects ranked by actual significance, not just stars.",
     )

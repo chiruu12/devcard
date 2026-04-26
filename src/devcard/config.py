@@ -45,16 +45,16 @@ class DevCardConfig:
     llm_model: str = "accounts/fireworks/models/gpt-oss-120b"
 
     @classmethod
-    def create(
-        cls, token: str | None = None, enrich: bool = False, **kwargs,
-    ) -> DevCardConfig:
+    def create(cls, token: str | None = None, **kwargs) -> DevCardConfig:
         resolved_token = _detect_token(token)
         if not resolved_token:
             logger.warning(
                 "No GitHub token found. Rate limit: 60 requests/hour. "
                 "Set GITHUB_TOKEN or use --token for 5000 requests/hour."
             )
-        fireworks_key = os.environ.get("FIREWORKS_API_KEY")
+        fireworks_key = kwargs.pop("fireworks_api_key", None) or os.environ.get(
+            "FIREWORKS_API_KEY"
+        )
         return cls(
             github_token=resolved_token,
             fireworks_api_key=fireworks_key,

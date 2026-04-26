@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
 
-_MAX_RETRIES = 2
+_MAX_RETRIES = 1
 _BACKOFF_BASE = 0.5
 _PROMPT_PATH = Path(__file__).parent / "prompt.md"
 

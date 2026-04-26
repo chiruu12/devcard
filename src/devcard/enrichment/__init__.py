@@ -58,13 +58,18 @@ def _serialize_devcard_for_llm(devcard: DevCard) -> str:
         ]
 
     if devcard.expertise:
-        data["expertise"] = {
+        expertise_data: dict[str, Any] = {
             "profile_type": devcard.expertise.profile_type,
             "domains": [
                 {"name": d.name, "confidence": d.confidence, "skill_level": d.skill_level}
                 for d in devcard.expertise.domains
             ],
         }
+        if devcard.expertise.focus_areas:
+            expertise_data["focus_areas"] = [
+                fa.name for fa in devcard.expertise.focus_areas
+            ]
+        data["expertise"] = expertise_data
 
     if devcard.activity:
         data["activity"] = {
@@ -81,6 +86,7 @@ def _serialize_devcard_for_llm(devcard: DevCard) -> str:
             "test_adoption": devcard.quality.test_adoption,
             "docs_adoption": devcard.quality.docs_adoption,
             "license_adoption": devcard.quality.license_adoption,
+            "linter_adoption": devcard.quality.linter_adoption,
             "recommendations": devcard.quality.recommendations,
         }
 
