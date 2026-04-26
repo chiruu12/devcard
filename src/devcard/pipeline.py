@@ -94,7 +94,9 @@ async def _fetch_root_listings(
     return dict(results)
 
 
-async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
+async def generate_devcard(
+    username: str, config: DevCardConfig, *, enrich: bool = False,
+) -> DevCard:
     client = GitHubClient(config)
     try:
         user = await client.get_user(username)
@@ -148,6 +150,14 @@ async def generate_devcard(username: str, config: DevCardConfig) -> DevCard:
             devcard.collaboration.contribution_style = analyze_contribution_style(devcard)
         compute_quality_score(devcard)
         devcard.summary = _generate_summary(devcard)
+
+        if enrich and config.fireworks_api_key:
+            from devcard.enrichment import enrich_devcard
+
+            enriched = await enrich_devcard(devcard, config)
+            if enriched:
+                devcard.enriched = enriched
+                logger.info("Enrichment complete for %s", username)
 
         return devcard
     finally:

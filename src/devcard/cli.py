@@ -53,13 +53,22 @@ def generate_cmd(
         "default", "--theme", help="SVG theme: default, dark, minimal, neon, terminal-green"
     ),
     no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
+    enrich: bool = typer.Option(False, "--enrich", help="Enable AI-powered enrichment (Fireworks)"),
+    model: str | None = typer.Option(
+        None, "--model", help="Override LLM model for enrichment"
+    ),
 ) -> None:
     """Generate a DevCard for a GitHub user."""
     config = DevCardConfig.create(token=token, no_cache=no_cache)
+    if model:
+        config.llm_model = model
+
+    if not enrich and config.fireworks_api_key:
+        err_console.print("[dim]Tip: use --enrich for AI-powered insights[/]")
 
     with err_console.status(f"[bold green]Generating DevCard for {username}..."):
         try:
-            devcard = asyncio.run(generate_devcard(username, config))
+            devcard = asyncio.run(generate_devcard(username, config, enrich=enrich))
         except Exception as e:
             err_console.print(f"[bold red]Error:[/] {e}")
             raise typer.Exit(code=1)

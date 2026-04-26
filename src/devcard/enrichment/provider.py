@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from devcard.enrichment.text_cleaner import clean_llm_text
 
@@ -152,15 +152,19 @@ class FireworksProvider:
         cleaned = _clean_json_response(raw)
 
         try:
-            result = output_model.model_validate_json(cleaned)
-        except ValidationError:
+            parsed = json.loads(cleaned)
+        except json.JSONDecodeError:
             start = cleaned.find("{")
             end = cleaned.rfind("}") + 1
             if start >= 0 and end > start:
-                result = output_model.model_validate_json(cleaned[start:end])
+                parsed = json.loads(cleaned[start:end])
             else:
                 logger.error("LLM returned invalid JSON: %s", cleaned[:200])
                 raise
+
+        parsed.pop("title", None)
+        parsed.pop("$defs", None)
+        result = output_model.model_validate(parsed)
         return self._clean_model(result)
 
     async def close(self) -> None:
