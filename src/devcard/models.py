@@ -121,6 +121,14 @@ class Activity(BaseModel):
         default=None,
         description="7x24 matrix of activity counts (rows=days Mon-Sun, cols=hours 0-23)",
     )
+    consistency_score: int | None = Field(
+        default=None,
+        description="Activity consistency from 0 (sporadic) to 100 (perfectly even)",
+    )
+    consistency_description: str | None = Field(
+        default=None,
+        description="Human-readable consistency label (e.g. 'bursty, heavy Tuesdays & Fridays')",
+    )
 
 
 class Project(BaseModel):

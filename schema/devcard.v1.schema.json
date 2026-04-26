@@ -157,6 +157,16 @@
             "items": { "type": "integer", "minimum": 0 }
           },
           "description": "7x24 matrix of activity counts (rows=days Mon-Sun, cols=hours 0-23)"
+        },
+        "consistency_score": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Activity consistency from 0 (sporadic) to 100 (perfectly even)"
+        },
+        "consistency_description": {
+          "type": ["string", "null"],
+          "description": "Human-readable consistency label"
         }
       },
       "additionalProperties": false

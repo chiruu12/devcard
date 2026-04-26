@@ -153,7 +153,12 @@ def _curate_activity(devcard: DevCard) -> dict[str, Any]:
     if activity.commits_last_year is not None:
         result["commits_per_week"] = round(activity.commits_last_year / 52, 1)
 
-    result["consistency"] = _compute_consistency(activity.heatmap, activity.status)
+    if activity.consistency_score is not None:
+        result["consistency_score"] = activity.consistency_score
+    if activity.consistency_description:
+        result["consistency"] = activity.consistency_description
+    else:
+        result["consistency"] = _compute_consistency(activity.heatmap, activity.status)
 
     if activity.heatmap:
         active_days = sum(1 for row in activity.heatmap if any(v > 0 for v in row))

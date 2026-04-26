@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import statistics
 from collections import Counter
 from datetime import UTC, datetime
 
@@ -9,6 +10,9 @@ from devcard.github.models import GitHubRepo, GitHubUser
 from devcard.models import Activity
 
 logger = logging.getLogger(__name__)
+
+_DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+_SPARKLINE_CHARS = " ▁▂▃▄▅▆▇█"
 
 
 async def extract_activity(
@@ -103,16 +107,71 @@ async def extract_activity(
             elif recent_count > 0:
                 commits_estimate = recent_count * 30
 
+        has_heatmap = any(any(row) for row in heatmap)
+        score, description = _compute_consistency(
+            heatmap if has_heatmap else None, status, peak_hours,
+        )
+
         return Activity(
             status=status,
             commits_last_year=commits_estimate,
             peak_hours=peak_hours,
             timezone_estimate=tz_estimate,
-            heatmap=heatmap if any(any(row) for row in heatmap) else None,
+            heatmap=heatmap if has_heatmap else None,
+            consistency_score=score,
+            consistency_description=description,
         )
     except Exception:
         logger.warning("Failed to extract activity for %s", user.login, exc_info=True)
         return None
+
+
+def _compute_consistency(
+    heatmap: list[list[int]] | None,
+    status: str,
+    peak_hours: list[int],
+) -> tuple[int, str]:
+    if not heatmap:
+        fallback_scores = {"active": 70, "moderate": 50, "sporadic": 25, "dormant": 0}
+        score = fallback_scores.get(status, 0)
+        return score, f"{status} (no detailed data)"
+
+    day_totals = [sum(row) for row in heatmap]
+    if max(day_totals) == 0:
+        return 0, "no activity detected"
+
+    mean = statistics.mean(day_totals)
+    stdev = statistics.stdev(day_totals) if len(day_totals) > 1 else 0.0
+    cv = stdev / mean if mean > 0 else 1.0
+    score = max(0, min(100, int((1 - cv) * 100)))
+
+    peak_days = sorted(
+        range(7), key=lambda i: day_totals[i], reverse=True,
+    )[:2]
+    peak_day_names = " & ".join(_DAY_NAMES[d] for d in sorted(peak_days))
+
+    if score >= 70:
+        label = "steady"
+    elif score >= 40:
+        label = "moderate"
+    else:
+        label = "bursty"
+
+    return score, f"{label}, heavy {peak_day_names}"
+
+
+def heatmap_sparkline(heatmap: list[list[int]] | None) -> str:
+    if not heatmap:
+        return ""
+    day_totals = [sum(row) for row in heatmap]
+    max_val = max(day_totals) if day_totals else 0
+    if max_val == 0:
+        return " ".join(f"{d} {_SPARKLINE_CHARS[0]}" for d in _DAY_NAMES)
+    chars = []
+    for i, total in enumerate(day_totals):
+        idx = int(total / max_val * (len(_SPARKLINE_CHARS) - 1))
+        chars.append(f"{_DAY_NAMES[i]}{_SPARKLINE_CHARS[idx]}")
+    return " ".join(chars)
 
 
 def _days_since_push(repo: GitHubRepo, now: datetime) -> int:

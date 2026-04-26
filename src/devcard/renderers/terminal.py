@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from devcard.extractors.activity import heatmap_sparkline
 from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 
@@ -162,6 +163,8 @@ def _render_activity(console: Console, devcard: DevCard) -> None:
     status_colors = {"active": "green", "moderate": "yellow", "sporadic": "red", "dormant": "dim"}
     color = status_colors.get(act.status, "white")
     parts = [f"Status: [{color}]{act.status.upper()}[/]"]
+    if act.consistency_score is not None:
+        parts.append(f"Consistency: {act.consistency_score}/100")
     if act.peak_hours:
         hours_str = ", ".join(f"{h}:00" for h in act.peak_hours[:3])
         parts.append(f"Peak hours: {hours_str}")
@@ -169,7 +172,13 @@ def _render_activity(console: Console, devcard: DevCard) -> None:
         parts.append(f"Timezone: {act.timezone_estimate}")
     if act.commits_last_year:
         parts.append(f"~{act.commits_last_year:,} commits/year (estimated)")
-    console.print(Panel("  |  ".join(parts), title="Activity", border_style="green"))
+    lines = ["  |  ".join(parts)]
+    if act.consistency_description:
+        lines.append(f"[dim]{act.consistency_description}[/]")
+    sparkline = heatmap_sparkline(act.heatmap)
+    if sparkline:
+        lines.append(f"[dim]{sparkline}[/]")
+    console.print(Panel("\n".join(lines), title="Activity", border_style="green"))
 
 
 def _render_projects(console: Console, devcard: DevCard) -> None:
