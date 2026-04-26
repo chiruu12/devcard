@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from devcard.analyzers.contribution_style import analyze_contribution_style
 from devcard.analyzers.developer_type import analyze_developer_type
 from devcard.analyzers.project_classifier import classify_projects
@@ -58,6 +60,32 @@ class TestDeveloperType:
             expertise=Expertise(),
         )
         assert analyze_developer_type(card) == "frontend"
+
+    @pytest.mark.parametrize("lang", ["C", "C++", "Rust"])
+    def test_systems_by_language(self, lang):
+        card = _make_devcard(
+            languages=[
+                Language(name=lang, percentage=75.0),
+                Language(name="Shell", percentage=15.0),
+                Language(name="Makefile", percentage=10.0),
+            ],
+        )
+        assert analyze_developer_type(card) == "systems"
+
+    def test_systems_below_threshold_not_systems(self):
+        card = _make_devcard(
+            languages=[
+                Language(name="C", percentage=40.0),
+                Language(name="Python", percentage=60.0),
+            ],
+        )
+        assert analyze_developer_type(card) != "systems"
+
+    def test_systems_by_topic(self):
+        card = _make_devcard(
+            projects=[Project(name="my-os", topics=["linux", "kernel"])],
+        )
+        assert analyze_developer_type(card) == "systems"
 
     def test_generic_user_defaults_fullstack(self):
         card = _make_devcard()
