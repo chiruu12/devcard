@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import statistics
 from typing import Any
 
 from devcard.extractors.languages import compute_coding_ratio
@@ -155,7 +154,9 @@ def _curate_activity(devcard: DevCard) -> dict[str, Any]:
 
     if activity.consistency_score is not None:
         result["consistency_score"] = activity.consistency_score
-    result["consistency"] = _compute_consistency(activity.heatmap, activity.status)
+        result["consistency"] = _label_from_score(activity.consistency_score)
+    else:
+        result["consistency"] = _label_from_status(activity.status)
     if activity.consistency_description:
         result["consistency_detail"] = activity.consistency_description
 
@@ -172,28 +173,16 @@ def _curate_activity(devcard: DevCard) -> dict[str, Any]:
     return result
 
 
-def _compute_consistency(
-    heatmap: list[list[int]] | None, status: str
-) -> str:
-    if not heatmap:
-        return {"active": "high", "moderate": "moderate"}.get(status, "low")
-
-    day_totals = [sum(row) for row in heatmap]
-    if not day_totals or max(day_totals) == 0:
-        return "low"
-
-    mean = statistics.mean(day_totals)
-    if mean == 0:
-        return "low"
-
-    stdev = statistics.stdev(day_totals) if len(day_totals) > 1 else 0.0
-    cv = stdev / mean
-
-    if cv < 0.3:
+def _label_from_score(score: int) -> str:
+    if score >= 70:
         return "high"
-    if cv < 0.7:
+    if score >= 40:
         return "moderate"
     return "low"
+
+
+def _label_from_status(status: str) -> str:
+    return {"active": "high", "moderate": "moderate"}.get(status, "low")
 
 
 def _curate_quality(devcard: DevCard) -> dict[str, Any]:

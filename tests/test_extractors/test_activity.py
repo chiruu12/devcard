@@ -137,7 +137,7 @@ def test_compute_consistency_bursty():
 
 
 def test_compute_consistency_three_days():
-    """3/7 days active with uneven totals (like chiruu12) should score ~25-40."""
+    """3/7 days active with uneven totals (like chiruu12) should score 20-45."""
     heatmap = [[0] * 24 for _ in range(7)]
     heatmap[4] = [1] * 15  # Friday: 15
     heatmap[5] = [1] * 3   # Saturday: 3
