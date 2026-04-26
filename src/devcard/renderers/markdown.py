@@ -167,7 +167,8 @@ def _render_expertise(devcard: DevCard) -> str:
         lines.append("**Domains:**")
         lines.append("")
         for domain in exp.domains:
-            lines.append(f"- {domain.name} ({domain.confidence:.0%} confidence)")
+            level = f" — {domain.skill_level}" if domain.skill_level else ""
+            lines.append(f"- {domain.name} ({domain.confidence:.0%}{level})")
     if exp.focus_areas:
         lines.append("")
         lines.append("**Focus areas:**")

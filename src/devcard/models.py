@@ -217,6 +217,10 @@ class Quality(BaseModel):
 class Domain(BaseModel):
     name: str = Field(description="Expertise domain name (e.g. Machine Learning, Web Development)")
     confidence: float = Field(description="Confidence score from 0 to 1")
+    skill_level: Literal["beginner", "intermediate", "advanced", "expert"] | None = Field(
+        default=None,
+        description="Inferred skill depth based on breadth of packages and projects",
+    )
 
 
 class FocusArea(BaseModel):

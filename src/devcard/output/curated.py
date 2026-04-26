@@ -109,7 +109,12 @@ def _curate_expertise(devcard: DevCard) -> dict[str, Any]:
         result["profile_type"] = expertise.profile_type
     if expertise.domains:
         result["domains"] = [
-            {"name": d.name, "confidence": round(d.confidence, 2)} for d in expertise.domains
+            {
+                "name": d.name,
+                "confidence": round(d.confidence, 2),
+                **({"skill_level": d.skill_level} if d.skill_level else {}),
+            }
+            for d in expertise.domains
         ]
     if expertise.focus_areas:
         result["focus_areas"] = [fa.name for fa in expertise.focus_areas]

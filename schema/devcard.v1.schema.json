@@ -261,7 +261,12 @@
       "required": ["name", "confidence"],
       "properties": {
         "name": { "type": "string", "description": "Expertise domain name" },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Confidence score (0-1)" }
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Confidence score (0-1)" },
+        "skill_level": {
+          "type": ["string", "null"],
+          "enum": ["beginner", "intermediate", "advanced", "expert", null],
+          "description": "Inferred skill depth based on breadth of packages and projects"
+        }
       },
       "additionalProperties": false
     },
