@@ -139,10 +139,19 @@ def _compute_consistency(
     if max(day_totals) == 0:
         return 0, "no activity detected"
 
-    mean = statistics.mean(day_totals)
-    stdev = statistics.stdev(day_totals) if len(day_totals) > 1 else 0.0
-    cv = stdev / mean if mean > 0 else 1.0
-    score = max(0, min(100, int((1 - cv) * 100)))
+    active_count = sum(1 for t in day_totals if t > 0)
+    coverage = active_count / 7
+
+    active_totals = [t for t in day_totals if t > 0]
+    if len(active_totals) > 1:
+        cv = statistics.stdev(active_totals) / statistics.mean(active_totals)
+    else:
+        cv = 0.0
+    evenness = max(0.0, 1.0 - cv)
+
+    # Coverage: how many days per week. Evenness: how equal are active days.
+    # Evenness only matters proportionally to how many days are active.
+    score = max(0, min(100, int(coverage * 70 + evenness * coverage * 30)))
 
     active_days = [i for i in range(7) if day_totals[i] > 0]
     peak_days = sorted(active_days, key=lambda i: day_totals[i], reverse=True)[:2]

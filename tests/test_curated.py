@@ -185,18 +185,20 @@ class TestCurateForAgent:
 
 
 class TestConsistencyComputation:
-    def test_uniform_heatmap_is_high(self):
-        uniform = [[5] * 24 for _ in range(7)]
-        dc = _make_devcard(activity=Activity(status="active", heatmap=uniform))
+    def test_high_score_is_high(self):
+        dc = _make_devcard(activity=Activity(status="active", consistency_score=85))
         curated = curate_for_agent(dc)
         assert curated["activity"]["consistency"] == "high"
 
-    def test_sporadic_heatmap_is_low(self):
-        sporadic = [[0] * 24 for _ in range(7)]
-        sporadic[0] = [100] * 24
-        dc = _make_devcard(activity=Activity(status="moderate", heatmap=sporadic))
+    def test_low_score_is_low(self):
+        dc = _make_devcard(activity=Activity(status="active", consistency_score=15))
         curated = curate_for_agent(dc)
         assert curated["activity"]["consistency"] == "low"
+
+    def test_moderate_score_is_moderate(self):
+        dc = _make_devcard(activity=Activity(status="active", consistency_score=50))
+        curated = curate_for_agent(dc)
+        assert curated["activity"]["consistency"] == "moderate"
 
     def test_no_heatmap_fallback_active(self):
         dc = _make_devcard(activity=Activity(status="active"))
