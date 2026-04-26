@@ -223,3 +223,42 @@ def me_cmd(
         username=username, token=token, format=format,
         output=output, theme=theme, no_cache=no_cache,
     )
+
+
+@app.command("compare")
+def compare_cmd(
+    user1: str = typer.Argument(help="First GitHub username"),
+    user2: str = typer.Argument(help="Second GitHub username"),
+    token: str | None = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
+    format: str = typer.Option(
+        "terminal", "--format", "-f", help="Output format: terminal, json",
+    ),
+    no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
+) -> None:
+    """Compare two developers side by side."""
+    from devcard.renderers.compare import render_compare
+
+    config = DevCardConfig.create(token=token, no_cache=no_cache)
+
+    with err_console.status(f"[bold green]Generating DevCards for {user1} & {user2}..."):
+        try:
+            card1, card2 = asyncio.run(_generate_pair(user1, user2, config))
+        except Exception as e:
+            err_console.print(f"[bold red]Error:[/] {e}")
+            raise typer.Exit(code=1)
+
+    if format == "json":
+        result = json.dumps({
+            "user1": json.loads(to_json(card1)),
+            "user2": json.loads(to_json(card2)),
+        }, indent=2)
+        sys.stdout.write(result + "\n")
+    else:
+        result = render_compare(card1, card2)
+        sys.stdout.write(result)
+
+
+async def _generate_pair(user1: str, user2: str, config: DevCardConfig):
+    task1 = generate_devcard(user1, config)
+    task2 = generate_devcard(user2, config)
+    return await asyncio.gather(task1, task2)
