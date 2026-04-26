@@ -59,6 +59,16 @@ class TestDeveloperType:
         )
         assert analyze_developer_type(card) == "frontend"
 
+    def test_systems_by_language(self):
+        card = _make_devcard(
+            languages=[
+                Language(name="C", percentage=75.0),
+                Language(name="Shell", percentage=15.0),
+                Language(name="Makefile", percentage=10.0),
+            ],
+        )
+        assert analyze_developer_type(card) == "systems"
+
     def test_generic_user_defaults_fullstack(self):
         card = _make_devcard()
         assert analyze_developer_type(card) == "full_stack"
