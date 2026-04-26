@@ -145,6 +145,39 @@ class TestProjectClassifier:
         classify_projects(card)
         assert card.projects[0].narrative.startswith("Flagship:")
 
+    def test_ml_topic_produces_ml_narrative(self):
+        card = _make_devcard(
+            projects=[
+                Project(
+                    name="model-lab", stars=50, language="Python",
+                    topics=["machine-learning"],
+                ),
+            ],
+        )
+        classify_projects(card)
+        assert "ML" in card.projects[0].narrative
+
+    def test_narrative_preserves_language_casing(self):
+        card = _make_devcard(
+            projects=[
+                Project(name="ts-app", stars=10, language="TypeScript"),
+            ],
+        )
+        classify_projects(card)
+        assert "TypeScript" in card.projects[0].narrative
+
+    def test_narrative_truncates_at_80_chars(self):
+        long_desc = "A" * 100
+        card = _make_devcard(
+            projects=[
+                Project(name="proj", stars=5, language="Go", description=long_desc),
+            ],
+        )
+        classify_projects(card)
+        assert "..." in card.projects[0].narrative
+        desc_part = card.projects[0].narrative.split(" — ", 1)[1]
+        assert len(desc_part) == 83  # 80 chars + "..."
+
 
 class TestContributionStyle:
     def test_maintainer(self):

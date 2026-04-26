@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from devcard.mappings import TOPICS_TO_DOMAINS
 from devcard.models import DevCard
 
 _LIB_SIGNALS = {"lib", "sdk", "library", "package", "module", "client", "wrapper", "binding"}
@@ -69,18 +70,25 @@ _NARRATIVE_TEMPLATES: dict[str, str] = {
 }
 
 
+_DOMAIN_SHORT_LABELS: dict[str, str] = {
+    "Machine Learning": "ML",
+    "Data Science": "Data",
+    "Frontend Development": "Frontend",
+    "Backend Development": "Backend",
+    "DevOps": "DevOps",
+    "Mobile Development": "Mobile",
+    "Systems Programming": "Systems",
+    "Databases": "Database",
+    "Web Development": "Web",
+    "Security": "Security",
+}
+
+
 def _infer_domain_label(proj) -> str | None:
-    domain_keywords = {
-        "ml": "ML", "machine-learning": "ML", "deep-learning": "ML",
-        "data-science": "data science", "data": "data",
-        "web": "web", "frontend": "frontend", "backend": "backend",
-        "devops": "DevOps", "security": "security",
-        "mobile": "mobile", "android": "mobile", "ios": "mobile",
-    }
     for topic in proj.topics:
-        label = domain_keywords.get(topic.lower())
-        if label:
-            return label
+        domain = TOPICS_TO_DOMAINS.get(topic.lower())
+        if domain:
+            return _DOMAIN_SHORT_LABELS.get(domain, domain)
     return None
 
 
@@ -96,9 +104,10 @@ def _generate_narratives(devcard: DevCard) -> None:
 
         domain = _infer_domain_label(proj)
         if domain:
-            base = f"{domain} {base.lower()}" if base[0].isupper() else f"{domain} {base}"
+            first_char = base[0].lower()
+            base = f"{domain} {first_char}{base[1:]}"
 
-        parts = [base.capitalize()]
+        parts = [base]
         if proj.stars:
             parts.append(f"{proj.stars:,} stars")
         narrative = " · ".join(parts)
