@@ -78,7 +78,8 @@ def _render_projects(curated: dict) -> str | None:
     lines = ["--- TOP PROJECTS ---"]
     for proj in projects:
         parts = [proj["name"]]
-        parts.append(proj.get("description") or "")
+        if proj.get("description"):
+            parts.append(proj["description"])
         parts.append(f"{proj.get('stars', 0)} stars")
         if proj.get("language"):
             parts.append(proj["language"])
@@ -142,6 +143,8 @@ def _render_activity(curated: dict) -> str | None:
     if act.get("consistency"):
         status_parts.append(f"Consistency: {act['consistency']}")
     lines.append(" | ".join(status_parts))
+    if act.get("consistency_detail"):
+        lines.append(act["consistency_detail"])
 
     # Peak hours and timezone line
     detail_parts: list[str] = []

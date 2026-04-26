@@ -123,7 +123,7 @@ async def test_consistency_description_computed(user, recent_events):
 
 def test_compute_consistency_even():
     heatmap = [[10] * 24 for _ in range(7)]
-    score, desc = _compute_consistency(heatmap, "active", [10])
+    score, desc = _compute_consistency(heatmap, "active")
     assert score >= 90
     assert "steady" in desc
 
@@ -131,13 +131,13 @@ def test_compute_consistency_even():
 def test_compute_consistency_bursty():
     heatmap = [[0] * 24 for _ in range(7)]
     heatmap[0] = [100] * 24  # Only Monday
-    score, desc = _compute_consistency(heatmap, "active", [10])
+    score, desc = _compute_consistency(heatmap, "active")
     assert score < 40
     assert "bursty" in desc
 
 
 def test_compute_consistency_no_heatmap():
-    score, desc = _compute_consistency(None, "active", [])
+    score, desc = _compute_consistency(None, "active")
     assert score == 70
 
 

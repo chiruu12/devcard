@@ -89,7 +89,10 @@ def _classify_language(name: str) -> str:
 def compute_coding_ratio(languages: list[Language]) -> float:
     if not languages:
         return 0.0
-    logic_pct = sum(lang.percentage for lang in languages if lang.category == "logic")
+    logic_pct = sum(
+        lang.percentage for lang in languages
+        if (lang.category or _classify_language(lang.name)) == "logic"
+    )
     return round(logic_pct, 1)
 
 

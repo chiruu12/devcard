@@ -4,6 +4,10 @@ from devcard.extractors.languages import compute_coding_ratio
 from devcard.models import DevCard
 
 
+def _md_escape(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
 def render_markdown(devcard: DevCard) -> str:
     """Render a full-content DevCard as GitHub Flavored Markdown."""
     sections: list[str] = []
@@ -105,7 +109,7 @@ def _render_projects(devcard: DevCard) -> str:
     ]
     for proj in devcard.projects:
         name = f"**{proj.name}**" if proj.is_signature else proj.name
-        desc = proj.description or ""
+        desc = _md_escape(proj.description or "")
         lang = proj.language or "-"
         status = proj.status or "-"
         lines.append(f"| {name} | {desc} | {proj.stars} | {lang} | {status} |")

@@ -109,7 +109,7 @@ async def extract_activity(
 
         has_heatmap = any(any(row) for row in heatmap)
         score, description = _compute_consistency(
-            heatmap if has_heatmap else None, status, peak_hours,
+            heatmap if has_heatmap else None, status,
         )
 
         return Activity(
@@ -129,7 +129,6 @@ async def extract_activity(
 def _compute_consistency(
     heatmap: list[list[int]] | None,
     status: str,
-    peak_hours: list[int],
 ) -> tuple[int, str]:
     if not heatmap:
         fallback_scores = {"active": 70, "moderate": 50, "sporadic": 25, "dormant": 0}
@@ -145,9 +144,8 @@ def _compute_consistency(
     cv = stdev / mean if mean > 0 else 1.0
     score = max(0, min(100, int((1 - cv) * 100)))
 
-    peak_days = sorted(
-        range(7), key=lambda i: day_totals[i], reverse=True,
-    )[:2]
+    active_days = [i for i in range(7) if day_totals[i] > 0]
+    peak_days = sorted(active_days, key=lambda i: day_totals[i], reverse=True)[:2]
     peak_day_names = " & ".join(_DAY_NAMES[d] for d in sorted(peak_days))
 
     if score >= 70:
@@ -157,7 +155,9 @@ def _compute_consistency(
     else:
         label = "bursty"
 
-    return score, f"{label}, heavy {peak_day_names}"
+    if peak_day_names:
+        return score, f"{label}, heavy {peak_day_names}"
+    return score, label
 
 
 def heatmap_sparkline(heatmap: list[list[int]] | None) -> str:
