@@ -165,5 +165,70 @@ async def check_developer_stack(
     }, indent=2)
 
 
+@mcp.tool()
+async def audit_profile(username: str, token: str | None = None) -> str:
+    """Audit a developer's GitHub profile for visibility and agent-readiness.
+
+    Returns human visibility score (0-100), agent readiness score (0-100),
+    detected issues with severity levels, and actionable recommendations.
+    This is the entry point — use this to understand what needs fixing.
+    """
+    from devcard.pipeline import audit_pipeline
+
+    config = _get_config()
+    if token:
+        config = DevCardConfig.create(token=token)
+    result = await audit_pipeline(username, config)
+    return result.model_dump_json(indent=2, exclude_none=True)
+
+
+@mcp.tool()
+async def analyze_repo(owner: str, repo: str, token: str | None = None) -> str:
+    """Analyze a single GitHub repository in depth.
+
+    Returns classification, primary language, detected issues,
+    suggested description, and suggested topics.
+    """
+    from devcard.fixers.description_generator import generate_description
+    from devcard.fixers.topic_suggester import suggest_topics
+
+    config = _get_config()
+    if token:
+        config = DevCardConfig.create(token=token)
+
+    from devcard.github.client import GitHubClient
+
+    client = GitHubClient(config)
+    try:
+        repo_data = await client.get_repos(owner)
+        target = next((r for r in repo_data if r.name == repo), None)
+        if not target:
+            return json.dumps({"error": f"Repository {owner}/{repo} not found"})
+
+        topics = await client.get_repo_topics(owner, repo)
+
+        repo_info = {
+            "name": target.name,
+            "language": target.language,
+            "classification": None,
+            "readme_first_paragraph": target.description,
+            "stack": [],
+            "readme_keywords": [],
+            "existing_topics": topics,
+        }
+
+        from devcard.models import RepoAnalysis
+
+        return RepoAnalysis(
+            owner=owner,
+            repo=repo,
+            language=target.language,
+            suggested_description=generate_description(repo_info),
+            suggested_topics=suggest_topics(repo_info),
+        ).model_dump_json(indent=2, exclude_none=True)
+    finally:
+        await client.close()
+
+
 def main():
     mcp.run()

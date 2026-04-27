@@ -6,8 +6,13 @@ from datetime import UTC, datetime
 
 from devcard.analyzers.contribution_style import analyze_contribution_style
 from devcard.analyzers.developer_type import analyze_developer_type
+from devcard.analyzers.issue_detector import detect_issues
 from devcard.analyzers.project_classifier import classify_projects
-from devcard.analyzers.scoring import compute_quality_score
+from devcard.analyzers.scoring import (
+    compute_agent_readiness_score,
+    compute_human_visibility_score,
+    compute_quality_score,
+)
 from devcard.config import DevCardConfig
 from devcard.extractors.activity import extract_activity
 from devcard.extractors.collaboration import extract_collaboration
@@ -19,7 +24,7 @@ from devcard.extractors.quality import extract_quality
 from devcard.extractors.stack import extract_stack
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubContent
-from devcard.models import DevCard, Generator
+from devcard.models import AuditResult, DevCard, Generator, ProfileRepoData
 
 logger = logging.getLogger(__name__)
 
@@ -162,3 +167,66 @@ async def generate_devcard(
         return devcard
     finally:
         await client.close()
+
+
+async def _fetch_profile_repo_data(client: GitHubClient, username: str) -> ProfileRepoData:
+    """Fetch profile repo (username/username) data for scoring."""
+    try:
+        contents = await client.get_repo_contents(username, username)
+        file_names = [c.name for c in contents]
+
+        has_readme = any(c.name.lower() == "readme.md" for c in contents)
+        readme_length = 0
+        if has_readme:
+            # Get readme content length (approximate from size field)
+            readme_item = next(
+                (c for c in contents if c.name.lower() == "readme.md"), None
+            )
+            if readme_item and readme_item.size:
+                readme_length = readme_item.size
+
+        return ProfileRepoData(
+            has_profile_readme=has_readme,
+            readme_length=readme_length,
+            has_devcard_json="devcard.json" in file_names,
+            has_llms_txt="llms.txt" in file_names,
+            files=file_names,
+        )
+    except Exception:
+        logger.warning("Could not fetch profile repo for %s", username)
+        return ProfileRepoData()
+
+
+async def audit_pipeline(username: str, config: DevCardConfig) -> AuditResult:
+    """Audit a developer's GitHub profile — scoring + issue detection."""
+    devcard = await generate_devcard(username, config)
+
+    client = GitHubClient(config)
+    try:
+        profile = await _fetch_profile_repo_data(client, username)
+    finally:
+        await client.close()
+
+    human_score = compute_human_visibility_score(devcard, profile)
+    agent_score = compute_agent_readiness_score(devcard, profile)
+    issues = detect_issues(devcard, profile)
+
+    # Generate recommendations from issues
+    recommendations = [issue.message for issue in issues[:5]]
+
+    # Build summary stats
+    total_repos = len(devcard.projects)
+    summary = {
+        "total_repos": total_repos,
+        "repos_with_descriptions": sum(1 for p in devcard.projects if p.description),
+        "repos_with_topics": sum(1 for p in devcard.projects if p.topics),
+    }
+
+    return AuditResult(
+        username=username,
+        human_visibility_score=human_score,
+        agent_readiness_score=agent_score,
+        issues=issues,
+        recommendations=recommendations,
+        summary=summary,
+    )

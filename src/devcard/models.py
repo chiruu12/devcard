@@ -352,3 +352,36 @@ class Issue(BaseModel):
         default_factory=list,
         description="Affected repositories, if repo-specific",
     )
+
+
+class AuditResult(BaseModel):
+    """Result of auditing a developer's GitHub profile."""
+
+    username: str = Field(description="GitHub username that was audited")
+    human_visibility_score: int = Field(description="Human visibility score 0-100")
+    agent_readiness_score: int = Field(description="Agent readiness score 0-100")
+    issues: list[Issue] = Field(default_factory=list, description="Detected issues")
+    recommendations: list[str] = Field(
+        default_factory=list, description="Actionable recommendations"
+    )
+    summary: dict = Field(default_factory=dict, description="Summary statistics")
+
+
+class RepoAnalysis(BaseModel):
+    """Result of analyzing a single repository."""
+
+    owner: str = Field(description="Repository owner")
+    repo: str = Field(description="Repository name")
+    language: str | None = Field(default=None, description="Primary language")
+    classification: str | None = Field(
+        default=None, description="Project classification"
+    )
+    issues: list[Issue] = Field(
+        default_factory=list, description="Detected issues for this repo"
+    )
+    suggested_description: str | None = Field(
+        default=None, description="Suggested repo description"
+    )
+    suggested_topics: list[str] = Field(
+        default_factory=list, description="Suggested topics"
+    )
