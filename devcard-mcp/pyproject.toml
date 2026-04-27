@@ -1,0 +1,24 @@
+[project]
+name = "devcard-mcp"
+version = "0.1.0"
+description = "MCP server for DevCard — let AI agents query developer profiles"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+devcard-mcp = "devcard_mcp.server:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
