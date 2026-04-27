@@ -338,3 +338,17 @@ class ProfileRepoData(BaseModel):
     files: list[str] = Field(
         default_factory=list, description="File names in root of profile repo"
     )
+
+
+class Issue(BaseModel):
+    """A detected profile/repo issue that can be fixed."""
+
+    severity: Literal["high", "medium", "low"] = Field(
+        description="Issue severity level"
+    )
+    type: str = Field(description="Issue type identifier (e.g. missing_bio, missing_topics)")
+    message: str = Field(description="Human-readable description of the issue")
+    repos: list[str] = Field(
+        default_factory=list,
+        description="Affected repositories, if repo-specific",
+    )
