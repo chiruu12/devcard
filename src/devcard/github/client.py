@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import logging
 import time
 
@@ -193,6 +194,77 @@ class GitHubClient:
             if len(data) < 100:
                 break
         return repos[:limit]
+
+    async def _mutate(self, method: str, url: str, body: dict) -> dict:
+        """Base write method for PUT/PATCH/POST. Like _request but for mutations."""
+        async with self._semaphore:
+            full_url = url if url.startswith("http") else f"{self._config.base_url}{url}"
+            response = await self._http.request(method, full_url, json=body)
+
+            remaining = response.headers.get("X-RateLimit-Remaining")
+            if remaining is not None:
+                remaining_int = int(remaining)
+                if remaining_int == 0:
+                    reset_at = int(response.headers.get("X-RateLimit-Reset", "0"))
+                    wait = max(reset_at - int(time.time()), 1)
+                    logger.warning("Rate limit exhausted. Sleeping %d seconds.", wait)
+                    await asyncio.sleep(wait)
+                    response = await self._http.request(method, full_url, json=body)
+                elif remaining_int < 10:
+                    logger.warning("Rate limit low: %d requests remaining.", remaining_int)
+
+            if response.status_code not in (200, 201):
+                raise GitHubAPIError(
+                    response.status_code,
+                    url,
+                    response.text[:200],
+                )
+
+            return response.json()
+
+    async def create_or_update_file(
+        self,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        commit_message: str,
+    ) -> dict:
+        """Create or update a file via the GitHub Contents API."""
+        url = f"/repos/{owner}/{repo}/contents/{path}"
+
+        # Check if file already exists (to get its SHA for updates)
+        sha: str | None = None
+        try:
+            data = await self._request(url)
+            if isinstance(data, dict):
+                sha = data.get("sha")
+        except GitHubAPIError as exc:
+            if exc.status_code != 404:
+                raise
+
+        body: dict = {
+            "message": commit_message,
+            "content": base64.b64encode(content.encode()).decode(),
+        }
+        if sha is not None:
+            body["sha"] = sha
+
+        return await self._mutate("PUT", url, body)
+
+    async def update_repo_description(
+        self, owner: str, repo: str, description: str
+    ) -> dict:
+        """Update a repository's description via the GitHub Repos API."""
+        url = f"/repos/{owner}/{repo}"
+        return await self._mutate("PATCH", url, {"description": description})
+
+    async def update_repo_topics(
+        self, owner: str, repo: str, topics: list[str]
+    ) -> dict:
+        """Replace a repository's topics via the GitHub Topics API."""
+        url = f"/repos/{owner}/{repo}/topics"
+        return await self._mutate("PUT", url, {"names": topics})
 
     async def close(self) -> None:
         await self._http.aclose()
