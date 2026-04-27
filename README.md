@@ -281,7 +281,7 @@ uv run devcard generate chiruu12  # Test locally
 - [x] Signature project detection
 - [ ] Web app -- connect GitHub, generate your card, share a link
 - [ ] GitHub Action -- auto-update your DevCard SVG on push
-- [ ] MCP server -- let AI agents query DevCards programmatically
+- [x] MCP server -- let AI agents query DevCards programmatically
 - [ ] PNG export -- for social sharing
 
 ## License
