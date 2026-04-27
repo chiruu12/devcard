@@ -119,7 +119,7 @@ async def compare_developers(user1: str, user2: str) -> str:
     l1 = {lang.name for lang in card1.languages}
     l2 = {lang.name for lang in card2.languages}
 
-    return json.dumps({
+    result = {
         user1: c1,
         user2: c2,
         "comparison": {
@@ -128,7 +128,41 @@ async def compare_developers(user1: str, user2: str) -> str:
             f"{user1}_only_stack": sorted(s1 - s2),
             f"{user2}_only_stack": sorted(s2 - s1),
         },
-    }, indent=2, default=str)
+    }
+
+    # Add scores for both users
+    try:
+        from devcard.analyzers.scoring import (
+            compute_agent_readiness_score,
+            compute_human_visibility_score,
+        )
+        from devcard.github.client import GitHubClient
+        from devcard.pipeline import _fetch_profile_repo_data
+
+        config = _get_config()
+        client = GitHubClient(config)
+        try:
+            p1, p2 = await asyncio.gather(
+                _fetch_profile_repo_data(client, user1),
+                _fetch_profile_repo_data(client, user2),
+            )
+        finally:
+            await client.close()
+
+        result["scores"] = {
+            user1: {
+                "human_visibility": compute_human_visibility_score(card1, p1),
+                "agent_readiness": compute_agent_readiness_score(card1, p1),
+            },
+            user2: {
+                "human_visibility": compute_human_visibility_score(card2, p2),
+                "agent_readiness": compute_agent_readiness_score(card2, p2),
+            },
+        }
+    except Exception:
+        logger.warning("Could not compute scores for comparison")
+
+    return json.dumps(result, indent=2, default=str)
 
 
 @mcp.tool()
@@ -325,6 +359,52 @@ async def agent_ready(
         },
         indent=2,
     )
+
+
+@mcp.tool()
+async def render_card(
+    username: str,
+    theme: str = "default",
+    force_refresh: bool = False,
+) -> str:
+    """Generate a visual SVG DevCard for a GitHub developer.
+
+    Available themes: default, dark, minimal, neon, terminal_green.
+    Returns the SVG content string and markdown embed code.
+    The SVG is GitHub README-compatible (no foreignObject, no external resources).
+    """
+    from devcard.renderers.svg_card import render_svg
+
+    devcard = await _get_or_generate(username, force_refresh)
+    theme_obj = _load_theme(theme)
+    svg = render_svg(devcard, theme=theme_obj)
+
+    return json.dumps({
+        "username": username,
+        "theme": theme,
+        "svg": svg,
+        "embed_markdown": f"![DevCard for {username}](devcard.svg)",
+        "size_bytes": len(svg.encode()),
+    }, indent=2)
+
+
+_THEMES = {
+    "default": "devcard.renderers.themes.default",
+    "dark": "devcard.renderers.themes.dark",
+    "minimal": "devcard.renderers.themes.minimal",
+    "neon": "devcard.renderers.themes.neon",
+    "terminal_green": "devcard.renderers.themes.terminal_green",
+}
+
+
+def _load_theme(name: str):
+    import importlib
+
+    module_path = _THEMES.get(name)
+    if module_path is None:
+        module_path = _THEMES["default"]
+    mod = importlib.import_module(module_path)
+    return mod.THEME
 
 
 def main():
