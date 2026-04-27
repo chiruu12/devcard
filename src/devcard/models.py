@@ -318,3 +318,23 @@ class DevCard(BaseModel):
         default=None,
         description="Auto-generated one-line developer summary for agent consumption",
     )
+
+
+class ProfileRepoData(BaseModel):
+    """Data from the user's profile repo (username/username)."""
+
+    has_profile_readme: bool = Field(
+        default=False, description="Whether a profile README exists"
+    )
+    readme_length: int = Field(
+        default=0, description="Length of profile README in characters"
+    )
+    has_devcard_json: bool = Field(
+        default=False, description="Whether devcard.json exists in profile repo"
+    )
+    has_llms_txt: bool = Field(
+        default=False, description="Whether llms.txt exists in profile repo"
+    )
+    files: list[str] = Field(
+        default_factory=list, description="File names in root of profile repo"
+    )
