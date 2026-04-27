@@ -230,5 +230,102 @@ async def analyze_repo(owner: str, repo: str, token: str | None = None) -> str:
         await client.close()
 
 
+@mcp.tool()
+async def fix_profile(
+    username: str,
+    token: str,
+    fixes: list[str] | None = None,
+    dry_run: bool = True,
+) -> str:
+    """Fix profile-level issues on GitHub.
+
+    Fixes available: devcard_json, profile_readme, missing_descriptions,
+    missing_topics, all. Use dry_run=True (default) to preview changes
+    before applying. Requires a GitHub token with repo scope.
+    """
+    from devcard.pipeline import fix_profile_pipeline
+
+    config = DevCardConfig.create(token=token)
+    result = await fix_profile_pipeline(
+        username,
+        config,
+        fixes or ["all"],
+        dry_run,
+    )
+    return result.model_dump_json(indent=2, exclude_none=True)
+
+
+@mcp.tool()
+async def fix_repo(
+    owner: str,
+    repo: str,
+    token: str,
+    fixes: list[str] | None = None,
+    dry_run: bool = True,
+) -> str:
+    """Fix issues on a specific GitHub repository.
+
+    Fixes available: description, topics, agents_md, all.
+    Use dry_run=True (default) to preview changes before applying.
+    Requires a GitHub token with repo scope.
+    """
+    from devcard.pipeline import fix_repo_pipeline
+
+    config = DevCardConfig.create(token=token)
+    result = await fix_repo_pipeline(
+        owner,
+        repo,
+        config,
+        fixes or ["all"],
+        dry_run,
+    )
+    return result.model_dump_json(indent=2, exclude_none=True)
+
+
+@mcp.tool()
+async def agent_ready(
+    username: str,
+    token: str,
+    scope: str = "all",
+) -> str:
+    """Make a developer's GitHub profile fully agent-ready in one command.
+
+    Runs a full audit, applies all fixes, then re-audits to show improvement.
+    Scope options: all, profile, top_repos.
+    Always previews first -- returns dry_run results. Call fix_profile or
+    fix_repo with dry_run=False to apply.
+    """
+    from devcard.pipeline import audit_pipeline, fix_profile_pipeline
+
+    config = DevCardConfig.create(token=token)
+
+    # Before audit
+    before = await audit_pipeline(username, config)
+
+    # Preview all fixes
+    fixes = await fix_profile_pipeline(
+        username,
+        config,
+        ["all"],
+        dry_run=True,
+    )
+
+    return json.dumps(
+        {
+            "before": {
+                "human_visibility_score": before.human_visibility_score,
+                "agent_readiness_score": before.agent_readiness_score,
+            },
+            "preview": json.loads(fixes.model_dump_json(exclude_none=True)),
+            "message": (
+                f"Found {len(before.issues)} issues. "
+                f"Preview shows {len(fixes.changes)} fixes. "
+                f"Use fix_profile with dry_run=False to apply."
+            ),
+        },
+        indent=2,
+    )
+
+
 def main():
     mcp.run()

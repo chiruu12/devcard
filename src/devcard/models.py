@@ -385,3 +385,24 @@ class RepoAnalysis(BaseModel):
     suggested_topics: list[str] = Field(
         default_factory=list, description="Suggested topics"
     )
+
+
+class FixChange(BaseModel):
+    """A single change to be applied or previewed."""
+
+    type: str = Field(description="Change type: create_file, update_description, update_topics")
+    repo: str = Field(description="Target repository (owner/repo)")
+    path: str | None = Field(default=None, description="File path for create_file changes")
+    content: str | None = Field(default=None, description="Content for create_file changes")
+    description: str = Field(default="", description="Human-readable description of the change")
+
+
+class FixResult(BaseModel):
+    """Result of a fix operation."""
+
+    username: str = Field(description="GitHub username")
+    dry_run: bool = Field(description="Whether this was a preview only")
+    changes: list[FixChange] = Field(
+        default_factory=list, description="Changes applied or previewed"
+    )
+    message: str = Field(default="", description="Summary message")

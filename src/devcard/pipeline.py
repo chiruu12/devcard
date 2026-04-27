@@ -24,7 +24,7 @@ from devcard.extractors.quality import extract_quality
 from devcard.extractors.stack import extract_stack
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubContent
-from devcard.models import AuditResult, DevCard, Generator, ProfileRepoData
+from devcard.models import AuditResult, DevCard, FixChange, FixResult, Generator, ProfileRepoData
 
 logger = logging.getLogger(__name__)
 
@@ -229,4 +229,248 @@ async def audit_pipeline(username: str, config: DevCardConfig) -> AuditResult:
         issues=issues,
         recommendations=recommendations,
         summary=summary,
+    )
+
+
+async def fix_profile_pipeline(
+    username: str,
+    config: DevCardConfig,
+    fixes: list[str],
+    dry_run: bool = True,
+) -> FixResult:
+    """Fix profile-level issues. If dry_run, only preview changes."""
+    devcard = await generate_devcard(username, config)
+    client = GitHubClient(config)
+    changes: list[FixChange] = []
+
+    try:
+        # Generate fixes based on requested fix types
+        if "devcard_json" in fixes or "all" in fixes:
+            from devcard.fixers.devcard_deployer import prepare_devcard_files
+
+            files = prepare_devcard_files(devcard)
+            for fname, content in files.items():
+                change = FixChange(
+                    type="create_file",
+                    repo=f"{username}/{username}",
+                    path=fname,
+                    content=content,
+                    description=f"Add {fname} to profile repo",
+                )
+                changes.append(change)
+                if not dry_run:
+                    await client.create_or_update_file(
+                        username,
+                        username,
+                        fname,
+                        content,
+                        f"Add {fname} via DevCard",
+                    )
+
+        if "profile_readme" in fixes or "all" in fixes:
+            from devcard.fixers.profile_readme_generator import generate_profile_readme
+
+            readme_content = generate_profile_readme(devcard)
+            change = FixChange(
+                type="create_file",
+                repo=f"{username}/{username}",
+                path="README.md",
+                content=readme_content,
+                description="Generate profile README with DevCard",
+            )
+            changes.append(change)
+            if not dry_run:
+                await client.create_or_update_file(
+                    username,
+                    username,
+                    "README.md",
+                    readme_content,
+                    "Update profile README via DevCard",
+                )
+
+        if "missing_descriptions" in fixes or "all" in fixes:
+            from devcard.fixers.description_generator import generate_description
+
+            for project in devcard.projects:
+                if not project.description:
+                    repo_info = {
+                        "name": project.name,
+                        "language": project.language,
+                        "classification": project.classification,
+                        "readme_first_paragraph": None,
+                        "stack": [],
+                    }
+                    desc = generate_description(repo_info)
+                    if desc:
+                        change = FixChange(
+                            type="update_description",
+                            repo=f"{username}/{project.name}",
+                            description=f"Set description: {desc}",
+                        )
+                        changes.append(change)
+                        if not dry_run:
+                            await client.update_repo_description(
+                                username,
+                                project.name,
+                                desc,
+                            )
+
+        if "missing_topics" in fixes or "all" in fixes:
+            from devcard.fixers.topic_suggester import suggest_topics
+
+            for project in devcard.projects:
+                if not project.topics:
+                    repo_info = {
+                        "name": project.name,
+                        "language": project.language,
+                        "stack": [],
+                        "readme_keywords": [],
+                        "existing_topics": [],
+                    }
+                    topics = suggest_topics(repo_info)
+                    if topics:
+                        change = FixChange(
+                            type="update_topics",
+                            repo=f"{username}/{project.name}",
+                            description=f"Add topics: {', '.join(topics)}",
+                        )
+                        changes.append(change)
+                        if not dry_run:
+                            await client.update_repo_topics(
+                                username,
+                                project.name,
+                                topics,
+                            )
+
+    finally:
+        await client.close()
+
+    action = "Preview" if dry_run else "Applied"
+    return FixResult(
+        username=username,
+        dry_run=dry_run,
+        changes=changes,
+        message=f"{action} {len(changes)} changes for {username}.",
+    )
+
+
+async def fix_repo_pipeline(
+    owner: str,
+    repo: str,
+    config: DevCardConfig,
+    fixes: list[str],
+    dry_run: bool = True,
+) -> FixResult:
+    """Fix issues on a specific repo. If dry_run, only preview."""
+    client = GitHubClient(config)
+    changes: list[FixChange] = []
+
+    try:
+        repos = await client.get_repos(owner)
+        target = next((r for r in repos if r.name == repo), None)
+        if not target:
+            return FixResult(
+                username=owner,
+                dry_run=dry_run,
+                message=f"Repository {owner}/{repo} not found.",
+            )
+
+        topics = await client.get_repo_topics(owner, repo)
+
+        if ("description" in fixes or "all" in fixes) and not target.description:
+            from devcard.fixers.description_generator import generate_description
+
+            repo_info = {
+                "name": target.name,
+                "language": target.language,
+                "classification": None,
+                "readme_first_paragraph": None,
+                "stack": [],
+            }
+            desc = generate_description(repo_info)
+            if desc:
+                change = FixChange(
+                    type="update_description",
+                    repo=f"{owner}/{repo}",
+                    description=f"Set description: {desc}",
+                )
+                changes.append(change)
+                if not dry_run:
+                    await client.update_repo_description(owner, repo, desc)
+
+        if ("topics" in fixes or "all" in fixes) and not topics:
+            from devcard.fixers.topic_suggester import suggest_topics
+
+            repo_info = {
+                "name": target.name,
+                "language": target.language,
+                "stack": [],
+                "readme_keywords": [],
+                "existing_topics": topics,
+            }
+            suggested = suggest_topics(repo_info)
+            if suggested:
+                change = FixChange(
+                    type="update_topics",
+                    repo=f"{owner}/{repo}",
+                    description=f"Add topics: {', '.join(suggested)}",
+                )
+                changes.append(change)
+                if not dry_run:
+                    await client.update_repo_topics(owner, repo, suggested)
+
+        if "agents_md" in fixes or "all" in fixes:
+            from devcard.fixers.agents_md_generator import generate_agents_md
+
+            contents = await client.get_repo_contents(owner, repo)
+            dirs = [c.name for c in contents if c.type == "dir"]
+            configs = [
+                c.name
+                for c in contents
+                if c.name
+                in (
+                    "pyproject.toml",
+                    "package.json",
+                    "go.mod",
+                    "Cargo.toml",
+                    "Makefile",
+                    "Dockerfile",
+                    "docker-compose.yml",
+                )
+            ]
+            repo_data = {
+                "name": repo,
+                "readme_first_paragraph": target.description,
+                "language": target.language,
+                "stack": [],
+                "directories": dirs,
+                "config_files": configs,
+            }
+            content = generate_agents_md(repo_data)
+            change = FixChange(
+                type="create_file",
+                repo=f"{owner}/{repo}",
+                path="AGENTS.md",
+                content=content,
+                description="Generate AGENTS.md for this repo",
+            )
+            changes.append(change)
+            if not dry_run:
+                await client.create_or_update_file(
+                    owner,
+                    repo,
+                    "AGENTS.md",
+                    content,
+                    "Add AGENTS.md via DevCard",
+                )
+
+    finally:
+        await client.close()
+
+    action = "Preview" if dry_run else "Applied"
+    return FixResult(
+        username=owner,
+        dry_run=dry_run,
+        changes=changes,
+        message=f"{action} {len(changes)} changes for {owner}/{repo}.",
     )
