@@ -1,3 +1,9 @@
+# DevCard generated output
+*.devcard.json
+*.llms.txt
+*.devcard.svg
+*.devcard.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

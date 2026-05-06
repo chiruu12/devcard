@@ -207,6 +207,20 @@
       },
       "additionalProperties": false
     },
+    "NotableContribution": {
+      "type": "object",
+      "required": ["repo", "repo_stars", "contribution_type", "count", "url"],
+      "properties": {
+        "repo": { "type": "string", "description": "Full repo name e.g. 'facebook/react'" },
+        "repo_stars": { "type": "integer", "minimum": 0, "description": "Star count of the target repo" },
+        "contribution_type": { "type": "string", "enum": ["pull_request", "commit", "issue"], "description": "Type of contribution" },
+        "count": { "type": "integer", "minimum": 1, "description": "Number of contributions to this repo" },
+        "merged": { "type": ["integer", "null"], "minimum": 0, "description": "Number of merged PRs" },
+        "description": { "type": ["string", "null"], "description": "Repo description" },
+        "url": { "type": "string", "format": "uri", "description": "Repo URL" }
+      },
+      "additionalProperties": false
+    },
     "Collaboration": {
       "type": "object",
       "properties": {
@@ -218,7 +232,12 @@
           "description": "Style: maintainer, contributor, solo_builder, explorer"
         },
         "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" },
-        "maintained_repos_with_contributors": { "type": "integer", "minimum": 0, "description": "Repos owned by user with forks (external contributors)" }
+        "maintained_repos_with_contributors": { "type": "integer", "minimum": 0, "description": "Repos owned by user with forks (external contributors)" },
+        "notable_contributions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/NotableContribution" },
+          "description": "Contributions to popular repos (1000+ stars) the user doesn't own"
+        }
       },
       "additionalProperties": false
     },
@@ -295,12 +314,24 @@
       },
       "additionalProperties": false
     },
+    "ProjectHighlight": {
+      "type": "object",
+      "required": ["name", "reason", "significance"],
+      "properties": {
+        "name": { "type": "string", "description": "Repository name" },
+        "reason": { "type": "string", "description": "Why this project matters" },
+        "significance": { "type": "string", "enum": ["flagship", "growing", "hidden gem"], "description": "Project significance tier" }
+      },
+      "additionalProperties": false
+    },
     "Enriched": {
       "type": "object",
       "properties": {
         "summary": { "type": ["string", "null"], "description": "LLM-generated summary" },
+        "archetype": { "type": ["string", "null"], "description": "Creative developer label" },
         "strengths": { "type": "array", "items": { "type": "string" }, "description": "Identified strengths" },
-        "suggestions": { "type": "array", "items": { "type": "string" }, "description": "Growth suggestions" }
+        "suggestions": { "type": "array", "items": { "type": "string" }, "description": "Growth suggestions" },
+        "project_highlights": { "type": "array", "items": { "$ref": "#/$defs/ProjectHighlight" }, "description": "LLM-ranked top projects" }
       },
       "additionalProperties": false
     }

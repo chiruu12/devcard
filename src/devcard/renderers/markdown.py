@@ -28,6 +28,10 @@ def render_markdown(devcard: DevCard) -> str:
         sections.append(_render_expertise(devcard))
     if devcard.collaboration:
         sections.append(_render_collaboration(devcard))
+    if devcard.collaboration and devcard.collaboration.notable_contributions:
+        sections.append(_render_notable(devcard))
+    if devcard.enriched:
+        sections.append(_render_enriched(devcard))
     sections.append(_render_footer(devcard))
     return "\n\n".join(s for s in sections if s)
 
@@ -221,6 +225,61 @@ def _render_collaboration(devcard: DevCard) -> str:
                 parts.append(f"{oc.commits} commits")
             lines.append(f"- {parts[0]} {', '.join(parts[1:])}")
     return "\n\n".join(lines)
+
+
+def _render_notable(devcard: DevCard) -> str:
+    if devcard.collaboration is None:
+        return ""
+    notables = devcard.collaboration.notable_contributions
+    if not notables:
+        return ""
+    lines = [
+        "## Notable Contributions",
+        "",
+        "Contributions to popular open-source repositories:",
+        "",
+        "| Repository | Stars | Type | Count |",
+        "| --- | ---: | --- | ---: |",
+    ]
+    for nc in notables:
+        type_label = nc.contribution_type.replace("_", " ").title()
+        count_str = str(nc.count)
+        if nc.merged is not None:
+            count_str += f" ({nc.merged} merged)"
+        lines.append(
+            f"| [{nc.repo}]({nc.url}) | {nc.repo_stars:,} | {type_label} | {count_str} |"
+        )
+    return "\n".join(lines)
+
+
+def _render_enriched(devcard: DevCard) -> str:
+    enriched = devcard.enriched
+    if enriched is None:
+        return ""
+    lines = ["## AI Insights", ""]
+    if enriched.archetype:
+        lines.append(f"**Archetype:** {enriched.archetype}")
+    if enriched.summary:
+        lines.append(f"\n{enriched.summary}")
+    if enriched.strengths:
+        lines.append("")
+        lines.append("**Strengths:**")
+        lines.append("")
+        for s in enriched.strengths:
+            lines.append(f"- {_md_escape(s)}")
+    if enriched.suggestions:
+        lines.append("")
+        lines.append("**Growth areas:**")
+        lines.append("")
+        for s in enriched.suggestions:
+            lines.append(f"- {_md_escape(s)}")
+    if enriched.project_highlights:
+        lines.append("")
+        lines.append("**Project highlights:**")
+        lines.append("")
+        for h in enriched.project_highlights:
+            lines.append(f"- **{h.name}** ({h.significance}) — {_md_escape(h.reason)}")
+    return "\n".join(lines)
 
 
 def _render_footer(devcard: DevCard) -> str:

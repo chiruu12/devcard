@@ -159,6 +159,18 @@ class Project(BaseModel):
     )
 
 
+class NotableContribution(BaseModel):
+    repo: str = Field(description="Full repo name e.g. 'facebook/react'")
+    repo_stars: int = Field(description="Star count of the target repo")
+    contribution_type: Literal["pull_request", "commit", "issue"] = Field(
+        description="Type of contribution"
+    )
+    count: int = Field(description="Number of contributions to this repo")
+    merged: int | None = Field(default=None, description="Number of merged PRs")
+    description: str | None = Field(default=None, description="Repo description")
+    url: str = Field(description="Repo URL")
+
+
 class Collaboration(BaseModel):
     organizations: list[str] = Field(
         default_factory=list, description="GitHub organizations the user belongs to"
@@ -183,6 +195,10 @@ class Collaboration(BaseModel):
     maintained_repos_with_contributors: int = Field(
         default=0,
         description="Repos owned by user with forks (indicating external contributors)",
+    )
+    notable_contributions: list[NotableContribution] = Field(
+        default_factory=list,
+        description="Contributions to popular repos (1000+ stars) the user doesn't own",
     )
 
 
@@ -259,15 +275,29 @@ class Expertise(BaseModel):
     )
 
 
+class ProjectHighlight(BaseModel):
+    name: str = Field(description="Repository name")
+    reason: str = Field(description="Why this project matters")
+    significance: Literal["flagship", "growing", "hidden gem"] = Field(
+        description="Project significance tier"
+    )
+
+
 class Enriched(BaseModel):
     summary: str | None = Field(
         default=None, description="LLM-generated natural language summary"
+    )
+    archetype: str | None = Field(
+        default=None, description="Creative developer label (e.g. ML Craftsman)"
     )
     strengths: list[str] = Field(
         default_factory=list, description="Identified strengths"
     )
     suggestions: list[str] = Field(
         default_factory=list, description="Suggested areas for growth"
+    )
+    project_highlights: list[ProjectHighlight] = Field(
+        default_factory=list, description="LLM-ranked top projects by significance"
     )
 
 
@@ -304,3 +334,91 @@ class DevCard(BaseModel):
         default=None,
         description="Auto-generated one-line developer summary for agent consumption",
     )
+
+
+class ProfileRepoData(BaseModel):
+    """Data from the user's profile repo (username/username)."""
+
+    has_profile_readme: bool = Field(
+        default=False, description="Whether a profile README exists"
+    )
+    readme_length: int = Field(
+        default=0, description="Size of profile README in bytes"
+    )
+    has_devcard_json: bool = Field(
+        default=False, description="Whether devcard.json exists in profile repo"
+    )
+    has_llms_txt: bool = Field(
+        default=False, description="Whether llms.txt exists in profile repo"
+    )
+    files: list[str] = Field(
+        default_factory=list, description="File names in root of profile repo"
+    )
+
+
+class Issue(BaseModel):
+    """A detected profile/repo issue that can be fixed."""
+
+    severity: Literal["high", "medium", "low"] = Field(
+        description="Issue severity level"
+    )
+    type: str = Field(description="Issue type identifier (e.g. missing_bio, missing_topics)")
+    message: str = Field(description="Human-readable description of the issue")
+    repos: list[str] = Field(
+        default_factory=list,
+        description="Affected repositories, if repo-specific",
+    )
+
+
+class AuditResult(BaseModel):
+    """Result of auditing a developer's GitHub profile."""
+
+    username: str = Field(description="GitHub username that was audited")
+    human_visibility_score: int = Field(description="Human visibility score 0-100")
+    agent_readiness_score: int = Field(description="Agent readiness score 0-100")
+    issues: list[Issue] = Field(default_factory=list, description="Detected issues")
+    recommendations: list[str] = Field(
+        default_factory=list, description="Actionable recommendations"
+    )
+    summary: dict = Field(default_factory=dict, description="Summary statistics")
+
+
+class RepoAnalysis(BaseModel):
+    """Result of analyzing a single repository."""
+
+    owner: str = Field(description="Repository owner")
+    repo: str = Field(description="Repository name")
+    language: str | None = Field(default=None, description="Primary language")
+    classification: str | None = Field(
+        default=None, description="Project classification"
+    )
+    issues: list[Issue] = Field(
+        default_factory=list, description="Detected issues for this repo"
+    )
+    suggested_description: str | None = Field(
+        default=None, description="Suggested repo description"
+    )
+    suggested_topics: list[str] = Field(
+        default_factory=list, description="Suggested topics"
+    )
+
+
+class FixChange(BaseModel):
+    """A single change to be applied or previewed."""
+
+    type: str = Field(description="Change type: create_file, update_description, update_topics")
+    repo: str = Field(description="Target repository (owner/repo)")
+    path: str | None = Field(default=None, description="File path for create_file changes")
+    content: str | None = Field(default=None, description="Content for create_file changes")
+    description: str = Field(default="", description="Human-readable description of the change")
+
+
+class FixResult(BaseModel):
+    """Result of a fix operation."""
+
+    username: str = Field(description="GitHub username")
+    dry_run: bool = Field(description="Whether this was a preview only")
+    changes: list[FixChange] = Field(
+        default_factory=list, description="Changes applied or previewed"
+    )
+    message: str = Field(default="", description="Summary message")

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from devcard.extractors.activity import (
@@ -17,22 +19,23 @@ def user():
 
 @pytest.fixture
 def recent_events():
+    now = datetime.now(UTC)
     return [
         GitHubEvent(
             type="PushEvent",
-            created_at="2026-04-24T14:00:00Z",
+            created_at=(now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             repo={"name": "testdev/repo"},
             payload={"size": 3},
         ),
         GitHubEvent(
             type="PushEvent",
-            created_at="2026-04-23T10:00:00Z",
+            created_at=(now - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             repo={"name": "testdev/repo"},
             payload={"size": 2},
         ),
         GitHubEvent(
             type="PushEvent",
-            created_at="2026-04-22T15:00:00Z",
+            created_at=(now - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             repo={"name": "testdev/repo"},
             payload={"size": 1},
         ),
@@ -41,10 +44,11 @@ def recent_events():
 
 @pytest.fixture
 def old_events():
+    now = datetime.now(UTC)
     return [
         GitHubEvent(
             type="PushEvent",
-            created_at="2025-01-01T12:00:00Z",
+            created_at=(now - timedelta(days=200)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             repo={"name": "testdev/repo"},
             payload={"size": 1},
         ),
@@ -79,12 +83,13 @@ async def test_activity_heatmap_shape(user, recent_events):
 
 
 async def test_activity_commits_uses_payload_size(user, recent_events):
+    now = datetime.now(UTC)
     repos = [
         GitHubRepo(
             name="repo",
             full_name="testdev/repo",
             html_url="https://github.com/testdev/repo",
-            pushed_at="2026-04-24T00:00:00Z",
+            pushed_at=(now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
         ),
     ]
     result = await extract_activity(None, user, repos, events=recent_events)
