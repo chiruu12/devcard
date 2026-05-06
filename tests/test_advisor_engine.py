@@ -74,6 +74,8 @@ def _default_context(**overrides) -> AdvisorContext:
         total_lines_deleted=2000,
         indentation="spaces",
         avg_line_length=60.0,
+        longest_gap_days=2,
+        active_days=10,
         human_score=50,
         agent_score=40,
     )

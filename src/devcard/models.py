@@ -129,6 +129,12 @@ class Activity(BaseModel):
         default=None,
         description="Human-readable consistency label (e.g. 'bursty, heavy Tuesdays & Fridays')",
     )
+    longest_gap_days: int | None = Field(
+        default=None, description="Longest gap in days between active days in recent events"
+    )
+    active_days: int | None = Field(
+        default=None, description="Number of distinct active days in recent events window"
+    )
 
 
 class Project(BaseModel):

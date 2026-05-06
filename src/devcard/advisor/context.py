@@ -44,6 +44,9 @@ class AdvisorContext:
     # Coding habits
     indentation: str
     avg_line_length: float
+    # Activity gaps
+    longest_gap_days: int
+    active_days: int
     # Scores
     human_score: int
     agent_score: int
@@ -94,6 +97,8 @@ def build_context(devcard: DevCard, human_score: int, agent_score: int) -> Advis
         total_lines_deleted=lc.total_deleted if lc else 0,
         indentation=habits.indentation if habits and habits.indentation else "unknown",
         avg_line_length=habits.avg_line_length if habits and habits.avg_line_length else 0.0,
+        longest_gap_days=act.longest_gap_days if act and act.longest_gap_days is not None else 0,
+        active_days=act.active_days if act and act.active_days is not None else 0,
         human_score=human_score,
         agent_score=agent_score,
     )

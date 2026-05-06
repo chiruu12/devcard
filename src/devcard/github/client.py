@@ -195,6 +195,23 @@ class GitHubClient:
                 break
         return repos[:limit]
 
+    async def search_user_commit_count(self, username: str, since_date: str) -> int | None:
+        """Count total commits by a user since a date via the search API.
+
+        Returns None on failure (preserves existing estimate as fallback).
+        """
+        try:
+            url = (
+                f"/search/commits?q=author:{username}+author-date:>{since_date}"
+                f"&per_page=1"
+            )
+            data = await self._request(url)
+            if isinstance(data, dict):
+                return data.get("total_count")
+            return None
+        except GitHubAPIError:
+            return None
+
     async def search_user_merged_prs(
         self, username: str, max_pages: int = 3,
     ) -> list[dict]:

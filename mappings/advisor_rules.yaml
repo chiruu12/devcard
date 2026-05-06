@@ -211,6 +211,49 @@ rules:
       {commits_last_year} commits in the last year — that is serious output.
       Your contribution graph must look impressive.
 
+  - category: activity
+    conditions:
+      - field: longest_gap_days
+        operator: gte
+        value: 7
+    type: critique
+    severity: medium
+    message: >-
+      Your recent activity has a {longest_gap_days}-day gap. Recruiters
+      notice long stretches of inactivity — it signals inconsistency.
+    action: >-
+      Even a small commit, issue comment, or PR review every few days keeps
+      your profile looking active. Set a weekly reminder.
+
+  - category: activity
+    conditions:
+      - field: active_days
+        operator: lte
+        value: 5
+      - field: commits_last_year
+        operator: gte
+        value: 100
+    type: suggestion
+    severity: low
+    message: >-
+      You have {commits_last_year} commits/year but only {active_days} active
+      days in recent events — classic burst pattern. Spreading work across more
+      days looks healthier to profile visitors.
+    action: >-
+      Instead of marathon coding sessions, try smaller daily pushes. Your
+      contribution graph will look much greener.
+
+  - category: activity
+    conditions:
+      - field: active_days
+        operator: gte
+        value: 15
+    type: praise
+    severity: info
+    message: >-
+      {active_days} active days in recent events — you code regularly, not
+      just in bursts. That consistency is a strong signal.
+
   # ── Documentation ──────────────────────────────────────────────────────────
 
   - category: documentation
