@@ -75,6 +75,10 @@ async def extract_lines_changed(
         total_deleted = sum(r.deleted for r in by_repo)
 
         if total_added + total_deleted == 0:
+            logger.warning(
+                "No line stats available for %s (GitHub may still be computing — try again in 30s)",
+                user.login,
+            )
             return None
 
         return LinesChanged(

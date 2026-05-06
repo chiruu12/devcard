@@ -29,6 +29,12 @@ class GitHubCache:
         key = f"GET:{url}"
         self._cache.set(key, data, expire=self._ttl)
 
+    def delete(self, url: str) -> None:
+        if not self._enabled or self._cache is None:
+            return
+        key = f"GET:{url}"
+        self._cache.delete(key)
+
     def close(self) -> None:
         if self._cache is not None:
             self._cache.close()

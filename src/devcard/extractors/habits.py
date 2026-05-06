@@ -21,7 +21,6 @@ async def extract_coding_habits(
     try:
         events = kwargs.get("events", [])
 
-        # Collect up to MAX_COMMITS recent commit refs from PushEvents
         commit_refs: list[tuple[str, str, str]] = []  # (owner, repo, sha)
         for event in events:
             if event.type != "PushEvent":
@@ -30,20 +29,24 @@ async def extract_coding_habits(
             if "/" not in repo_name:
                 continue
             owner, repo = repo_name.split("/", 1)
-            for commit in event.payload.get("commits", []):
-                sha = commit.get("sha")
-                if sha:
-                    commit_refs.append((owner, repo, sha))
-                if len(commit_refs) >= MAX_COMMITS:
-                    break
+
+            commits = event.payload.get("commits", [])
+            if commits:
+                for commit in commits:
+                    sha = commit.get("sha")
+                    if sha:
+                        commit_refs.append((owner, repo, sha))
+                    if len(commit_refs) >= MAX_COMMITS:
+                        break
+            else:
+                head_sha = event.payload.get("head")
+                if head_sha:
+                    commit_refs.append((owner, repo, head_sha))
+
             if len(commit_refs) >= MAX_COMMITS:
                 break
 
         if not commit_refs:
-            logger.warning(
-                "No PushEvent commits found for %s, skipping habits extraction",
-                user.login,
-            )
             return None
 
         # Fetch commit details concurrently

@@ -257,14 +257,31 @@ class GitHubClient:
             return None
 
     async def get_contributor_stats(
-        self, owner: str, repo: str,
+        self, owner: str, repo: str, max_retries: int = 3,
     ) -> list[dict]:
-        """Fetch contributor stats (weekly additions/deletions per contributor)."""
-        try:
-            data = await self._request(f"/repos/{owner}/{repo}/stats/contributors")
-            return data if isinstance(data, list) else []
-        except GitHubAPIError:
-            return []
+        """Fetch contributor stats (weekly additions/deletions per contributor).
+
+        GitHub returns 202 while computing stats. We retry with increasing delays.
+        """
+        url = f"/repos/{owner}/{repo}/stats/contributors"
+        for attempt in range(max_retries + 1):
+            try:
+                data = await self._request(url)
+                if isinstance(data, list) and data:
+                    return data
+                return []
+            except GitHubAPIError as exc:
+                if exc.status_code == 202 and attempt < max_retries:
+                    delay = 2.0 * (attempt + 1)
+                    logger.info(
+                        "Stats computing for %s/%s (202), retry %d/%d in %.0fs",
+                        owner, repo, attempt + 1, max_retries, delay,
+                    )
+                    await asyncio.sleep(delay)
+                    self._cache.delete(url)
+                    continue
+                return []
+        return []
 
     async def _mutate(self, method: str, url: str, body: dict) -> dict:
         """Base write method for PUT/PATCH/POST. Like _request but for mutations."""

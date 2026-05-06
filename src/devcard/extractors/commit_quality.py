@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 _CONVENTIONAL_RE = re.compile(
     r"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?:"
 )
+_MAX_HEAD_FETCHES = 15
 
 
 async def extract_commit_quality(
@@ -24,14 +26,37 @@ async def extract_commit_quality(
         events = kwargs.get("events", [])
 
         messages: list[str] = []
+        head_refs: list[tuple[str, str, str]] = []  # (owner, repo, sha)
+
         for event in events:
             if event.type != "PushEvent":
                 continue
-            for commit in event.payload.get("commits", []):
-                msg = commit.get("message", "")
-                if msg.startswith("Merge "):
+            commits = event.payload.get("commits", [])
+            if commits:
+                for commit in commits:
+                    msg = commit.get("message", "")
+                    if msg.startswith("Merge "):
+                        continue
+                    messages.append(msg)
+            else:
+                head_sha = event.payload.get("head")
+                repo_name = event.repo.get("name", "") if isinstance(event.repo, dict) else ""
+                if head_sha and "/" in repo_name and len(head_refs) < _MAX_HEAD_FETCHES:
+                    owner, repo = repo_name.split("/", 1)
+                    head_refs.append((owner, repo, head_sha))
+
+        if head_refs and client is not None:
+            results = await asyncio.gather(
+                *(client.get_commit_detail(o, r, s) for o, r, s in head_refs),
+                return_exceptions=True,
+            )
+            for result in results:
+                if isinstance(result, BaseException) or result is None:
                     continue
-                messages.append(msg)
+                commit_data = result.get("commit", {})
+                msg = commit_data.get("message", "")
+                if msg and not msg.startswith("Merge "):
+                    messages.append(msg)
 
         if not messages:
             return None
