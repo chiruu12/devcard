@@ -367,6 +367,30 @@
       },
       "additionalProperties": false
     },
+    "Verdict": {
+      "type": "object",
+      "required": ["category", "type", "message"],
+      "properties": {
+        "category": { "type": "string", "description": "Advice category: profile, repos, activity, documentation, quality, collaboration" },
+        "type": { "type": "string", "enum": ["praise", "critique", "suggestion"], "description": "Verdict type" },
+        "message": { "type": "string", "description": "The advice text" },
+        "action": { "type": ["string", "null"], "description": "Specific fix instruction" },
+        "severity": { "type": ["string", "null"], "enum": ["high", "medium", "low", "info", null], "description": "Severity level" }
+      },
+      "additionalProperties": false
+    },
+    "ProfileAdvice": {
+      "type": "object",
+      "required": ["username", "human_score", "agent_score"],
+      "properties": {
+        "username": { "type": "string", "description": "GitHub username" },
+        "human_score": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Human visibility score" },
+        "agent_score": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Agent readiness score" },
+        "verdicts": { "type": "array", "items": { "$ref": "#/$defs/Verdict" }, "description": "All advice verdicts" },
+        "summary": { "type": ["string", "null"], "description": "LLM-generated cohesive summary" }
+      },
+      "additionalProperties": false
+    },
     "ProjectHighlight": {
       "type": "object",
       "required": ["name", "reason", "significance"],
