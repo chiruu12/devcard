@@ -285,3 +285,51 @@ async def _generate_pair(user1: str, user2: str, config: DevCardConfig):
     task1 = generate_devcard(user1, config)
     task2 = generate_devcard(user2, config)
     return await asyncio.gather(task1, task2)
+
+
+@app.command("advise")
+def advise_cmd(
+    username: str = typer.Argument(help="GitHub username to advise"),
+    token: str | None = typer.Option(None, "--token", "-t", help="GitHub personal access token"),
+    format: str = typer.Option(
+        "terminal", "--format", "-f", help="Output format: terminal, markdown, json",
+    ),
+    enrich: bool = typer.Option(False, "--enrich", help="Enable LLM-powered summary"),
+    model: str | None = typer.Option(None, "--model", help="Override LLM model"),
+    no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show debug logs"),
+) -> None:
+    """Get actionable profile advice with scores, praise, and critiques."""
+    _setup_logging(verbose)
+    config = DevCardConfig.create(token=token, no_cache=no_cache)
+    if model:
+        config.llm_model = model
+
+    with err_console.status(f"[bold green]Analyzing profile for {username}..."):
+        try:
+            from devcard.advisor import advise_pipeline
+
+            advice = asyncio.run(advise_pipeline(username, config, enrich=enrich))
+        except Exception as e:
+            err_console.print(f"[bold red]Error:[/] {e}")
+            raise typer.Exit(code=1)
+
+    if format == "json":
+        result = advice.model_dump_json(indent=2, exclude_none=True)
+        sys.stdout.write(result + "\n")
+
+    elif format == "markdown":
+        from devcard.renderers.advice import render_advice_markdown
+
+        result = render_advice_markdown(advice)
+        sys.stdout.write(result + "\n")
+
+    elif format == "terminal":
+        from devcard.renderers.advice import render_advice_terminal
+
+        result = render_advice_terminal(advice)
+        sys.stdout.write(result)
+
+    else:
+        err_console.print(f"[red]Unknown format: {format}[/]")
+        raise typer.Exit(code=1)
