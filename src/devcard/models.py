@@ -383,6 +383,29 @@ class Responsiveness(BaseModel):
     )
 
 
+class Verdict(BaseModel):
+    category: str = Field(
+        description=(
+            "Advice category: profile, repos, activity,"
+            " documentation, quality, collaboration"
+        )
+    )
+    type: Literal["praise", "critique", "suggestion"] = Field(description="Verdict type")
+    message: str = Field(description="The advice text")
+    action: str | None = Field(default=None, description="Specific fix instruction")
+    severity: Literal["high", "medium", "low", "info"] | None = Field(
+        default=None, description="Severity for critiques/suggestions"
+    )
+
+
+class ProfileAdvice(BaseModel):
+    username: str = Field(description="GitHub username that was advised")
+    human_score: int = Field(description="Human visibility score 0-100")
+    agent_score: int = Field(description="Agent readiness score 0-100")
+    verdicts: list[Verdict] = Field(default_factory=list, description="All advice verdicts")
+    summary: str | None = Field(default=None, description="LLM-generated cohesive summary")
+
+
 class DevCard(BaseModel):
     version: str = Field(default="1.0", description="DevCard schema version")
     generated_at: datetime = Field(description="When this DevCard was generated (ISO 8601)")
