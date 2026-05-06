@@ -17,11 +17,14 @@ from devcard.config import DevCardConfig
 from devcard.extractors.activity import extract_activity
 from devcard.extractors.collaboration import extract_collaboration
 from devcard.extractors.expertise import extract_expertise
+from devcard.extractors.habits import extract_coding_habits
 from devcard.extractors.identity import extract_identity
 from devcard.extractors.languages import extract_languages
+from devcard.extractors.lines import extract_lines_changed
 from devcard.extractors.notable import extract_notable_contributions
 from devcard.extractors.projects import extract_projects
 from devcard.extractors.quality import extract_quality
+from devcard.extractors.reviews import extract_review_activity
 from devcard.extractors.stack import extract_stack
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubContent
@@ -124,7 +127,8 @@ async def generate_devcard(
 
         identity_result, languages_result, activity_result, projects_result, \
             collaboration_result, quality_result, stack_result, \
-            notable_result = await asyncio.gather(
+            notable_result, habits_result, review_result, \
+            lines_result = await asyncio.gather(
                 extract_identity(client, user, repos),
                 extract_languages(client, user, repos),
                 extract_activity(client, user, repos, events=events),
@@ -133,6 +137,9 @@ async def generate_devcard(
                 extract_quality(client, user, repos, root_listings=root_listings),
                 extract_stack(client, user, repos, root_listings=root_listings),
                 extract_notable_contributions(client, user, repos, events=events),
+                extract_coding_habits(client, user, repos, events=events),
+                extract_review_activity(client, user, repos, events=events),
+                extract_lines_changed(client, user, repos),
             )
 
         if identity_result is None:
@@ -159,10 +166,16 @@ async def generate_devcard(
             expertise=expertise_result,
         )
 
-        if notable_result:
+        if notable_result or review_result:
             if devcard.collaboration is None:
                 devcard.collaboration = Collaboration()
-            devcard.collaboration.notable_contributions = notable_result
+            if notable_result:
+                devcard.collaboration.notable_contributions = notable_result
+            if review_result:
+                devcard.collaboration.review_activity = review_result
+
+        devcard.coding_habits = habits_result
+        devcard.lines_changed = lines_result
 
         if devcard.expertise:
             devcard.expertise.profile_type = analyze_developer_type(devcard)

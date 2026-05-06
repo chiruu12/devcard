@@ -55,6 +55,12 @@ def render_terminal(devcard: DevCard) -> str:
         _render_projects(console, devcard)
     if devcard.collaboration and devcard.collaboration.notable_contributions:
         _render_notable(console, devcard)
+    if devcard.coding_habits:
+        _render_habits(console, devcard)
+    if devcard.collaboration and devcard.collaboration.review_activity:
+        _render_reviews(console, devcard)
+    if devcard.lines_changed:
+        _render_lines(console, devcard)
     if devcard.enriched:
         _render_enriched(console, devcard)
 
@@ -215,6 +221,61 @@ def _render_projects(console: Console, devcard: DevCard) -> None:
     sig = next((p for p in devcard.projects if p.is_signature and p.narrative), None)
     if sig:
         console.print(f"  [dim italic]{sig.narrative}[/]")
+
+
+def _render_habits(console: Console, devcard: DevCard) -> None:
+    habits = devcard.coding_habits
+    if habits is None:
+        return
+    lines = []
+    if habits.indentation:
+        lines.append(f"[bold]Indentation:[/] {habits.indentation} "
+                      f"(tabs: {habits.tabs_count}, spaces: {habits.spaces_count})")
+    if habits.avg_line_length is not None:
+        lines.append(f"[bold]Avg line length:[/] {habits.avg_line_length:.0f} chars")
+    lines.append(f"[dim]{habits.lines_analyzed:,} lines analyzed[/]")
+    console.print(Panel("\n".join(lines), title="Coding Habits", border_style="yellow"))
+
+
+def _render_reviews(console: Console, devcard: DevCard) -> None:
+    if devcard.collaboration is None:
+        return
+    review = devcard.collaboration.review_activity
+    if review is None:
+        return
+    parts = [f"[bold]Reviews given:[/] {review.reviews_given}"]
+    breakdown = []
+    if review.approved:
+        breakdown.append(f"[green]✓ {review.approved} approved[/]")
+    if review.changes_requested:
+        breakdown.append(f"[yellow]✎ {review.changes_requested} changes requested[/]")
+    if review.commented:
+        breakdown.append(f"[blue]💬 {review.commented} commented[/]")
+    if breakdown:
+        parts.append("  ".join(breakdown))
+    if review.repos_reviewed:
+        parts.append(f"[dim]Repos: {', '.join(review.repos_reviewed[:5])}[/]")
+    console.print(Panel("\n".join(parts), title="Code Reviews", border_style="bright_blue"))
+
+
+def _render_lines(console: Console, devcard: DevCard) -> None:
+    lc = devcard.lines_changed
+    if lc is None:
+        return
+    lines = [
+        f"[green]+{lc.total_added:,}[/] added  [red]-{lc.total_deleted:,}[/] deleted"
+    ]
+    if lc.by_repo:
+        table = Table(show_header=True, border_style="dim", show_lines=False)
+        table.add_column("Repo", style="bold")
+        table.add_column("Added", justify="right", style="green")
+        table.add_column("Deleted", justify="right", style="red")
+        for rl in lc.by_repo[:5]:
+            table.add_row(rl.repo, f"+{rl.added:,}", f"-{rl.deleted:,}")
+        console.print(Panel("\n".join(lines), title="Lines Changed", border_style="bright_green"))
+        console.print(table)
+    else:
+        console.print(Panel("\n".join(lines), title="Lines Changed", border_style="bright_green"))
 
 
 def _render_notable(console: Console, devcard: DevCard) -> None:

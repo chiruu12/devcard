@@ -30,6 +30,12 @@ def render_markdown(devcard: DevCard) -> str:
         sections.append(_render_collaboration(devcard))
     if devcard.collaboration and devcard.collaboration.notable_contributions:
         sections.append(_render_notable(devcard))
+    if devcard.coding_habits:
+        sections.append(_render_habits(devcard))
+    if devcard.collaboration and devcard.collaboration.review_activity:
+        sections.append(_render_reviews(devcard))
+    if devcard.lines_changed:
+        sections.append(_render_lines(devcard))
     if devcard.enriched:
         sections.append(_render_enriched(devcard))
     sections.append(_render_footer(devcard))
@@ -225,6 +231,62 @@ def _render_collaboration(devcard: DevCard) -> str:
                 parts.append(f"{oc.commits} commits")
             lines.append(f"- {parts[0]} {', '.join(parts[1:])}")
     return "\n\n".join(lines)
+
+
+def _render_habits(devcard: DevCard) -> str:
+    habits = devcard.coding_habits
+    if habits is None:
+        return ""
+    lines = ["## Coding Habits", ""]
+    if habits.indentation:
+        lines.append(f"**Indentation:** {habits.indentation} "
+                      f"(tabs: {habits.tabs_count}, spaces: {habits.spaces_count})")
+    if habits.avg_line_length is not None:
+        lines.append(f"**Avg line length:** {habits.avg_line_length:.0f} chars")
+    lines.append(f"*{habits.lines_analyzed:,} lines analyzed*")
+    return "\n\n".join(lines)
+
+
+def _render_reviews(devcard: DevCard) -> str:
+    if devcard.collaboration is None:
+        return ""
+    review = devcard.collaboration.review_activity
+    if review is None:
+        return ""
+    lines = ["## Code Reviews", ""]
+    lines.append(f"**Reviews given:** {review.reviews_given}")
+    parts = []
+    if review.approved:
+        parts.append(f"{review.approved} approved")
+    if review.changes_requested:
+        parts.append(f"{review.changes_requested} changes requested")
+    if review.commented:
+        parts.append(f"{review.commented} commented")
+    if parts:
+        lines.append(f"**Breakdown:** {', '.join(parts)}")
+    if review.repos_reviewed:
+        lines.append(f"**Repos reviewed:** {', '.join(review.repos_reviewed)}")
+    return "\n\n".join(lines)
+
+
+def _render_lines(devcard: DevCard) -> str:
+    lc = devcard.lines_changed
+    if lc is None:
+        return ""
+    lines = [
+        "## Lines Changed",
+        "",
+        f"**Total:** +{lc.total_added:,} added / -{lc.total_deleted:,} deleted",
+    ]
+    if lc.by_repo:
+        lines.extend([
+            "",
+            "| Repo | Added | Deleted |",
+            "| --- | ---: | ---: |",
+        ])
+        for rl in lc.by_repo:
+            lines.append(f"| {rl.repo} | +{rl.added:,} | -{rl.deleted:,} |")
+    return "\n".join(lines)
 
 
 def _render_notable(devcard: DevCard) -> str:

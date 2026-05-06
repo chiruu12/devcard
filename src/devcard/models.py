@@ -159,6 +159,16 @@ class Project(BaseModel):
     )
 
 
+class ReviewActivity(BaseModel):
+    reviews_given: int = Field(default=0, description="Total PR reviews given (from recent events)")
+    approved: int = Field(default=0, description="Reviews with APPROVED state")
+    changes_requested: int = Field(default=0, description="Reviews requesting changes")
+    commented: int = Field(default=0, description="Reviews with only comments")
+    repos_reviewed: list[str] = Field(
+        default_factory=list, description="Unique repos where reviews were given"
+    )
+
+
 class NotableContribution(BaseModel):
     repo: str = Field(description="Full repo name e.g. 'facebook/react'")
     repo_stars: int = Field(description="Star count of the target repo")
@@ -199,6 +209,9 @@ class Collaboration(BaseModel):
     notable_contributions: list[NotableContribution] = Field(
         default_factory=list,
         description="Contributions to popular repos (1000+ stars) the user doesn't own",
+    )
+    review_activity: ReviewActivity | None = Field(
+        default=None, description="PR review activity from recent events"
     )
 
 
@@ -301,6 +314,32 @@ class Enriched(BaseModel):
     )
 
 
+class CodingHabits(BaseModel):
+    indentation: Literal["spaces", "tabs", "mixed"] | None = Field(
+        default=None, description="Detected indentation style from recent commits"
+    )
+    spaces_count: int = Field(default=0, description="Number of space-indented lines found")
+    tabs_count: int = Field(default=0, description="Number of tab-indented lines found")
+    avg_line_length: float | None = Field(
+        default=None, description="Average characters per line in recent code additions"
+    )
+    lines_analyzed: int = Field(default=0, description="Total lines of code analyzed")
+
+
+class RepoLines(BaseModel):
+    repo: str = Field(description="Repository name")
+    added: int = Field(default=0, description="Total lines added")
+    deleted: int = Field(default=0, description="Total lines deleted")
+
+
+class LinesChanged(BaseModel):
+    total_added: int = Field(default=0, description="Total lines added across all repos")
+    total_deleted: int = Field(default=0, description="Total lines deleted across all repos")
+    by_repo: list[RepoLines] = Field(
+        default_factory=list, description="Per-repo breakdown sorted by total activity"
+    )
+
+
 class DevCard(BaseModel):
     version: str = Field(default="1.0", description="DevCard schema version")
     generated_at: datetime = Field(description="When this DevCard was generated (ISO 8601)")
@@ -326,6 +365,12 @@ class DevCard(BaseModel):
     )
     expertise: Expertise | None = Field(
         default=None, description="Inferred expertise domains and developer profile type"
+    )
+    coding_habits: CodingHabits | None = Field(
+        default=None, description="Coding style signals from recent commit patches"
+    )
+    lines_changed: LinesChanged | None = Field(
+        default=None, description="Lines of code added/deleted across repositories"
     )
     enriched: Enriched | None = Field(
         default=None, description="Optional LLM-enriched content (requires enrich extra)"

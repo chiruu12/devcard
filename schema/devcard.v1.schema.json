@@ -58,6 +58,14 @@
       "$ref": "#/$defs/Expertise",
       "description": "Inferred expertise domains and developer profile type"
     },
+    "coding_habits": {
+      "$ref": "#/$defs/CodingHabits",
+      "description": "Coding style signals from recent commit patches"
+    },
+    "lines_changed": {
+      "$ref": "#/$defs/LinesChanged",
+      "description": "Lines of code added/deleted across repositories"
+    },
     "enriched": {
       "$ref": "#/$defs/Enriched",
       "description": "Optional LLM-enriched content"
@@ -207,6 +215,47 @@
       },
       "additionalProperties": false
     },
+    "CodingHabits": {
+      "type": "object",
+      "properties": {
+        "indentation": { "type": ["string", "null"], "enum": ["spaces", "tabs", "mixed", null], "description": "Detected indentation style" },
+        "spaces_count": { "type": "integer", "minimum": 0, "description": "Number of space-indented lines" },
+        "tabs_count": { "type": "integer", "minimum": 0, "description": "Number of tab-indented lines" },
+        "avg_line_length": { "type": ["number", "null"], "description": "Average characters per line" },
+        "lines_analyzed": { "type": "integer", "minimum": 0, "description": "Total lines analyzed" }
+      },
+      "additionalProperties": false
+    },
+    "ReviewActivity": {
+      "type": "object",
+      "properties": {
+        "reviews_given": { "type": "integer", "minimum": 0, "description": "Total PR reviews given" },
+        "approved": { "type": "integer", "minimum": 0, "description": "Approved reviews" },
+        "changes_requested": { "type": "integer", "minimum": 0, "description": "Changes requested reviews" },
+        "commented": { "type": "integer", "minimum": 0, "description": "Comment-only reviews" },
+        "repos_reviewed": { "type": "array", "items": { "type": "string" }, "description": "Unique repos reviewed" }
+      },
+      "additionalProperties": false
+    },
+    "RepoLines": {
+      "type": "object",
+      "required": ["repo"],
+      "properties": {
+        "repo": { "type": "string", "description": "Repository name" },
+        "added": { "type": "integer", "minimum": 0, "description": "Lines added" },
+        "deleted": { "type": "integer", "minimum": 0, "description": "Lines deleted" }
+      },
+      "additionalProperties": false
+    },
+    "LinesChanged": {
+      "type": "object",
+      "properties": {
+        "total_added": { "type": "integer", "minimum": 0, "description": "Total lines added across all repos" },
+        "total_deleted": { "type": "integer", "minimum": 0, "description": "Total lines deleted across all repos" },
+        "by_repo": { "type": "array", "items": { "$ref": "#/$defs/RepoLines" }, "description": "Per-repo breakdown" }
+      },
+      "additionalProperties": false
+    },
     "NotableContribution": {
       "type": "object",
       "required": ["repo", "repo_stars", "contribution_type", "count", "url"],
@@ -237,6 +286,10 @@
           "type": "array",
           "items": { "$ref": "#/$defs/NotableContribution" },
           "description": "Contributions to popular repos (1000+ stars) the user doesn't own"
+        },
+        "review_activity": {
+          "$ref": "#/$defs/ReviewActivity",
+          "description": "PR review activity from recent events"
         }
       },
       "additionalProperties": false

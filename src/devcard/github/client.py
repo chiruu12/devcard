@@ -246,6 +246,26 @@ class GitHubClient:
         except GitHubAPIError:
             return None
 
+    async def get_commit_detail(
+        self, owner: str, repo: str, sha: str,
+    ) -> dict | None:
+        """Fetch a single commit with file patches."""
+        try:
+            data = await self._request(f"/repos/{owner}/{repo}/commits/{sha}")
+            return data if isinstance(data, dict) else None
+        except GitHubAPIError:
+            return None
+
+    async def get_contributor_stats(
+        self, owner: str, repo: str,
+    ) -> list[dict]:
+        """Fetch contributor stats (weekly additions/deletions per contributor)."""
+        try:
+            data = await self._request(f"/repos/{owner}/{repo}/stats/contributors")
+            return data if isinstance(data, list) else []
+        except GitHubAPIError:
+            return []
+
     async def _mutate(self, method: str, url: str, body: dict) -> dict:
         """Base write method for PUT/PATCH/POST. Like _request but for mutations."""
         async with self._semaphore:
