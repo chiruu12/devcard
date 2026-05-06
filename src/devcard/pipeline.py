@@ -16,6 +16,7 @@ from devcard.analyzers.scoring import (
 from devcard.config import DevCardConfig
 from devcard.extractors.activity import extract_activity
 from devcard.extractors.collaboration import extract_collaboration
+from devcard.extractors.commit_quality import extract_commit_quality
 from devcard.extractors.expertise import extract_expertise
 from devcard.extractors.habits import extract_coding_habits
 from devcard.extractors.identity import extract_identity
@@ -24,6 +25,8 @@ from devcard.extractors.lines import extract_lines_changed
 from devcard.extractors.notable import extract_notable_contributions
 from devcard.extractors.projects import extract_projects
 from devcard.extractors.quality import extract_quality
+from devcard.extractors.readme_depth import extract_readme_depth
+from devcard.extractors.responsiveness import extract_responsiveness
 from devcard.extractors.reviews import extract_review_activity
 from devcard.extractors.stack import extract_stack
 from devcard.github.client import GitHubClient
@@ -128,7 +131,8 @@ async def generate_devcard(
         identity_result, languages_result, activity_result, projects_result, \
             collaboration_result, quality_result, stack_result, \
             notable_result, habits_result, review_result, \
-            lines_result = await asyncio.gather(
+            lines_result, commit_quality_result, readme_depth_result, \
+            responsiveness_result = await asyncio.gather(
                 extract_identity(client, user, repos),
                 extract_languages(client, user, repos),
                 extract_activity(client, user, repos, events=events),
@@ -140,6 +144,9 @@ async def generate_devcard(
                 extract_coding_habits(client, user, repos, events=events),
                 extract_review_activity(client, user, repos, events=events),
                 extract_lines_changed(client, user, repos),
+                extract_commit_quality(client, user, repos, events=events),
+                extract_readme_depth(client, user, repos, root_listings=root_listings),
+                extract_responsiveness(client, user, repos, events=events),
             )
 
         if identity_result is None:
@@ -176,6 +183,9 @@ async def generate_devcard(
 
         devcard.coding_habits = habits_result
         devcard.lines_changed = lines_result
+        devcard.commit_quality = commit_quality_result
+        devcard.readme_depth = readme_depth_result
+        devcard.responsiveness = responsiveness_result
 
         if devcard.expertise:
             devcard.expertise.profile_type = analyze_developer_type(devcard)

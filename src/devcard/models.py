@@ -340,6 +340,49 @@ class LinesChanged(BaseModel):
     )
 
 
+class CommitQuality(BaseModel):
+    avg_message_length: float = Field(
+        default=0.0, description="Average commit message length in characters"
+    )
+    conventional_commits_pct: float = Field(
+        default=0.0, description="Percentage of commits using conventional format (feat:/fix:/etc.)"
+    )
+    multiline_pct: float = Field(
+        default=0.0, description="Percentage of commits with multi-line messages"
+    )
+    commits_analyzed: int = Field(default=0, description="Total commits analyzed")
+
+
+class ReadmeDepth(BaseModel):
+    avg_word_count: float = Field(default=0.0, description="Average word count across repo READMEs")
+    avg_heading_count: float = Field(
+        default=0.0, description="Average number of headings per README"
+    )
+    has_code_blocks_pct: float = Field(
+        default=0.0, description="Percentage of READMEs with code blocks"
+    )
+    has_images_pct: float = Field(
+        default=0.0, description="Percentage of READMEs with images or badges"
+    )
+    has_install_section_pct: float = Field(
+        default=0.0,
+        description="Percentage of READMEs with Installation/Getting Started/Usage section",
+    )
+    repos_analyzed: int = Field(default=0, description="Number of repos with READMEs analyzed")
+
+
+class Responsiveness(BaseModel):
+    issue_comments: int = Field(
+        default=0, description="Number of issue comments made (from recent events)"
+    )
+    avg_response_hours: float | None = Field(
+        default=None, description="Average hours to first response on owned repo issues"
+    )
+    pr_comment_count: int = Field(
+        default=0, description="Number of PR review comments made (from recent events)"
+    )
+
+
 class DevCard(BaseModel):
     version: str = Field(default="1.0", description="DevCard schema version")
     generated_at: datetime = Field(description="When this DevCard was generated (ISO 8601)")
@@ -371,6 +414,15 @@ class DevCard(BaseModel):
     )
     lines_changed: LinesChanged | None = Field(
         default=None, description="Lines of code added/deleted across repositories"
+    )
+    commit_quality: CommitQuality | None = Field(
+        default=None, description="Commit message quality signals"
+    )
+    readme_depth: ReadmeDepth | None = Field(
+        default=None, description="README documentation depth across repositories"
+    )
+    responsiveness: Responsiveness | None = Field(
+        default=None, description="Community responsiveness signals"
     )
     enriched: Enriched | None = Field(
         default=None, description="Optional LLM-enriched content (requires enrich extra)"
