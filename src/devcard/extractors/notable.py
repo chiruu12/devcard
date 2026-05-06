@@ -128,7 +128,7 @@ def _extract_from_events(
 
         if event.type == "PullRequestEvent":
             action = event.payload.get("action", "")
-            if action in ("opened", "closed"):
+            if action == "opened":
                 existing = repos.get(repo_name)
                 if existing:
                     existing["count"] += 1
@@ -136,11 +136,12 @@ def _extract_from_events(
                     repos[repo_name] = {"type": "pull_request", "count": 1}
 
         elif event.type == "PushEvent":
+            commit_count = event.payload.get("size", 1)
             existing = repos.get(repo_name)
             if existing:
-                existing["count"] += 1
+                existing["count"] += commit_count
             else:
-                repos[repo_name] = {"type": "commit", "count": 1}
+                repos[repo_name] = {"type": "commit", "count": commit_count}
 
         elif event.type == "IssuesEvent":
             action = event.payload.get("action", "")

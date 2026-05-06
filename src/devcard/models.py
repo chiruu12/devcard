@@ -343,7 +343,7 @@ class ProfileRepoData(BaseModel):
         default=False, description="Whether a profile README exists"
     )
     readme_length: int = Field(
-        default=0, description="Length of profile README in characters"
+        default=0, description="Size of profile README in bytes"
     )
     has_devcard_json: bool = Field(
         default=False, description="Whether devcard.json exists in profile repo"

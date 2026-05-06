@@ -195,25 +195,34 @@ class GitHubClient:
                 break
         return repos[:limit]
 
-    async def search_user_merged_prs(self, username: str) -> list[dict]:
+    async def search_user_merged_prs(
+        self, username: str, max_pages: int = 3,
+    ) -> list[dict]:
         """Search for merged PRs by the user across all of GitHub."""
         try:
-            url = (
-                f"/search/issues?q=author:{username}+type:pr+is:merged"
-                f"&sort=created&order=desc&per_page=100"
-            )
-            data = await self._request(url)
-            if not isinstance(data, dict):
-                return []
-
-            items = data.get("items", [])
             repo_counts: dict[str, int] = {}
-            for item in items:
-                repo_url = item.get("repository_url", "")
-                parts = repo_url.rstrip("/").split("/")
-                if len(parts) >= 2:
-                    full_name = f"{parts[-2]}/{parts[-1]}"
-                    repo_counts[full_name] = repo_counts.get(full_name, 0) + 1
+            for page in range(1, max_pages + 1):
+                url = (
+                    f"/search/issues?q=author:{username}+type:pr+is:merged"
+                    f"&sort=created&order=desc&per_page=100&page={page}"
+                )
+                data = await self._request(url)
+                if not isinstance(data, dict):
+                    break
+
+                items = data.get("items", [])
+                if not items:
+                    break
+
+                for item in items:
+                    repo_url = item.get("repository_url", "")
+                    parts = repo_url.rstrip("/").split("/")
+                    if len(parts) >= 2:
+                        full_name = f"{parts[-2]}/{parts[-1]}"
+                        repo_counts[full_name] = repo_counts.get(full_name, 0) + 1
+
+                if len(items) < 100:
+                    break
 
             return [
                 {"repo": repo, "merged_prs": count}

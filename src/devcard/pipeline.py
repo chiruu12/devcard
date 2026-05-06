@@ -25,7 +25,15 @@ from devcard.extractors.quality import extract_quality
 from devcard.extractors.stack import extract_stack
 from devcard.github.client import GitHubClient
 from devcard.github.models import GitHubContent
-from devcard.models import AuditResult, DevCard, FixChange, FixResult, Generator, ProfileRepoData
+from devcard.models import (
+    AuditResult,
+    Collaboration,
+    DevCard,
+    FixChange,
+    FixResult,
+    Generator,
+    ProfileRepoData,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +159,9 @@ async def generate_devcard(
             expertise=expertise_result,
         )
 
-        if devcard.collaboration and notable_result:
+        if notable_result:
+            if devcard.collaboration is None:
+                devcard.collaboration = Collaboration()
             devcard.collaboration.notable_contributions = notable_result
 
         if devcard.expertise:
