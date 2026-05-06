@@ -19,6 +19,7 @@ from devcard.extractors.collaboration import extract_collaboration
 from devcard.extractors.expertise import extract_expertise
 from devcard.extractors.identity import extract_identity
 from devcard.extractors.languages import extract_languages
+from devcard.extractors.notable import extract_notable_contributions
 from devcard.extractors.projects import extract_projects
 from devcard.extractors.quality import extract_quality
 from devcard.extractors.stack import extract_stack
@@ -114,7 +115,8 @@ async def generate_devcard(
         events, starred_repos = await asyncio.gather(events_task, starred_task)
 
         identity_result, languages_result, activity_result, projects_result, \
-            collaboration_result, quality_result, stack_result = await asyncio.gather(
+            collaboration_result, quality_result, stack_result, \
+            notable_result = await asyncio.gather(
                 extract_identity(client, user, repos),
                 extract_languages(client, user, repos),
                 extract_activity(client, user, repos, events=events),
@@ -122,6 +124,7 @@ async def generate_devcard(
                 extract_collaboration(client, user, repos, events=events),
                 extract_quality(client, user, repos, root_listings=root_listings),
                 extract_stack(client, user, repos, root_listings=root_listings),
+                extract_notable_contributions(client, user, repos, events=events),
             )
 
         if identity_result is None:
@@ -147,6 +150,9 @@ async def generate_devcard(
             quality=quality_result,
             expertise=expertise_result,
         )
+
+        if devcard.collaboration and notable_result:
+            devcard.collaboration.notable_contributions = notable_result
 
         if devcard.expertise:
             devcard.expertise.profile_type = analyze_developer_type(devcard)

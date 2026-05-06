@@ -195,6 +195,48 @@ class GitHubClient:
                 break
         return repos[:limit]
 
+    async def search_user_merged_prs(self, username: str) -> list[dict]:
+        """Search for merged PRs by the user across all of GitHub."""
+        try:
+            url = (
+                f"/search/issues?q=author:{username}+type:pr+is:merged"
+                f"&sort=created&order=desc&per_page=100"
+            )
+            data = await self._request(url)
+            if not isinstance(data, dict):
+                return []
+
+            items = data.get("items", [])
+            repo_counts: dict[str, int] = {}
+            for item in items:
+                repo_url = item.get("repository_url", "")
+                parts = repo_url.rstrip("/").split("/")
+                if len(parts) >= 2:
+                    full_name = f"{parts[-2]}/{parts[-1]}"
+                    repo_counts[full_name] = repo_counts.get(full_name, 0) + 1
+
+            return [
+                {"repo": repo, "merged_prs": count}
+                for repo, count in repo_counts.items()
+            ]
+        except GitHubAPIError:
+            return []
+
+    async def get_repo_info(self, owner: str, repo: str) -> dict | None:
+        """Fetch basic info for a single repo (stars, description, url)."""
+        try:
+            data = await self._request(f"/repos/{owner}/{repo}")
+            if isinstance(data, dict):
+                return {
+                    "full_name": data.get("full_name", f"{owner}/{repo}"),
+                    "stars": data.get("stargazers_count", 0),
+                    "description": data.get("description"),
+                    "html_url": data.get("html_url", f"https://github.com/{owner}/{repo}"),
+                }
+            return None
+        except GitHubAPIError:
+            return None
+
     async def _mutate(self, method: str, url: str, body: dict) -> dict:
         """Base write method for PUT/PATCH/POST. Like _request but for mutations."""
         async with self._semaphore:

@@ -159,6 +159,18 @@ class Project(BaseModel):
     )
 
 
+class NotableContribution(BaseModel):
+    repo: str = Field(description="Full repo name e.g. 'facebook/react'")
+    repo_stars: int = Field(description="Star count of the target repo")
+    contribution_type: Literal["pull_request", "commit", "issue"] = Field(
+        description="Type of contribution"
+    )
+    count: int = Field(description="Number of contributions to this repo")
+    merged: int | None = Field(default=None, description="Number of merged PRs")
+    description: str | None = Field(default=None, description="Repo description")
+    url: str = Field(description="Repo URL")
+
+
 class Collaboration(BaseModel):
     organizations: list[str] = Field(
         default_factory=list, description="GitHub organizations the user belongs to"
@@ -183,6 +195,10 @@ class Collaboration(BaseModel):
     maintained_repos_with_contributors: int = Field(
         default=0,
         description="Repos owned by user with forks (indicating external contributors)",
+    )
+    notable_contributions: list[NotableContribution] = Field(
+        default_factory=list,
+        description="Contributions to popular repos (1000+ stars) the user doesn't own",
     )
 
 

@@ -53,6 +53,8 @@ def render_terminal(devcard: DevCard) -> str:
         _render_activity(console, devcard)
     if devcard.projects:
         _render_projects(console, devcard)
+    if devcard.collaboration and devcard.collaboration.notable_contributions:
+        _render_notable(console, devcard)
     if devcard.enriched:
         _render_enriched(console, devcard)
 
@@ -213,6 +215,28 @@ def _render_projects(console: Console, devcard: DevCard) -> None:
     sig = next((p for p in devcard.projects if p.is_signature and p.narrative), None)
     if sig:
         console.print(f"  [dim italic]{sig.narrative}[/]")
+
+
+def _render_notable(console: Console, devcard: DevCard) -> None:
+    if devcard.collaboration is None:
+        return
+    notables = devcard.collaboration.notable_contributions
+    if not notables:
+        return
+    table = Table(title="Notable Contributions", border_style="bright_cyan", show_lines=False)
+    table.add_column("Repository", style="bold")
+    table.add_column("Stars", justify="right")
+    table.add_column("Type")
+    table.add_column("Count", justify="right")
+
+    for nc in notables[:8]:
+        type_label = nc.contribution_type.replace("_", " ").title()
+        stars_str = f"⭐ {nc.repo_stars:,}"
+        count_str = str(nc.count)
+        if nc.merged is not None:
+            count_str += f" ({nc.merged} merged)"
+        table.add_row(nc.repo, stars_str, type_label, count_str)
+    console.print(table)
 
 
 def _render_enriched(console: Console, devcard: DevCard) -> None:
