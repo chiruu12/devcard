@@ -30,9 +30,12 @@ def _analyze_readme(text: str) -> dict:
     }
 
 
-def _find_readme_in_listing(listing: list[GitHubContent]) -> bool:
-    """Check if a README.md file exists in the root listing (case-insensitive)."""
-    return any(item.name.lower() == "readme.md" for item in listing)
+def _find_readme_path(listing: list[GitHubContent]) -> str | None:
+    """Find the actual README path from root listing (case-insensitive)."""
+    for item in listing:
+        if item.name.lower() == "readme.md":
+            return item.path
+    return None
 
 
 async def extract_readme_depth(
@@ -44,22 +47,21 @@ async def extract_readme_depth(
     try:
         root_listings: dict[str, list[GitHubContent]] = kwargs.get("root_listings", {})
 
-        # Limit to first 10 repos (already sorted by stars)
         candidates = repos[:10]
 
-        # Find repos that have a README.md in their root listing
-        repos_with_readme = [
-            repo for repo in candidates
-            if _find_readme_in_listing(root_listings.get(repo.name, []))
-        ]
+        repos_with_readme: list[tuple[GitHubRepo, str]] = []
+        for repo in candidates:
+            readme_path = _find_readme_path(root_listings.get(repo.name, []))
+            if readme_path:
+                repos_with_readme.append((repo, readme_path))
 
         if not repos_with_readme:
             return None
 
-        async def _fetch_readme(repo: GitHubRepo) -> dict | None:
+        async def _fetch_readme(repo: GitHubRepo, path: str) -> dict | None:
             try:
                 contents = await client.get_repo_contents(
-                    user.login, repo.name, "README.md",
+                    user.login, repo.name, path,
                 )
                 if not contents:
                     return None
@@ -76,7 +78,7 @@ async def extract_readme_depth(
                 return None
 
         results = await asyncio.gather(
-            *[_fetch_readme(repo) for repo in repos_with_readme],
+            *[_fetch_readme(repo, path) for repo, path in repos_with_readme],
             return_exceptions=True,
         )
 

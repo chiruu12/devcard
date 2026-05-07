@@ -128,10 +128,11 @@ async def test_graceful_on_failure(user):
 
     result = await extract_commit_quality(None, user, [], events=[bad_event])
 
-    # Should not crash — either returns None or handles gracefully
-    # The extractor uses commit.get("message", "") so this actually succeeds
-    # with an empty string. Test with a truly broken structure instead.
-    assert result is not None or result is None  # does not crash
+    # commit.get("message", "") returns "" for missing key — extractor
+    # treats it as a valid (empty) message, so it returns a result, not None
+    assert result is not None
+    assert result.commits_analyzed == 1
+    assert result.avg_message_length == 0.0
 
 
 async def test_graceful_on_broken_event_data(user):
