@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="495" height="622" viewBox="0 0 495 622">
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="638" viewBox="0 0 495 638">
   <style>
     .header { font: 600 18px "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif; fill: #e6edf3; }
     .subheader { font: 400 14px "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif; fill: #8b949e; }
@@ -10,27 +10,26 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .section { animation: fadeIn 0.3s ease-in; }
   </style>
-  <rect width="495" height="622" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <rect width="495" height="638" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
   <g class="section" transform="translate(25, 25)">
     <circle cx="22" cy="22" r="22" fill="#58a6ff" opacity="0.15"/>
     <text x="22" y="27" text-anchor="middle" style="font: 600 16px &apos;Segoe UI&apos;, Ubuntu, &apos;Helvetica Neue&apos;, sans-serif; fill: #58a6ff;">LT</text>
     <text x="54" y="18" class="header">Linus Torvalds</text>
     <text x="54" y="36" class="subheader">@torvalds</text>
-    <rect x="54" y="44" rx="8" ry="8" width="86" height="20" fill="#58a6ff" opacity="0.15"/>
-    <text x="62" y="58" style="font: 600 11px &apos;Segoe UI&apos;, Ubuntu, &apos;Helvetica Neue&apos;, sans-serif; fill: #58a6ff;">Full Stack</text>
-    <text x="0" y="86" class="small">Portland, OR · 299,233 followers</text>
+    <rect x="54" y="44" rx="8" ry="8" width="65" height="20" fill="#58a6ff" opacity="0.15"/>
+    <text x="62" y="58" style="font: 600 11px &apos;Segoe UI&apos;, Ubuntu, &apos;Helvetica Neue&apos;, sans-serif; fill: #58a6ff;">Systems</text>
+    <text x="0" y="86" class="small">Portland, OR · 301,405 followers</text>
   </g>
   <g class="section" transform="translate(25, 131)">
     <text x="0" y="14" class="label">Languages</text>
-    <rect x="0.0" y="24" width="435.7" height="8" rx="1" fill="#555555"/>
-    <rect x="435.7" y="24" width="3.1" height="8" rx="1" fill="#6E4C13"/>
-    <rect x="438.8" y="24" width="2.0" height="8" rx="1" fill="#89e051"/>
-    <rect x="440.8" y="24" width="2.0" height="8" rx="1" fill="#dea584"/>
-    <rect x="442.8" y="24" width="2.0" height="8" rx="1" fill="#3572A5"/>
-    <rect x="444.8" y="24" width="2.0" height="8" rx="1" fill="#427819"/>
-    <rect x="446.8" y="24" width="2.0" height="8" rx="1" fill="#0298c3"/>
+    <text x="445" y="14" text-anchor="end" class="small">100% logic code</text>
+    <rect x="0.0" y="24" width="436.5" height="8" rx="1" fill="#555555"/>
+    <rect x="436.5" y="24" width="3.1" height="8" rx="1" fill="#6E4C13"/>
+    <rect x="439.7" y="24" width="2.0" height="8" rx="1" fill="#89e051"/>
+    <rect x="441.7" y="24" width="2.0" height="8" rx="1" fill="#dea584"/>
+    <rect x="443.7" y="24" width="1.3" height="8" rx="1" fill="#3572A5"/>
     <circle cx="5.0" cy="46" r="4" fill="#555555"/>
-    <text x="13.0" y="50" class="small">C 97.9%</text>
+    <text x="13.0" y="50" class="small">C 98.1%</text>
     <circle cx="66.5" cy="46" r="4" fill="#6E4C13"/>
     <text x="74.5" y="50" class="small">Assembly 0.7%</text>
     <circle cx="173.5" cy="46" r="4" fill="#89e051"/>
@@ -39,10 +38,10 @@
     <text x="269.0" y="50" class="small">Rust 0.3%</text>
     <circle cx="342.0" cy="46" r="4" fill="#3572A5"/>
     <text x="350.0" y="50" class="small">Python 0.3%</text>
-    <circle cx="5" cy="62" r="4" fill="#427819"/>
-    <text x="13" y="66" class="small">Makefile 0.2%</text>
+    <circle cx="5" cy="62" r="4" fill="#0298c3"/>
+    <text x="13" y="66" class="small">Perl 0.1%</text>
   </g>
-  <g class="section" transform="translate(25, 209)">
+  <g class="section" transform="translate(25, 225)">
     <text x="0" y="14" class="label">Quality Score: 26%</text>
     <text x="0" y="36" class="small">Tests</text>
     <rect x="55" y="26" width="120" height="12" rx="3" fill="#30363d"/>
@@ -65,35 +64,35 @@
     <rect x="55" y="98" width="15.0" height="12" rx="3" fill="#f85149"/>
     <text x="183" y="108" class="small">12%</text>
   </g>
-  <g class="section" transform="translate(25, 345)">
+  <g class="section" transform="translate(25, 361)">
     <text x="0" y="14" class="label">Focus Areas</text>
     <rect x="0.0" y="26" rx="12" ry="12" width="149" height="24" fill="#58a6ff" opacity="0.12"/>
     <text x="8.0" y="42" style="font: 600 11px &apos;Segoe UI&apos;, Ubuntu, &apos;Helvetica Neue&apos;, sans-serif; fill: #58a6ff;">Systems Programming</text>
   </g>
-  <g class="section" transform="translate(25, 419)">
+  <g class="section" transform="translate(25, 435)">
     <text x="0" y="14" class="label">Top Projects</text>
-    <text x="0" y="40" class="body">linux</text>
-    <text x="200" y="40" class="small">★ 230,757</text>
+    <text x="0" y="40" style="font-weight: 600;" class="body">★ linux</text>
+    <text x="200" y="40" class="small">★ 232,302</text>
     <circle cx="270" cy="36" r="4" fill="#555555"/>
     <text x="278" y="40" class="small">C</text>
-    <text x="0" y="62" class="body">AudioNoise</text>
-    <text x="200" y="62" class="small">★ 4,340</text>
+    <text x="0" y="62" style="font-weight: 400;" class="body">AudioNoise</text>
+    <text x="200" y="62" class="small">★ 4,355</text>
     <circle cx="270" cy="58" r="4" fill="#555555"/>
     <text x="278" y="62" class="small">C</text>
-    <text x="0" y="84" class="body">uemacs</text>
-    <text x="200" y="84" class="small">★ 2,004</text>
+    <text x="0" y="84" style="font-weight: 400;" class="body">uemacs</text>
+    <text x="200" y="84" class="small">★ 2,014</text>
     <circle cx="270" cy="80" r="4" fill="#555555"/>
     <text x="278" y="84" class="small">C</text>
-    <text x="0" y="106" class="body">GuitarPedal</text>
-    <text x="200" y="106" class="small">★ 1,892</text>
+    <text x="0" y="106" style="font-weight: 400;" class="body">GuitarPedal</text>
+    <text x="200" y="106" class="small">★ 1,904</text>
     <circle cx="270" cy="102" r="4" fill="#555555"/>
     <text x="278" y="106" class="small">C</text>
-    <text x="0" y="128" class="body">test-tlb</text>
-    <text x="200" y="128" class="small">★ 985</text>
+    <text x="0" y="128" style="font-weight: 400;" class="body">test-tlb</text>
+    <text x="200" y="128" class="small">★ 990</text>
     <circle cx="270" cy="124" r="4" fill="#555555"/>
     <text x="278" y="128" class="small">C</text>
   </g>
-  <g class="section" transform="translate(25, 577)">
-    <text x="0" y="14" class="mono">Generated by devcard · 2026-04-25</text>
+  <g class="section" transform="translate(25, 593)">
+    <text x="0" y="14" class="mono">Generated by devcard · 2026-05-07</text>
   </g>
 </svg>
