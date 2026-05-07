@@ -58,6 +58,26 @@
       "$ref": "#/$defs/Expertise",
       "description": "Inferred expertise domains and developer profile type"
     },
+    "coding_habits": {
+      "$ref": "#/$defs/CodingHabits",
+      "description": "Coding style signals from recent commit patches"
+    },
+    "lines_changed": {
+      "$ref": "#/$defs/LinesChanged",
+      "description": "Lines of code added/deleted across repositories"
+    },
+    "commit_quality": {
+      "$ref": "#/$defs/CommitQuality",
+      "description": "Commit message quality signals"
+    },
+    "readme_depth": {
+      "$ref": "#/$defs/ReadmeDepth",
+      "description": "README documentation depth across repositories"
+    },
+    "responsiveness": {
+      "$ref": "#/$defs/Responsiveness",
+      "description": "Community responsiveness signals"
+    },
     "enriched": {
       "$ref": "#/$defs/Enriched",
       "description": "Optional LLM-enriched content"
@@ -207,6 +227,78 @@
       },
       "additionalProperties": false
     },
+    "CodingHabits": {
+      "type": "object",
+      "properties": {
+        "indentation": { "type": ["string", "null"], "enum": ["spaces", "tabs", "mixed", null], "description": "Detected indentation style" },
+        "spaces_count": { "type": "integer", "minimum": 0, "description": "Number of space-indented lines" },
+        "tabs_count": { "type": "integer", "minimum": 0, "description": "Number of tab-indented lines" },
+        "avg_line_length": { "type": ["number", "null"], "description": "Average characters per line" },
+        "lines_analyzed": { "type": "integer", "minimum": 0, "description": "Total lines analyzed" }
+      },
+      "additionalProperties": false
+    },
+    "ReviewActivity": {
+      "type": "object",
+      "properties": {
+        "reviews_given": { "type": "integer", "minimum": 0, "description": "Total PR reviews given" },
+        "approved": { "type": "integer", "minimum": 0, "description": "Approved reviews" },
+        "changes_requested": { "type": "integer", "minimum": 0, "description": "Changes requested reviews" },
+        "commented": { "type": "integer", "minimum": 0, "description": "Comment-only reviews" },
+        "repos_reviewed": { "type": "array", "items": { "type": "string" }, "description": "Unique repos reviewed" }
+      },
+      "additionalProperties": false
+    },
+    "RepoLines": {
+      "type": "object",
+      "required": ["repo"],
+      "properties": {
+        "repo": { "type": "string", "description": "Repository name" },
+        "added": { "type": "integer", "minimum": 0, "description": "Lines added" },
+        "deleted": { "type": "integer", "minimum": 0, "description": "Lines deleted" }
+      },
+      "additionalProperties": false
+    },
+    "LinesChanged": {
+      "type": "object",
+      "properties": {
+        "total_added": { "type": "integer", "minimum": 0, "description": "Total lines added across all repos" },
+        "total_deleted": { "type": "integer", "minimum": 0, "description": "Total lines deleted across all repos" },
+        "by_repo": { "type": "array", "items": { "$ref": "#/$defs/RepoLines" }, "description": "Per-repo breakdown" }
+      },
+      "additionalProperties": false
+    },
+    "CommitQuality": {
+      "type": "object",
+      "properties": {
+        "avg_message_length": { "type": "number", "minimum": 0, "description": "Average commit message length in characters" },
+        "conventional_commits_pct": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage using conventional format" },
+        "multiline_pct": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage with multi-line messages" },
+        "commits_analyzed": { "type": "integer", "minimum": 0, "description": "Total commits analyzed" }
+      },
+      "additionalProperties": false
+    },
+    "ReadmeDepth": {
+      "type": "object",
+      "properties": {
+        "avg_word_count": { "type": "number", "minimum": 0, "description": "Average word count across READMEs" },
+        "avg_heading_count": { "type": "number", "minimum": 0, "description": "Average headings per README" },
+        "has_code_blocks_pct": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage with code blocks" },
+        "has_images_pct": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage with images/badges" },
+        "has_install_section_pct": { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentage with install section" },
+        "repos_analyzed": { "type": "integer", "minimum": 0, "description": "Number of READMEs analyzed" }
+      },
+      "additionalProperties": false
+    },
+    "Responsiveness": {
+      "type": "object",
+      "properties": {
+        "issue_comments": { "type": "integer", "minimum": 0, "description": "Issue comments made" },
+        "avg_response_hours": { "type": ["number", "null"], "description": "Average hours to first response" },
+        "pr_comment_count": { "type": "integer", "minimum": 0, "description": "PR review comments made" }
+      },
+      "additionalProperties": false
+    },
     "NotableContribution": {
       "type": "object",
       "required": ["repo", "repo_stars", "contribution_type", "count", "url"],
@@ -237,6 +329,10 @@
           "type": "array",
           "items": { "$ref": "#/$defs/NotableContribution" },
           "description": "Contributions to popular repos (1000+ stars) the user doesn't own"
+        },
+        "review_activity": {
+          "$ref": "#/$defs/ReviewActivity",
+          "description": "PR review activity from recent events"
         }
       },
       "additionalProperties": false
@@ -311,6 +407,30 @@
       "properties": {
         "name": { "type": "string", "description": "Focus area name" },
         "evidence": { "type": "array", "items": { "type": "string" }, "description": "Supporting evidence" }
+      },
+      "additionalProperties": false
+    },
+    "Verdict": {
+      "type": "object",
+      "required": ["category", "type", "message"],
+      "properties": {
+        "category": { "type": "string", "description": "Advice category: profile, repos, activity, documentation, quality, collaboration" },
+        "type": { "type": "string", "enum": ["praise", "critique", "suggestion"], "description": "Verdict type" },
+        "message": { "type": "string", "description": "The advice text" },
+        "action": { "type": ["string", "null"], "description": "Specific fix instruction" },
+        "severity": { "type": ["string", "null"], "enum": ["high", "medium", "low", "info", null], "description": "Severity level" }
+      },
+      "additionalProperties": false
+    },
+    "ProfileAdvice": {
+      "type": "object",
+      "required": ["username", "human_score", "agent_score"],
+      "properties": {
+        "username": { "type": "string", "description": "GitHub username" },
+        "human_score": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Human visibility score" },
+        "agent_score": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Agent readiness score" },
+        "verdicts": { "type": "array", "items": { "$ref": "#/$defs/Verdict" }, "description": "All advice verdicts" },
+        "summary": { "type": ["string", "null"], "description": "LLM-generated cohesive summary" }
       },
       "additionalProperties": false
     },

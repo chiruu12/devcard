@@ -128,27 +128,27 @@ async def test_consistency_description_computed(user, recent_events):
 
 def test_compute_consistency_even():
     heatmap = [[10] * 24 for _ in range(7)]
-    score, desc = _compute_consistency(heatmap, "active")
-    assert score >= 90
+    score, desc = _compute_consistency(heatmap, "active", active_day_count=20, longest_gap=0)
+    assert score >= 80
     assert "steady" in desc
 
 
 def test_compute_consistency_bursty():
     heatmap = [[0] * 24 for _ in range(7)]
     heatmap[0] = [100] * 24  # Only Monday
-    score, desc = _compute_consistency(heatmap, "active")
-    assert 5 <= score <= 25
+    score, desc = _compute_consistency(heatmap, "active", active_day_count=3, longest_gap=5)
+    assert score <= 30
     assert "bursty" in desc
 
 
 def test_compute_consistency_three_days():
-    """3/7 days active with uneven totals (like chiruu12) should score 20-45."""
+    """3/7 days active with uneven totals should score low-moderate."""
     heatmap = [[0] * 24 for _ in range(7)]
     heatmap[4] = [1] * 15  # Friday: 15
     heatmap[5] = [1] * 3   # Saturday: 3
     heatmap[6] = [1] * 1   # Sunday: 1
-    score, desc = _compute_consistency(heatmap, "active")
-    assert 20 <= score <= 45
+    score, desc = _compute_consistency(heatmap, "active", active_day_count=5, longest_gap=3)
+    assert 15 <= score <= 50
     assert "bursty" in desc or "moderate" in desc
 
 

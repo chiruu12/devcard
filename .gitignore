@@ -4,6 +4,9 @@
 *.devcard.svg
 *.devcard.md
 
+# Temporary working directories
+tmp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

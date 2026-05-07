@@ -129,6 +129,12 @@ class Activity(BaseModel):
         default=None,
         description="Human-readable consistency label (e.g. 'bursty, heavy Tuesdays & Fridays')",
     )
+    longest_gap_days: int | None = Field(
+        default=None, description="Longest gap in days between active days in recent events"
+    )
+    active_days: int | None = Field(
+        default=None, description="Number of distinct active days in recent events window"
+    )
 
 
 class Project(BaseModel):
@@ -156,6 +162,16 @@ class Project(BaseModel):
     narrative: str | None = Field(
         default=None,
         description="One-line heuristic description of the project's significance",
+    )
+
+
+class ReviewActivity(BaseModel):
+    reviews_given: int = Field(default=0, description="Total PR reviews given (from recent events)")
+    approved: int = Field(default=0, description="Reviews with APPROVED state")
+    changes_requested: int = Field(default=0, description="Reviews requesting changes")
+    commented: int = Field(default=0, description="Reviews with only comments")
+    repos_reviewed: list[str] = Field(
+        default_factory=list, description="Unique repos where reviews were given"
     )
 
 
@@ -199,6 +215,9 @@ class Collaboration(BaseModel):
     notable_contributions: list[NotableContribution] = Field(
         default_factory=list,
         description="Contributions to popular repos (1000+ stars) the user doesn't own",
+    )
+    review_activity: ReviewActivity | None = Field(
+        default=None, description="PR review activity from recent events"
     )
 
 
@@ -301,6 +320,98 @@ class Enriched(BaseModel):
     )
 
 
+class CodingHabits(BaseModel):
+    indentation: Literal["spaces", "tabs", "mixed"] | None = Field(
+        default=None, description="Detected indentation style from recent commits"
+    )
+    spaces_count: int = Field(default=0, description="Number of space-indented lines found")
+    tabs_count: int = Field(default=0, description="Number of tab-indented lines found")
+    avg_line_length: float | None = Field(
+        default=None, description="Average characters per line in recent code additions"
+    )
+    lines_analyzed: int = Field(default=0, description="Total lines of code analyzed")
+
+
+class RepoLines(BaseModel):
+    repo: str = Field(description="Repository name")
+    added: int = Field(default=0, description="Total lines added")
+    deleted: int = Field(default=0, description="Total lines deleted")
+
+
+class LinesChanged(BaseModel):
+    total_added: int = Field(default=0, description="Total lines added across all repos")
+    total_deleted: int = Field(default=0, description="Total lines deleted across all repos")
+    by_repo: list[RepoLines] = Field(
+        default_factory=list, description="Per-repo breakdown sorted by total activity"
+    )
+
+
+class CommitQuality(BaseModel):
+    avg_message_length: float = Field(
+        default=0.0, description="Average commit message length in characters"
+    )
+    conventional_commits_pct: float = Field(
+        default=0.0, description="Percentage of commits using conventional format (feat:/fix:/etc.)"
+    )
+    multiline_pct: float = Field(
+        default=0.0, description="Percentage of commits with multi-line messages"
+    )
+    commits_analyzed: int = Field(default=0, description="Total commits analyzed")
+
+
+class ReadmeDepth(BaseModel):
+    avg_word_count: float = Field(default=0.0, description="Average word count across repo READMEs")
+    avg_heading_count: float = Field(
+        default=0.0, description="Average number of headings per README"
+    )
+    has_code_blocks_pct: float = Field(
+        default=0.0, description="Percentage of READMEs with code blocks"
+    )
+    has_images_pct: float = Field(
+        default=0.0, description="Percentage of READMEs with images or badges"
+    )
+    has_install_section_pct: float = Field(
+        default=0.0,
+        description="Percentage of READMEs with Installation/Getting Started/Usage section",
+    )
+    repos_analyzed: int = Field(default=0, description="Number of repos with READMEs analyzed")
+
+
+class Responsiveness(BaseModel):
+    issue_comments: int = Field(
+        default=0, description="Number of issue comments made (from recent events)"
+    )
+    avg_response_hours: float | None = Field(
+        default=None, description="Average hours to first response on owned repo issues"
+    )
+    pr_comment_count: int = Field(
+        default=0, description="Number of PR review comments made (from recent events)"
+    )
+
+
+class Verdict(BaseModel):
+    category: str = Field(
+        description=(
+            "Advice category: profile, repos, activity,"
+            " documentation, quality, collaboration"
+        )
+    )
+    type: Literal["praise", "critique", "suggestion"] = Field(description="Verdict type")
+    message: str = Field(description="The advice text")
+    action: str | None = Field(default=None, description="Specific fix instruction")
+    severity: Literal["high", "medium", "low", "info"] | None = Field(
+        default=None, description="Severity for critiques/suggestions"
+    )
+
+
+class ProfileAdvice(BaseModel):
+    username: str = Field(description="GitHub username that was advised")
+    human_score: int = Field(description="Human visibility score 0-100")
+    agent_score: int = Field(description="Agent readiness score 0-100")
+    verdicts: list[Verdict] = Field(default_factory=list, description="All advice verdicts")
+    summary: str | None = Field(default=None, description="LLM-generated cohesive summary")
+
+
 class DevCard(BaseModel):
     version: str = Field(default="1.0", description="DevCard schema version")
     generated_at: datetime = Field(description="When this DevCard was generated (ISO 8601)")
@@ -326,6 +437,21 @@ class DevCard(BaseModel):
     )
     expertise: Expertise | None = Field(
         default=None, description="Inferred expertise domains and developer profile type"
+    )
+    coding_habits: CodingHabits | None = Field(
+        default=None, description="Coding style signals from recent commit patches"
+    )
+    lines_changed: LinesChanged | None = Field(
+        default=None, description="Lines of code added/deleted across repositories"
+    )
+    commit_quality: CommitQuality | None = Field(
+        default=None, description="Commit message quality signals"
+    )
+    readme_depth: ReadmeDepth | None = Field(
+        default=None, description="README documentation depth across repositories"
+    )
+    responsiveness: Responsiveness | None = Field(
+        default=None, description="Community responsiveness signals"
     )
     enriched: Enriched | None = Field(
         default=None, description="Optional LLM-enriched content (requires enrich extra)"

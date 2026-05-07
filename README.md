@@ -15,64 +15,128 @@ No sign-up. No scraping. Paste a GitHub username -- get a visual card, structure
 ## Quick Start
 
 ```bash
-# Install
-pip install devcard        # or: uv pip install devcard
+# Clone the repo
+git clone https://github.com/chiruu12/devcard.git
+cd devcard
+
+# Install dependencies (requires uv — https://docs.astral.sh/uv/)
+uv sync
+
+# (Recommended) Set your GitHub token for 5000 req/hr instead of 60
+export GITHUB_TOKEN=$(gh auth token)   # or: export GITHUB_TOKEN=ghp_your_token
 
 # Generate your card
-devcard generate karpathy
+uv run devcard generate YOUR_USERNAME
 
 # Get an SVG for your GitHub README
-devcard generate karpathy --format svg --theme dark
+uv run devcard generate YOUR_USERNAME --format svg --theme dark
+
+# Get actionable profile advice
+uv run devcard advise YOUR_USERNAME
 
 # Compare two developers
-devcard compare karpathy torvalds
+uv run devcard compare karpathy torvalds
 
 # AI-powered insights (requires Fireworks API key)
 export FIREWORKS_API_KEY=your-key
-devcard generate karpathy --enrich
+uv run devcard generate YOUR_USERNAME --enrich
 ```
 
-## Setup
-
-```bash
-# Clone and install
-git clone https://github.com/chiruu12/devcard.git
-cd devcard
-uv sync
-
-# Copy the env template
-cp .env.example .env
-# Edit .env and add your GITHUB_TOKEN (required) and FIREWORKS_API_KEY (optional)
-
-# Generate a card
-uv run devcard generate YOUR_USERNAME
-```
-
-**Environment variables:**
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GITHUB_TOKEN` | Recommended | GitHub personal access token (60 req/hr without, 5000 with) |
-| `FIREWORKS_API_KEY` | Optional | Fireworks AI key for `--enrich` (AI summaries, archetypes) |
-
-Create a GitHub token at [github.com/settings/tokens](https://github.com/settings/tokens) -- no special scopes needed.
+> **Note:** DevCard is not yet published to PyPI. Install from source as shown above.
 
 ## What It Extracts
 
-DevCard analyzes public GitHub data to build a structured developer profile:
+DevCard analyzes public GitHub data to build a structured developer profile with 14+ signals:
 
 | Signal | Source | Example |
 |--------|--------|---------|
 | **Identity** | User profile | Name, bio, location, followers |
 | **Languages** | Repo language stats | Python 72% (logic), CSS 8% (presentation) |
 | **Tech Stack** | Dependency files | PyTorch, FastAPI, PostgreSQL |
-| **Activity** | Events + push dates | Active, consistency 75/100, bursty Fri & Sat |
+| **Activity** | Events + search API | Active, 679 commits/year, consistency 75/100 |
 | **Top Projects** | Repos ranked by impact | Signature project with narrative |
 | **Collaboration** | PRs, issues, orgs | Maintainer style, external contributions |
 | **Quality** | Repo file structure | CI 80%, tests 60% + actionable recommendations |
 | **Expertise** | Topics + stack + stars | Machine Learning (0.95, advanced) |
+| **Notable Contributions** | PRs to popular repos | Merged PRs in keras, flask, kubernetes |
+| **Coding Habits** | Commit patches | Spaces indentation, 39 chars/line avg |
+| **Commit Quality** | Commit messages | Avg 160 chars, 20% multi-line |
+| **README Depth** | README content analysis | 748 words avg, 78% have code blocks |
+| **Code Reviews** | PR review events | 5 reviews given, 3 approved |
+| **Responsiveness** | Comment events | Issue comments, PR discussion activity |
 
-All signals are extracted from pure GitHub API data -- fully deterministic.
+All signals are extracted from public GitHub API data.
+
+## Commands
+
+### `uv run devcard generate <username>`
+
+Generate a DevCard for any public GitHub user.
+
+```bash
+uv run devcard generate torvalds                              # Terminal output (default)
+uv run devcard generate torvalds --format svg --theme dark    # Dark SVG card
+uv run devcard generate torvalds --format json -o out.json    # Save JSON to file
+uv run devcard generate torvalds --token ghp_xxx              # Explicit token
+uv run devcard generate torvalds --enrich                     # AI-powered insights
+uv run devcard generate torvalds --no-cache                   # Fresh data
+uv run devcard generate torvalds --verbose                    # Debug logging
+```
+
+### `uv run devcard advise <username>`
+
+Get actionable profile advice with scores, praise, and critiques.
+
+```bash
+uv run devcard advise chiruu12                    # Rules-based advice (no LLM needed)
+uv run devcard advise chiruu12 --enrich           # Add LLM-generated summary
+uv run devcard advise chiruu12 --format json      # Machine-readable advice
+uv run devcard advise chiruu12 --format markdown  # GFM output
+```
+
+Outputs:
+- **Human Visibility Score** (0-100) -- how visible to recruiters
+- **Agent Readiness Score** (0-100) -- how readable by AI tools
+- **Verdicts** -- praise (what's good), critiques (what to fix), suggestions (nice-to-have)
+- Each critique includes a specific **action** to fix it
+
+### `uv run devcard compare <user1> <user2>`
+
+Compare two developers side by side.
+
+```bash
+uv run devcard compare karpathy torvalds             # Terminal comparison
+uv run devcard compare karpathy torvalds --format json   # JSON with both cards
+```
+
+### `uv run devcard validate <file>`
+
+Validate a `devcard.json` against the schema.
+
+```bash
+uv run devcard validate my-devcard.json
+```
+
+### `uv run devcard me`
+
+Generate a DevCard for your own GitHub account (detected via `gh` CLI).
+
+```bash
+uv run devcard me --format svg --theme neon
+```
+
+## Output Formats
+
+```bash
+uv run devcard generate <username> --format terminal   # Rich terminal panels (default)
+uv run devcard generate <username> --format json        # Structured devcard.json
+uv run devcard generate <username> --format yaml        # Human-friendly YAML
+uv run devcard generate <username> --format svg         # Embeddable SVG card
+uv run devcard generate <username> --format markdown    # GitHub Flavored Markdown
+uv run devcard generate <username> --format agent       # Machine-readable key:value
+uv run devcard generate <username> --format llms-txt    # llms.txt spec for AI agents
+uv run devcard generate <username> --format all         # Everything at once
+```
 
 ## AI Enrichment (Optional)
 
@@ -86,8 +150,9 @@ With a Fireworks API key, `--enrich` adds LLM-powered analysis:
 
 ```bash
 export FIREWORKS_API_KEY=your-key
-uv sync --extra enrich                     # Install AI dependencies
-uv run devcard generate karpathy --enrich  # Generate with AI insights
+uv sync --extra enrich                                   # Install AI dependencies
+uv run devcard generate karpathy --enrich                # Generate with AI insights
+uv run devcard advise chiruu12 --enrich                  # Advice with AI summary
 ```
 
 ## Themes
@@ -117,67 +182,11 @@ uv run devcard generate karpathy --enrich  # Generate with AI insights
 </tr>
 </table>
 
-## Output Formats
-
-```bash
-devcard generate <username> --format terminal   # Rich terminal panels (default)
-devcard generate <username> --format json        # Structured devcard.json
-devcard generate <username> --format yaml        # Human-friendly YAML
-devcard generate <username> --format svg         # Embeddable SVG card
-devcard generate <username> --format markdown    # GitHub Flavored Markdown
-devcard generate <username> --format agent       # Machine-readable key:value
-devcard generate <username> --format llms-txt    # llms.txt spec for AI agents
-devcard generate <username> --format all         # Everything at once
-```
-
-## Commands
-
-### `devcard generate <username>`
-
-Generate a DevCard for any public GitHub user.
-
-```bash
-devcard generate torvalds                              # Terminal output
-devcard generate torvalds --format svg --theme dark    # Dark SVG card
-devcard generate torvalds --format json -o out.json    # Save JSON to file
-devcard generate torvalds --token ghp_xxx              # Authenticated (5000 req/hr)
-devcard generate torvalds --enrich                     # AI-powered insights
-devcard generate torvalds --verbose                    # Debug logging
-devcard generate torvalds --no-cache                   # Skip cache
-```
-
-### `devcard compare <user1> <user2>`
-
-Compare two developers side by side.
-
-```bash
-devcard compare karpathy torvalds           # Terminal comparison
-devcard compare karpathy torvalds --format json  # JSON with both cards
-```
-
-Shows: language overlap, stack overlap (shared frameworks), expertise comparison, quality head-to-head, activity comparison, and top projects.
-
-### `devcard validate <file>`
-
-Validate a `devcard.json` against the schema.
-
-```bash
-devcard validate my-devcard.json
-```
-
-### `devcard me`
-
-Generate a DevCard for your own GitHub account (detected via `gh` CLI).
-
-```bash
-devcard me --format svg --theme neon
-```
-
 ## Add DevCard to Your GitHub Profile
 
 1. Generate your SVG:
    ```bash
-   devcard generate YOUR_USERNAME --format svg --theme dark -o devcard.svg
+   uv run devcard generate YOUR_USERNAME --format svg --theme dark -o devcard.svg
    ```
 
 2. Add `devcard.svg` to your profile repo (`YOUR_USERNAME/YOUR_USERNAME`)
@@ -188,6 +197,23 @@ devcard me --format svg --theme neon
      <img src="devcard.svg" alt="My DevCard" width="495">
    </p>
    ```
+
+## Claude Code Skills
+
+DevCard ships with 4 skills for Claude Code users. Add them to your Claude Code config to get guided workflows:
+
+| Skill | What It Does |
+|-------|-------------|
+| `devcard` | MCP tool orchestration — audit, compare, fix profiles |
+| `devcard-profile-audit` | Full audit + advise + fix cycle |
+| `devcard-generate` | Card generation in all formats |
+| `devcard-agent-ready` | Make your profile AI-agent readable |
+
+Skills are in `skills/claude-code/`. To use them, point your Claude Code skill path to this directory.
+
+## MCP Server
+
+DevCard includes an MCP server for AI agents (Claude Desktop, Cursor, etc.). See [devcard-mcp/README.md](devcard-mcp/README.md) for setup.
 
 ## The devcard.json Schema
 
@@ -222,14 +248,25 @@ The full schema is at [`schema/devcard.v1.schema.json`](schema/devcard.v1.schema
 ```
 CLI (typer) --> Pipeline
                  |-- GitHub Client (async httpx, cached, rate-limited)
-                 |-- Extractors (identity, languages, stack, activity, projects,
-                 |               collaboration, quality, expertise)
+                 |-- Extractors (14 parallel: identity, languages, stack, activity,
+                 |               projects, collaboration, quality, expertise, notable,
+                 |               habits, reviews, lines, commit_quality, readme_depth,
+                 |               responsiveness)
                  |-- Analyzers (developer type, project classifier, contribution style, scoring)
+                 |-- Advisor (YAML rules engine + optional LLM)
                  |-- Enrichment (optional LLM via Fireworks AI)
                  |-- Renderers (terminal, SVG, markdown, JSON, YAML, agent, llms.txt)
 ```
 
-Key principle: Extractors return `None` on failure -- the pipeline assembles whatever data it can. A DevCard with just an identity section is valid.
+## Development
+
+```bash
+uv sync                             # Install dependencies
+uv run pytest                       # Run tests (357 tests)
+uv run ruff check src/ tests/       # Lint
+uv run devcard generate chiruu12    # Test locally
+uv run devcard advise chiruu12      # Test advisor
+```
 
 ## Contributing
 
@@ -243,6 +280,10 @@ Know a popular package we're missing? Edit [`mappings/dependencies.yaml`](mappin
 python:
   my-package: { category: "framework", name: "My Package" }
 ```
+
+### Add advisor rules
+
+Want to improve the profile advice? Edit [`mappings/advisor_rules.yaml`](mappings/advisor_rules.yaml). Each rule has a condition, message, and optional fix action.
 
 ### Add a theme
 
@@ -261,28 +302,21 @@ THEME = Theme(
 )
 ```
 
-### Development
-
-```bash
-uv sync                           # Install dependencies
-uv run pytest                     # Run tests
-uv run ruff check src/ tests/     # Lint
-uv run devcard generate chiruu12  # Test locally
-```
-
 ## Roadmap
 
 - [x] Terminal, SVG, JSON, YAML, Markdown output
-- [x] Compare command (`devcard compare user1 user2`)
+- [x] Compare command
 - [x] AI enrichment via Fireworks (`--enrich`)
-- [x] Language DNA (logic vs presentation split)
-- [x] Activity consistency score + sparkline
-- [x] Quality recommendations
-- [x] Signature project detection
+- [x] Profile advisor with YAML rules engine (`devcard advise`)
+- [x] 14 extraction signals (identity through responsiveness)
+- [x] Dual scoring (human visibility + agent readiness)
+- [x] Notable contributions detection
+- [x] MCP server (10 tools)
+- [x] Claude Code skills (4 skills)
 - [ ] Web app -- connect GitHub, generate your card, share a link
 - [ ] GitHub Action -- auto-update your DevCard SVG on push
-- [x] MCP server -- let AI agents query DevCards programmatically
 - [ ] PNG export -- for social sharing
+- [ ] PyPI publishing -- `pip install devcard`
 
 ## License
 

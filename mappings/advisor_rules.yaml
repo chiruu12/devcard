@@ -1,0 +1,453 @@
+rules:
+  # ── Profile ────────────────────────────────────────────────────────────────
+
+  - category: profile
+    conditions:
+      - field: bio_empty
+        operator: is_true
+    type: critique
+    severity: high
+    message: >-
+      Your GitHub bio is empty. This is the first thing people see on your
+      profile — a short sentence goes a long way. Something like "Backend
+      engineer building developer tools in Python and Go" instantly tells
+      visitors who you are.
+    action: >-
+      Go to github.com/settings/profile and add a one-line bio describing
+      what you build or care about.
+
+  - category: profile
+    conditions:
+      - field: bio_empty
+        operator: is_false
+    type: praise
+    severity: info
+    message: >-
+      Nice — you have a bio on your profile. That small detail helps visitors
+      understand who you are at a glance.
+
+  - category: profile
+    conditions:
+      - field: has_blog
+        operator: is_false
+    type: critique
+    severity: medium
+    message: >-
+      No website or blog linked on your profile. Adding one gives recruiters
+      and collaborators an easy way to learn more about you.
+    action: >-
+      Add a link to your portfolio, blog, or even a LinkedIn profile under
+      github.com/settings/profile.
+
+  - category: profile
+    conditions:
+      - field: followers
+        operator: gte
+        value: 50
+    type: praise
+    severity: info
+    message: >-
+      {followers} followers — you have a solid audience. People are paying
+      attention to your work.
+
+  - category: profile
+    conditions:
+      - field: followers
+        operator: gte
+        value: 500
+    type: praise
+    severity: info
+    message: >-
+      {followers} followers — that is a strong community around your work.
+      You clearly have influence in the developer space.
+
+  - category: profile
+    conditions:
+      - field: hireable
+        operator: is_false
+      - field: human_score
+        operator: gte
+        value: 60
+    type: suggestion
+    severity: low
+    message: >-
+      Your profile scores well for humans (score: {human_score}) but you
+      haven't flagged yourself as hireable. If you're open to opportunities,
+      turning that on makes you more discoverable.
+    action: >-
+      Go to github.com/settings/profile and check "Available for hire."
+
+  # ── Repos ──────────────────────────────────────────────────────────────────
+
+  - category: repos
+    conditions:
+      - field: public_repos
+        operator: eq
+        value: 0
+    type: critique
+    severity: high
+    message: >-
+      You have zero public repositories. Without visible code, your GitHub
+      profile is essentially invisible to collaborators and employers.
+    action: >-
+      Create or open-source at least one repository. Even a small utility
+      or a learning project counts.
+
+  - category: repos
+    conditions:
+      - field: public_repos
+        operator: gte
+        value: 20
+    type: praise
+    severity: info
+    message: >-
+      {public_repos} public repos — you are an active builder with a healthy
+      portfolio of visible work.
+
+  - category: repos
+    conditions:
+      - field: total_lines_added
+        operator: lt
+        value: 1000
+    type: critique
+    severity: medium
+    message: >-
+      Only {total_lines_added} lines of code added across your repos. This
+      suggests most repositories are forks, boilerplate, or barely started.
+    action: >-
+      Focus on shipping at least one meaningful project with substantial
+      original code.
+
+  - category: repos
+    conditions:
+      - field: total_lines_added
+        operator: gte
+        value: 50000
+    type: praise
+    severity: info
+    message: >-
+      {total_lines_added} lines added — you are a prolific coder with
+      serious volume behind your contributions.
+
+  - category: repos
+    conditions:
+      - field: public_repos
+        operator: gte
+        value: 5
+      - field: human_score
+        operator: lt
+        value: 40
+    type: suggestion
+    severity: medium
+    message: >-
+      You have {public_repos} repos but your human-readability score is
+      only {human_score}. The repos are there — now polish the profile
+      around them (bio, READMEs, consistent naming).
+    action: >-
+      Add a bio, improve your top repo READMEs, and pin your best 6
+      repositories to your profile.
+
+  # ── Activity ───────────────────────────────────────────────────────────────
+
+  - category: activity
+    conditions:
+      - field: activity_status
+        operator: eq
+        value: dormant
+    type: critique
+    severity: high
+    message: >-
+      Your activity status is dormant — no recent contributions visible.
+      A stale profile signals disengagement to anyone visiting.
+    action: >-
+      Push a commit, open an issue, or review a PR this week. Even small
+      activity keeps your profile alive.
+
+  - category: activity
+    conditions:
+      - field: activity_status
+        operator: eq
+        value: active
+    type: praise
+    severity: info
+    message: >-
+      You are actively contributing — your profile shows consistent recent
+      activity. Keep it up.
+
+  - category: activity
+    conditions:
+      - field: consistency_score
+        operator: lt
+        value: 20
+    type: critique
+    severity: medium
+    message: >-
+      Consistency score is {consistency_score}/100 — your coding pattern is
+      very bursty. Long gaps between activity make your profile look less
+      reliable.
+    action: >-
+      Try committing something small at least once a week. Consistency
+      matters more than volume.
+
+  - category: activity
+    conditions:
+      - field: consistency_score
+        operator: gte
+        value: 70
+    type: praise
+    severity: info
+    message: >-
+      Consistency score of {consistency_score}/100 — you have a steady
+      coding habit. That kind of regularity stands out.
+
+  - category: activity
+    conditions:
+      - field: commits_last_year
+        operator: gte
+        value: 500
+    type: praise
+    severity: info
+    message: >-
+      {commits_last_year} commits in the last year — that is serious output.
+      Your contribution graph must look impressive.
+
+  - category: activity
+    conditions:
+      - field: longest_gap_days
+        operator: gte
+        value: 7
+    type: critique
+    severity: medium
+    message: >-
+      Your recent activity has a {longest_gap_days}-day gap. Recruiters
+      notice long stretches of inactivity — it signals inconsistency.
+    action: >-
+      Even a small commit, issue comment, or PR review every few days keeps
+      your profile looking active. Set a weekly reminder.
+
+  - category: activity
+    conditions:
+      - field: active_days
+        operator: lte
+        value: 5
+      - field: commits_last_year
+        operator: gte
+        value: 100
+    type: suggestion
+    severity: low
+    message: >-
+      You have {commits_last_year} commits/year but only {active_days} active
+      days in recent events — classic burst pattern. Spreading work across more
+      days looks healthier to profile visitors.
+    action: >-
+      Instead of marathon coding sessions, try smaller daily pushes. Your
+      contribution graph will look much greener.
+
+  - category: activity
+    conditions:
+      - field: active_days
+        operator: gte
+        value: 15
+    type: praise
+    severity: info
+    message: >-
+      {active_days} active days in recent events — you code regularly, not
+      just in bursts. That consistency is a strong signal.
+
+  # ── Documentation ──────────────────────────────────────────────────────────
+
+  - category: documentation
+    conditions:
+      - field: readme_avg_word_count
+        operator: lt
+        value: 50
+    type: critique
+    severity: high
+    message: >-
+      Your READMEs average only {readme_avg_word_count} words. That is
+      barely a sentence — most visitors will bounce immediately.
+    action: >-
+      For each pinned repo, write a README with at least a description,
+      install instructions, and a usage example.
+
+  - category: documentation
+    conditions:
+      - field: readme_avg_word_count
+        operator: gte
+        value: 200
+    type: praise
+    severity: info
+    message: >-
+      Your READMEs average {readme_avg_word_count} words — well-documented
+      projects signal professionalism and make your repos much more
+      approachable.
+
+  - category: documentation
+    conditions:
+      - field: has_install_section_pct
+        operator: lt
+        value: 30
+    type: critique
+    severity: medium
+    message: >-
+      Only {has_install_section_pct}% of your repos have install/setup
+      instructions. Without these, people can't easily try your projects.
+    action: >-
+      Add an "Installation" or "Getting Started" section to your top
+      repo READMEs with copy-pasteable commands.
+
+  - category: documentation
+    conditions:
+      - field: has_code_blocks_pct
+        operator: gte
+        value: 70
+    type: praise
+    severity: info
+    message: >-
+      {has_code_blocks_pct}% of your READMEs include code examples — that
+      is the mark of developer-friendly documentation.
+
+  - category: documentation
+    conditions:
+      - field: has_images_pct
+        operator: lt
+        value: 20
+    type: suggestion
+    severity: low
+    message: >-
+      Only {has_images_pct}% of your repos include screenshots or diagrams.
+      Visual context dramatically improves first impressions.
+    action: >-
+      Add a screenshot, architecture diagram, or demo GIF to your most
+      important READMEs.
+
+  # ── Quality ────────────────────────────────────────────────────────────────
+
+  - category: quality
+    conditions:
+      - field: test_adoption
+        operator: lt
+        value: 0.3
+    type: critique
+    severity: high
+    message: >-
+      Test adoption is at {test_adoption} — most of your repos have no
+      visible tests. This is a red flag for anyone evaluating your code.
+    action: >-
+      Add at least a basic test suite to your main repos. Even a handful
+      of tests shows you care about correctness.
+
+  - category: quality
+    conditions:
+      - field: test_adoption
+        operator: gte
+        value: 0.7
+    type: praise
+    severity: info
+    message: >-
+      Test adoption at {test_adoption} — strong testing culture. That level
+      of discipline stands out.
+
+  - category: quality
+    conditions:
+      - field: ci_adoption
+        operator: lt
+        value: 0.3
+    type: critique
+    severity: medium
+    message: >-
+      CI/CD adoption is at {ci_adoption} — most repos are missing automated
+      pipelines. Without CI, there is no proof your code even builds.
+    action: >-
+      Add a GitHub Actions workflow to your top repos. A simple
+      lint-and-test pipeline takes five minutes to set up.
+
+  - category: quality
+    conditions:
+      - field: conventional_commits_pct
+        operator: gte
+        value: 60
+    type: praise
+    severity: info
+    message: >-
+      {conventional_commits_pct}% conventional commits — you write
+      disciplined, structured commit messages. That makes your history
+      a joy to read.
+
+  - category: quality
+    conditions:
+      - field: avg_message_length
+        operator: lt
+        value: 15
+    type: critique
+    severity: medium
+    message: >-
+      Your average commit message is only {avg_message_length} characters.
+      Messages like "fix" or "update" tell future-you nothing.
+    action: >-
+      Aim for commit messages of 50+ characters that explain why a change
+      was made, not just what changed.
+
+  # ── Collaboration ──────────────────────────────────────────────────────────
+
+  - category: collaboration
+    conditions:
+      - field: reviews_given
+        operator: gte
+        value: 5
+    type: praise
+    severity: info
+    message: >-
+      {reviews_given} code reviews given — you actively help other
+      developers improve their code. That is a valuable signal of
+      teamwork.
+
+  - category: collaboration
+    conditions:
+      - field: notable_count
+        operator: gte
+        value: 1
+    type: praise
+    severity: info
+    message: >-
+      You have contributed to {notable_count} notable project(s). Landing
+      changes in popular repos is a strong credibility marker.
+
+  - category: collaboration
+    conditions:
+      - field: external_contributions
+        operator: eq
+        value: 0
+    type: critique
+    severity: medium
+    message: >-
+      No contributions to repos outside your own account. Open-source
+      collaboration is one of the strongest signals on a GitHub profile.
+    action: >-
+      Find a project you use and fix a bug, improve docs, or triage an
+      issue. One merged PR changes the picture.
+
+  - category: collaboration
+    conditions:
+      - field: orgs_count
+        operator: gte
+        value: 2
+    type: praise
+    severity: info
+    message: >-
+      Member of {orgs_count} organizations — being part of multiple teams
+      shows you collaborate beyond your own projects.
+
+  - category: collaboration
+    conditions:
+      - field: reviews_given
+        operator: eq
+        value: 0
+    type: suggestion
+    severity: low
+    message: >-
+      You have not reviewed any PRs recently. Code review is a great way
+      to learn, build relationships, and demonstrate expertise.
+    action: >-
+      Pick an open-source project you use and review a PR this week.
+      Thoughtful feedback is always welcome.

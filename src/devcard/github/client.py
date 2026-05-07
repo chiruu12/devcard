@@ -195,6 +195,23 @@ class GitHubClient:
                 break
         return repos[:limit]
 
+    async def search_user_commit_count(self, username: str, since_date: str) -> int | None:
+        """Count total commits by a user since a date via the search API.
+
+        Returns None on failure (preserves existing estimate as fallback).
+        """
+        try:
+            url = (
+                f"/search/commits?q=author:{username}+author-date:>{since_date}"
+                f"&per_page=1"
+            )
+            data = await self._request(url)
+            if isinstance(data, dict):
+                return data.get("total_count")
+            return None
+        except GitHubAPIError:
+            return None
+
     async def search_user_merged_prs(
         self, username: str, max_pages: int = 3,
     ) -> list[dict]:
@@ -245,6 +262,43 @@ class GitHubClient:
             return None
         except GitHubAPIError:
             return None
+
+    async def get_commit_detail(
+        self, owner: str, repo: str, sha: str,
+    ) -> dict | None:
+        """Fetch a single commit with file patches."""
+        try:
+            data = await self._request(f"/repos/{owner}/{repo}/commits/{sha}")
+            return data if isinstance(data, dict) else None
+        except GitHubAPIError:
+            return None
+
+    async def get_contributor_stats(
+        self, owner: str, repo: str, max_retries: int = 3,
+    ) -> list[dict]:
+        """Fetch contributor stats (weekly additions/deletions per contributor).
+
+        GitHub returns 202 while computing stats. We retry with increasing delays.
+        """
+        url = f"/repos/{owner}/{repo}/stats/contributors"
+        for attempt in range(max_retries + 1):
+            try:
+                data = await self._request(url)
+                if isinstance(data, list) and data:
+                    return data
+                return []
+            except GitHubAPIError as exc:
+                if exc.status_code == 202 and attempt < max_retries:
+                    delay = 2.0 * (attempt + 1)
+                    logger.info(
+                        "Stats computing for %s/%s (202), retry %d/%d in %.0fs",
+                        owner, repo, attempt + 1, max_retries, delay,
+                    )
+                    await asyncio.sleep(delay)
+                    self._cache.delete(url)
+                    continue
+                return []
+        return []
 
     async def _mutate(self, method: str, url: str, body: dict) -> dict:
         """Base write method for PUT/PATCH/POST. Like _request but for mutations."""
