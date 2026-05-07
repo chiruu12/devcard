@@ -5,6 +5,7 @@ description = "MCP server for DevCard — let AI agents query developer profiles
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "devcard>=0.1.0",
     "fastmcp>=3.0",
 ]
 
