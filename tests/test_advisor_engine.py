@@ -182,29 +182,31 @@ class TestBuildContext:
         assert ctx.has_blog is False
         assert ctx.has_twitter is False
         assert ctx.hireable is False
-        assert ctx.activity_status == "dormant"
-        assert ctx.consistency_score == 0
-        assert ctx.commits_last_year == 0
-        assert ctx.quality_score == 0.0
-        assert ctx.ci_adoption == 0.0
-        assert ctx.test_adoption == 0.0
-        assert ctx.docs_adoption == 0.0
-        assert ctx.linter_adoption == 0.0
-        assert ctx.avg_message_length == 0.0
-        assert ctx.conventional_commits_pct == 0.0
-        assert ctx.multiline_pct == 0.0
-        assert ctx.readme_avg_word_count == 0.0
-        assert ctx.has_code_blocks_pct == 0.0
-        assert ctx.has_install_section_pct == 0.0
-        assert ctx.has_images_pct == 0.0
-        assert ctx.reviews_given == 0
-        assert ctx.notable_count == 0
-        assert ctx.orgs_count == 0
-        assert ctx.external_contributions == 0
-        assert ctx.total_lines_added == 0
-        assert ctx.total_lines_deleted == 0
-        assert ctx.indentation == "unknown"
-        assert ctx.avg_line_length == 0.0
+        assert ctx.activity_status is None
+        assert ctx.consistency_score is None
+        assert ctx.commits_last_year is None
+        assert ctx.quality_score is None
+        assert ctx.ci_adoption is None
+        assert ctx.test_adoption is None
+        assert ctx.docs_adoption is None
+        assert ctx.linter_adoption is None
+        assert ctx.avg_message_length is None
+        assert ctx.conventional_commits_pct is None
+        assert ctx.multiline_pct is None
+        assert ctx.readme_avg_word_count is None
+        assert ctx.has_code_blocks_pct is None
+        assert ctx.has_install_section_pct is None
+        assert ctx.has_images_pct is None
+        assert ctx.reviews_given is None
+        assert ctx.notable_count is None
+        assert ctx.orgs_count is None
+        assert ctx.external_contributions is None
+        assert ctx.total_lines_added is None
+        assert ctx.total_lines_deleted is None
+        assert ctx.indentation is None
+        assert ctx.avg_line_length is None
+        assert ctx.longest_gap_days is None
+        assert ctx.active_days is None
         assert ctx.human_score == 0
         assert ctx.agent_score == 0
 
@@ -249,6 +251,23 @@ class TestEvaluateCondition:
 
         ctx_true = _default_context(has_blog=True)
         assert evaluate_condition(cond, ctx_true) is False
+
+
+class TestEvaluateConditionNone:
+    def test_none_field_never_matches_comparison(self):
+        ctx = _default_context(total_lines_added=None)
+        cond = Condition(field="total_lines_added", operator=ConditionOp.lt, value=1000)
+        assert evaluate_condition(cond, ctx) is False
+
+    def test_none_field_never_matches_is_true(self):
+        ctx = _default_context(bio_empty=None)
+        cond = Condition(field="bio_empty", operator=ConditionOp.is_true)
+        assert evaluate_condition(cond, ctx) is False
+
+    def test_none_field_never_matches_is_false(self):
+        ctx = _default_context(has_blog=None)
+        cond = Condition(field="has_blog", operator=ConditionOp.is_false)
+        assert evaluate_condition(cond, ctx) is False
 
 
 class TestEvaluateRule:
