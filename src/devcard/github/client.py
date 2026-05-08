@@ -41,6 +41,10 @@ class GitHubClient:
             timeout=30.0,
         )
 
+    @property
+    def has_token(self) -> bool:
+        return self._config.github_token is not None
+
     async def _request(self, url: str) -> dict | list:
         async with self._semaphore:
             cached = self._cache.get(url)
