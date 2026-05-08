@@ -80,5 +80,6 @@ def format_message(template: str, context: AdvisorContext) -> str:
     for key, value in ctx_dict.items():
         placeholder = f"{{{key}}}"
         if placeholder in result:
-            result = result.replace(placeholder, str(value))
+            display = "N/A" if value is None else str(value)
+            result = result.replace(placeholder, display)
     return result

@@ -357,6 +357,12 @@ class TestFormatMessage:
         result = format_message(template, ctx)
         assert result == "You have 250 followers and 42 public repos."
 
+    def test_format_message_renders_none_as_na(self):
+        ctx = _default_context(total_lines_added=None)
+        template = "You have {total_lines_added} lines added."
+        result = format_message(template, ctx)
+        assert result == "You have N/A lines added."
+
 
 class TestLoadRules:
     def test_load_rules_parses_yaml(self):
