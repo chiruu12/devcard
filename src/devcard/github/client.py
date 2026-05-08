@@ -299,7 +299,6 @@ class GitHubClient:
                         owner, repo, attempt + 1, max_retries, delay,
                     )
                     await asyncio.sleep(delay)
-                    self._cache.delete(url)
                     continue
                 return []
         return []

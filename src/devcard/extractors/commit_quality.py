@@ -40,12 +40,12 @@ async def extract_commit_quality(
                     messages.append(msg)
             else:
                 head_sha = event.payload.get("head")
-                repo_name = event.repo.get("name", "") if isinstance(event.repo, dict) else ""
+                repo_name = event.repo.get("name", "")
                 if head_sha and "/" in repo_name and len(head_refs) < _MAX_HEAD_FETCHES:
                     owner, repo = repo_name.split("/", 1)
                     head_refs.append((owner, repo, head_sha))
 
-        if head_refs and client is not None:
+        if head_refs:
             results = await asyncio.gather(
                 *(client.get_commit_detail(o, r, s) for o, r, s in head_refs),
                 return_exceptions=True,
