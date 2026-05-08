@@ -34,8 +34,8 @@ async def extract_commit_quality(
             commits = event.payload.get("commits", [])
             if commits:
                 for commit in commits:
-                    msg = commit.get("message", "")
-                    if msg.startswith("Merge "):
+                    msg = commit.get("message", "").strip()
+                    if not msg or msg.startswith("Merge "):
                         continue
                     messages.append(msg)
             else:
