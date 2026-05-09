@@ -20,22 +20,22 @@ async def extract_lines_changed(
 ) -> LinesChanged | None:
     """Extract lines added/deleted across a user's top repos."""
     try:
-        non_fork_repos = repos[:MAX_REPOS]
+        top_repos = repos[:MAX_REPOS]
 
-        if not non_fork_repos:
+        if not top_repos:
             return None
 
         stats_results = await asyncio.gather(
             *(
                 client.get_contributor_stats(user.login, repo.name)
-                for repo in non_fork_repos
+                for repo in top_repos
             ),
             return_exceptions=True,
         )
 
         by_repo: list[RepoLines] = []
 
-        for repo, stats in zip(non_fork_repos, stats_results):
+        for repo, stats in zip(top_repos, stats_results):
             if isinstance(stats, Exception):
                 logger.warning(
                     "Failed to fetch contributor stats for %s/%s",
