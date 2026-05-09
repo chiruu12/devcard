@@ -278,11 +278,11 @@ class GitHubClient:
             return None
 
     async def get_contributor_stats(
-        self, owner: str, repo: str, max_retries: int = 3,
+        self, owner: str, repo: str, max_retries: int = 1,
     ) -> list[dict]:
         """Fetch contributor stats (weekly additions/deletions per contributor).
 
-        GitHub returns 202 while computing stats. We retry with increasing delays.
+        GitHub returns 202 while computing stats. Best-effort: one retry then give up.
         """
         url = f"/repos/{owner}/{repo}/stats/contributors"
         for attempt in range(max_retries + 1):
@@ -293,12 +293,11 @@ class GitHubClient:
                 return []
             except GitHubAPIError as exc:
                 if exc.status_code == 202 and attempt < max_retries:
-                    delay = 2.0 * (attempt + 1)
                     logger.info(
-                        "Stats computing for %s/%s (202), retry %d/%d in %.0fs",
-                        owner, repo, attempt + 1, max_retries, delay,
+                        "Stats computing for %s/%s (202), will retry once in 2s",
+                        owner, repo,
                     )
-                    await asyncio.sleep(delay)
+                    await asyncio.sleep(2.0)
                     continue
                 return []
         return []

@@ -12,9 +12,10 @@ from devcard.models import Verdict
 
 logger = logging.getLogger(__name__)
 
-_RULES_PATH = (
-    Path(__file__).resolve().parent.parent.parent.parent / "mappings" / "advisor_rules.yaml"
-)
+_PKG_ROOT = Path(__file__).resolve().parent.parent
+_INSTALLED_RULES = _PKG_ROOT / "_data" / "mappings" / "advisor_rules.yaml"
+_DEV_RULES = _PKG_ROOT.parent.parent / "mappings" / "advisor_rules.yaml"
+_RULES_PATH = _INSTALLED_RULES if _INSTALLED_RULES.exists() else _DEV_RULES
 
 
 def load_rules(path: Path | None = None) -> list[AdvisorRule]:
