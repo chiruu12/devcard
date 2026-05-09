@@ -72,7 +72,7 @@ class FireworksProvider:
                     except ImportError:
                         raise RuntimeError(
                             "openai package required for enrichment. "
-                            "Install with: uv sync --extra enrich"
+                            "Install with: pip install devcard[enrich]"
                         )
                     self._client = AsyncOpenAI(
                         api_key=self._api_key,

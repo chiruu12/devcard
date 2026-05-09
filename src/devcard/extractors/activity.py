@@ -118,7 +118,7 @@ async def _estimate_commits(
     now: datetime,
 ) -> int | None:
     one_year_ago = (now - timedelta(days=365)).strftime("%Y-%m-%d")
-    if client is not None:
+    if client is not None and client.has_token:
         search_count = await client.search_user_commit_count(user.login, one_year_ago)
         if search_count is not None:
             return search_count

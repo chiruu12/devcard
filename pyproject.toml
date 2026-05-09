@@ -9,6 +9,20 @@ description = "Auto-generate structured, agent-readable developer identity cards
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"
+authors = [{ name = "Chirag", email = "chiragzana@gomanzanas.com" }]
+keywords = ["developer", "github", "cli", "identity", "svg", "mcp", "ai-agents", "devcard"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "typer[all]>=0.12",
     "httpx>=0.27",
@@ -24,6 +38,11 @@ dependencies = [
 enrich = ["openai>=1.0"]
 png = ["cairosvg>=2.7"]
 
+[project.urls]
+Homepage = "https://github.com/chiruu12/devcard"
+Repository = "https://github.com/chiruu12/devcard"
+Issues = "https://github.com/chiruu12/devcard/issues"
+
 [project.scripts]
 devcard = "devcard.cli:app"
 
@@ -36,6 +55,10 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/devcard"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"mappings" = "devcard/_data/mappings"
+"schema" = "devcard/_data/schema"
 
 [tool.ruff]
 target-version = "py311"

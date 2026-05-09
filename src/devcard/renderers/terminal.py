@@ -311,9 +311,7 @@ def _render_lines(console: Console, devcard: DevCard) -> None:
     lc = devcard.lines_changed
     if lc is None:
         return
-    lines = [
-        f"[green]+{lc.total_added:,}[/] added  [red]-{lc.total_deleted:,}[/] deleted"
-    ]
+    summary = f"[green]+{lc.total_added:,}[/] added  [red]-{lc.total_deleted:,}[/] deleted"
     if lc.by_repo:
         table = Table(show_header=True, border_style="dim", show_lines=False)
         table.add_column("Repo", style="bold")
@@ -321,10 +319,11 @@ def _render_lines(console: Console, devcard: DevCard) -> None:
         table.add_column("Deleted", justify="right", style="red")
         for rl in lc.by_repo[:5]:
             table.add_row(rl.repo, f"+{rl.added:,}", f"-{rl.deleted:,}")
-        console.print(Panel("\n".join(lines), title="Lines Changed", border_style="bright_green"))
-        console.print(table)
+        from rich.console import Group
+        content = Group(summary, table)
+        console.print(Panel(content, title="Lines Changed", border_style="bright_green"))
     else:
-        console.print(Panel("\n".join(lines), title="Lines Changed", border_style="bright_green"))
+        console.print(Panel(summary, title="Lines Changed", border_style="bright_green"))
 
 
 def _render_notable(console: Console, devcard: DevCard) -> None:

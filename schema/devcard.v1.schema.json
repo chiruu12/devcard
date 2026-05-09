@@ -81,6 +81,10 @@
     "enriched": {
       "$ref": "#/$defs/Enriched",
       "description": "Optional LLM-enriched content"
+    },
+    "summary": {
+      "type": ["string", "null"],
+      "description": "Auto-generated one-line developer summary"
     }
   },
   "additionalProperties": false,
@@ -187,6 +191,16 @@
         "consistency_description": {
           "type": ["string", "null"],
           "description": "Human-readable consistency label"
+        },
+        "longest_gap_days": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Longest gap in days between active days in recent events"
+        },
+        "active_days": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Number of distinct active days in recent events window"
         }
       },
       "additionalProperties": false
@@ -325,6 +339,22 @@
         },
         "external_contributions": { "type": "integer", "minimum": 0, "description": "Contributions to other users' repos" },
         "maintained_repos_with_contributors": { "type": "integer", "minimum": 0, "description": "Repos owned by user with forks (external contributors)" },
+        "org_contributions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["org"],
+            "properties": {
+              "org": { "type": "string", "description": "Organization login name" },
+              "prs_opened": { "type": "integer", "minimum": 0, "description": "PRs opened" },
+              "prs_merged": { "type": "integer", "minimum": 0, "description": "PRs merged" },
+              "issues_opened": { "type": "integer", "minimum": 0, "description": "Issues opened" },
+              "commits": { "type": "integer", "minimum": 0, "description": "Commits estimated" }
+            },
+            "additionalProperties": false
+          },
+          "description": "Contribution breakdown per organization"
+        },
         "notable_contributions": {
           "type": "array",
           "items": { "$ref": "#/$defs/NotableContribution" },

@@ -20,7 +20,7 @@ async def extract_lines_changed(
 ) -> LinesChanged | None:
     """Extract lines added/deleted across a user's top repos."""
     try:
-        non_fork_repos = [r for r in repos if not r.fork][:MAX_REPOS]
+        non_fork_repos = repos[:MAX_REPOS]
 
         if not non_fork_repos:
             return None

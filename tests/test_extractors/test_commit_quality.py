@@ -117,8 +117,6 @@ async def test_returns_none_no_commits(user):
 
 
 async def test_graceful_on_failure(user):
-    # Pass an event with payload that will cause attribute errors
-    # when the extractor tries to iterate commits
     bad_event = GitHubEvent(
         type="PushEvent",
         created_at="2026-05-01T12:00:00Z",
@@ -128,11 +126,8 @@ async def test_graceful_on_failure(user):
 
     result = await extract_commit_quality(None, user, [], events=[bad_event])
 
-    # commit.get("message", "") returns "" for missing key — extractor
-    # treats it as a valid (empty) message, so it returns a result, not None
-    assert result is not None
-    assert result.commits_analyzed == 1
-    assert result.avg_message_length == 0.0
+    # Empty/missing messages are filtered out, leaving no valid commits
+    assert result is None
 
 
 async def test_graceful_on_broken_event_data(user):

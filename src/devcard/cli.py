@@ -77,6 +77,13 @@ def generate_cmd(
     if model:
         config.llm_model = model
 
+    if not config.github_token:
+        err_console.print(
+            "[bold yellow]⚠ No GitHub token detected.[/] Rate limit: 60 requests/hour.\n"
+            "  Set GITHUB_TOKEN or use --token for 5000 requests/hour.\n"
+            "  [dim]export GITHUB_TOKEN=$(gh auth token)[/]\n"
+        )
+
     if not enrich and config.fireworks_api_key:
         err_console.print("[dim]Tip: use --enrich for AI-powered insights[/]")
 
@@ -219,6 +226,9 @@ def me_cmd(
     output: Path | None = typer.Option(None, "--output", "-o", help="Output file path"),
     theme: str = typer.Option("default", "--theme", help="SVG theme"),
     no_cache: bool = typer.Option(False, "--no-cache", help="Disable response caching"),
+    enrich: bool = typer.Option(False, "--enrich", help="Enable AI-powered enrichment (Fireworks)"),
+    model: str | None = typer.Option(None, "--model", help="Override LLM model for enrichment"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show debug logs"),
 ) -> None:
     """Generate a DevCard for the current git user."""
     import subprocess
@@ -245,6 +255,7 @@ def me_cmd(
     generate_cmd(
         username=username, token=token, format=format,
         output=output, theme=theme, no_cache=no_cache,
+        enrich=enrich, model=model, verbose=verbose,
     )
 
 

@@ -7,7 +7,9 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-_MAPPINGS_DIR = Path(__file__).resolve().parent.parent.parent / "mappings"
+_INSTALLED_MAPPINGS = Path(__file__).resolve().parent / "_data" / "mappings"
+_DEV_MAPPINGS = Path(__file__).resolve().parent.parent.parent / "mappings"
+_MAPPINGS_DIR = _INSTALLED_MAPPINGS if _INSTALLED_MAPPINGS.exists() else _DEV_MAPPINGS
 
 
 def _load_yaml(filename: str) -> dict | list:
