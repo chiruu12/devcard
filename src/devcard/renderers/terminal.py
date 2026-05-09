@@ -3,7 +3,7 @@ from __future__ import annotations
 from io import StringIO
 
 from rich.columns import Columns
-from rich.console import Console
+from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -319,7 +319,6 @@ def _render_lines(console: Console, devcard: DevCard) -> None:
         table.add_column("Deleted", justify="right", style="red")
         for rl in lc.by_repo[:5]:
             table.add_row(rl.repo, f"+{rl.added:,}", f"-{rl.deleted:,}")
-        from rich.console import Group
         content = Group(summary, table)
         console.print(Panel(content, title="Lines Changed", border_style="bright_green"))
     else:
