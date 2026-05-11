@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from devcard.models import DevCard, ProfileRepoData
 
+# Git convention: 72 chars is the recommended max for commit subject lines
+_IDEAL_COMMIT_MSG_LENGTH = 72
+
 
 def compute_quality_score(devcard: DevCard) -> None:
     if devcard.quality is None:
@@ -97,31 +100,29 @@ def compute_human_visibility_score(devcard: DevCard, profile: ProfileRepoData) -
 def compute_agent_readiness_score(devcard: DevCard, profile: ProfileRepoData) -> int:
     """Compute how machine-readable/agent-friendly this developer profile is (0-100).
 
+    Rewards things developers already do that make profiles parseable by agents.
+    Bonus points for agent-specific files, but not required for a high score.
+
     Rubric:
-    - devcard.json exists: 20 pts
-    - llms.txt exists: 10 pts
-    - Structured READMEs (docs_adoption): 15 pts
-    - Dependency files/stack: 10 pts (>=5 items=10, >=1=5)
-    - Topics/metadata coverage: 10 pts (proportional)
-    - Classification coverage: 10 pts (proportional)
-    - CI adoption: 5 pts
-    - AGENTS.md in active repos: 20 pts (reserved, returns 0)
+    - Documentation adoption (docs signal in repos): 15 pts
+    - Dependency files/stack depth: 15 pts (graduated)
+    - Topics/metadata coverage: 12 pts (proportional)
+    - Repo descriptions: 10 pts (proportional)
+    - CI adoption: 8 pts
+    - Test adoption: 8 pts
+    - Commit quality: 8 pts (conventional commits = machine-parseable intent)
+    - Classification coverage: 8 pts (proportional)
+    - License adoption: 6 pts
+    - devcard.json bonus: 5 pts
+    - llms.txt bonus: 5 pts
     """
     score = 0.0
 
-    # devcard.json: 20 pts
-    if profile.has_devcard_json:
-        score += 20
-
-    # llms.txt: 10 pts
-    if profile.has_llms_txt:
-        score += 10
-
-    # Structured READMEs (docs_adoption): 15 pts
+    # Documentation adoption (fraction of repos with docs signal): 15 pts
     if devcard.quality is not None:
         score += devcard.quality.docs_adoption * 15
 
-    # Dependency files/stack: 10 pts
+    # Dependency files/stack depth: 15 pts graduated
     if devcard.stack is not None:
         total_items = (
             len(devcard.stack.frameworks)
@@ -133,27 +134,53 @@ def compute_agent_readiness_score(devcard: DevCard, profile: ProfileRepoData) ->
             + len(devcard.stack.testing)
             + len(devcard.stack.other)
         )
-        if total_items >= 5:
+        if total_items >= 10:
+            score += 15
+        elif total_items >= 5:
             score += 10
         elif total_items >= 1:
             score += 5
 
-    # Topics/metadata coverage: 10 pts proportional
+    # Topics/metadata coverage: 12 pts proportional
     projects = devcard.projects
     if projects:
         with_topics = sum(1 for p in projects if p.topics)
-        score += (with_topics / len(projects)) * 10
+        score += (with_topics / len(projects)) * 12
 
-    # Classification coverage: 10 pts proportional
+    # Repo descriptions: 10 pts proportional
+    if projects:
+        with_desc = sum(1 for p in projects if p.description)
+        score += (with_desc / len(projects)) * 10
+
+    # CI adoption: 8 pts
+    if devcard.quality is not None:
+        score += devcard.quality.ci_adoption * 8
+
+    # Test adoption: 8 pts
+    if devcard.quality is not None:
+        score += devcard.quality.test_adoption * 8
+
+    # Commit quality: 8 pts (conventional commits are machine-parseable)
+    if devcard.commit_quality is not None and devcard.commit_quality.commits_analyzed > 0:
+        conv_score = min(devcard.commit_quality.conventional_commits_pct / 100, 1.0)
+        msg_score = min(devcard.commit_quality.avg_message_length / _IDEAL_COMMIT_MSG_LENGTH, 1.0)
+        score += (conv_score * 0.6 + msg_score * 0.4) * 8
+
+    # Classification coverage: 8 pts proportional
     if projects:
         with_classification = sum(1 for p in projects if p.classification)
-        score += (with_classification / len(projects)) * 10
+        score += (with_classification / len(projects)) * 8
 
-    # CI adoption: 5 pts
+    # License adoption: 6 pts
     if devcard.quality is not None:
-        score += devcard.quality.ci_adoption * 5
+        score += devcard.quality.license_adoption * 6
 
-    # AGENTS.md in active repos: 20 pts (reserved — not tracked yet)
-    # score += 0
+    # Bonus: devcard.json: 5 pts
+    if profile.has_devcard_json:
+        score += 5
+
+    # Bonus: llms.txt: 5 pts
+    if profile.has_llms_txt:
+        score += 5
 
     return int(min(max(score, 0), 100))
