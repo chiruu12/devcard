@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from devcard.models import DevCard, ProfileRepoData
 
+# Git convention: 72 chars is the recommended max for commit subject lines
+_IDEAL_COMMIT_MSG_LENGTH = 72
+
 
 def compute_quality_score(devcard: DevCard) -> None:
     if devcard.quality is None:
@@ -101,7 +104,7 @@ def compute_agent_readiness_score(devcard: DevCard, profile: ProfileRepoData) ->
     Bonus points for agent-specific files, but not required for a high score.
 
     Rubric:
-    - Structured READMEs (docs_adoption): 15 pts
+    - Documentation adoption (docs signal in repos): 15 pts
     - Dependency files/stack depth: 15 pts (graduated)
     - Topics/metadata coverage: 12 pts (proportional)
     - Repo descriptions: 10 pts (proportional)
@@ -115,7 +118,7 @@ def compute_agent_readiness_score(devcard: DevCard, profile: ProfileRepoData) ->
     """
     score = 0.0
 
-    # Structured READMEs (docs_adoption): 15 pts
+    # Documentation adoption (fraction of repos with docs signal): 15 pts
     if devcard.quality is not None:
         score += devcard.quality.docs_adoption * 15
 
@@ -160,7 +163,7 @@ def compute_agent_readiness_score(devcard: DevCard, profile: ProfileRepoData) ->
     # Commit quality: 8 pts (conventional commits are machine-parseable)
     if devcard.commit_quality is not None and devcard.commit_quality.commits_analyzed > 0:
         conv_score = min(devcard.commit_quality.conventional_commits_pct / 100, 1.0)
-        msg_score = min(devcard.commit_quality.avg_message_length / 72, 1.0)
+        msg_score = min(devcard.commit_quality.avg_message_length / _IDEAL_COMMIT_MSG_LENGTH, 1.0)
         score += (conv_score * 0.6 + msg_score * 0.4) * 8
 
     # Classification coverage: 8 pts proportional
